@@ -1,5 +1,4 @@
 telegram
-logging
 sqlite3
 config
 datetime
