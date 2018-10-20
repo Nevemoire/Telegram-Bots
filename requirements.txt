@@ -1,4 +1,1 @@
 telegram
-sqlite3
-config
-datetime
