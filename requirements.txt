@@ -1,5 +1,4 @@
 telegram
-telegram.ext
 logging
 sqlite3
 config
