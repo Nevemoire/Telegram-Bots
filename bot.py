@@ -417,7 +417,7 @@ def button(bot, update, user_data):
         # select a payload just for you to recognize its the donation from your bot
         payload = "Custom-Payload"
         # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
-        provider_token = config.provider_token
+        provider_token = provider_token
         start_parameter = "test-payment"
         currency = "RUB"
         # price in dollars
@@ -570,7 +570,7 @@ _* - если пункт 2 нарушен, мы не сможем добавит
 
 def main():
     # Create the Updater and pass it your bot's token.
-    updater = Updater(config.token)
+    updater = Updater(token)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
