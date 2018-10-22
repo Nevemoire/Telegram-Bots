@@ -12,7 +12,7 @@ import os
 import datetime
 from importlib import reload
 
-conn = psycopg2.connect('dbname=daqpsemmol11kn user=fnwjyuhqrjdbcv', check_same_thread=False)
+conn = psycopg2.connect('dbname=daqpsemmol11kn user=fnwjyuhqrjdbcv')
 
 cursor = conn.cursor()
 
