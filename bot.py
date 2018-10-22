@@ -12,7 +12,7 @@ import os
 import datetime
 from importlib import reload
 
-conn = psycopg2.connect('dbname=daqpsemmol11kn user=fnwjyuhqrjdbcv')
+conn = psycopg2.connect(dbname="daqpsemmol11kn", user="fnwjyuhqrjdbcv", password="4ae63588868e2423ddb7cc3bd4e71ae5892179b86dca5a90272b747aa933bac9", host="ec2-46-137-75-170.eu-west-1.compute.amazonaws.com")
 
 cursor = conn.cursor()
 
