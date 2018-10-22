@@ -6,13 +6,13 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, Rege
                           ConversationHandler, CallbackQueryHandler, PreCheckoutQueryHandler)
 
 import logging
-import sqlite3
+import psycopg2
 import config
 import os
 import datetime
 from importlib import reload
 
-conn = sqlite3.connect('betsdb.sqlite', check_same_thread=False)
+conn = psycopg2.connect('dbname=daqpsemmol11kn user=fnwjyuhqrjdbcv', check_same_thread=False)
 
 cursor = conn.cursor()
 
