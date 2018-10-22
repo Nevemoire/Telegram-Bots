@@ -55,10 +55,10 @@ def start(bot, update, user_data):
     if member.status in memberslist:
         update.message.reply_text('''Я твой персональный бот-прогнозист!
 Воспользуйся меню ниже чтобы мы понимали друг друга без проблем ;)''', reply_markup=markup)
-        cursor.execute("SELECT id FROM users WHERE id=?", (userid,))
+        cursor.execute("SELECT id FROM users WHERE id=%s", (userid,))
         result = "%s" % cursor.fetchone()
         if result == "None":
-            cursor.execute("INSERT INTO users (nickname, namesurname, id) VALUES (?, ?, ?)", (nick, name, userid))
+            cursor.execute("INSERT INTO users (nickname, namesurname, id) VALUES (%s, %s, %s)", (nick, name, userid))
             conn.commit()
         else:
             pass
@@ -80,10 +80,10 @@ def first_time(bot, update, user_data):
         update.message.reply_text('Благодарим за подписку! :)', reply_markup=markup)
         update.message.reply_text('''Я твой персональный бот-прогнозист!
 Воспользуйся меню ниже чтобы мы понимали друг друга без проблем ;)''', reply_markup=markup)
-        cursor.execute("SELECT id FROM users WHERE id=?", (userid,))
+        cursor.execute("SELECT id FROM users WHERE id=%s", (userid,))
         result = "%s" % cursor.fetchone()
         if result == "None":
-            cursor.execute("INSERT INTO users (nickname, namesurname, id) VALUES (?, ?, ?)", (nick, name, userid))
+            cursor.execute("INSERT INTO users (nickname, namesurname, id) VALUES (%s, %s, %s)", (nick, name, userid))
             conn.commit()
         else:
             pass
@@ -150,10 +150,10 @@ def partner_promo(bot, update, user_data):
     promocode = update.message.text
     username = user_data['partner']
     update.message.reply_text(promocode)
-    cursor.execute("UPDATE users SET mypromo = ? WHERE nickname=?", (promocode, username))
+    cursor.execute("UPDATE users SET mypromo = %s WHERE nickname=%s", (promocode, username))
     update.message.reply_text('Готово!')
     conn.commit()
-    cursor.execute("SELECT id FROM users WHERE nickname=?", (username,))
+    cursor.execute("SELECT id FROM users WHERE nickname=%s", (username,))
     chatid = "%s" % cursor.fetchone()
     try:
         bot.send_message(
@@ -182,7 +182,7 @@ def profile(bot, update):
 
 def profile_action(bot, update, user_data):
     IDS = user_data['usrid']
-    cursor.execute("SELECT mypromo FROM users WHERE id=?", (IDS,))
+    cursor.execute("SELECT mypromo FROM users WHERE id=%s", (IDS,))
     promocode = "%s" % cursor.fetchone()
     query = update.callback_query
 
@@ -196,13 +196,13 @@ def profile_action(bot, update, user_data):
 
             return PRFL
     elif query.data == "promo_patrons":
-        cursor.execute("SELECT COUNT(*) FROM users WHERE promo=?", (promocode,))
+        cursor.execute("SELECT COUNT(*) FROM users WHERE promo=%s", (promocode,))
         patrons = "%s" % cursor.fetchone()
         query.answer("У тебя " + patrons + " рефералов")
 
         return PRFL
     elif query.data == "balance":
-        cursor.execute("SELECT earnings FROM users WHERE id=?", (IDS,))
+        cursor.execute("SELECT earnings FROM users WHERE id=%s", (IDS,))
         earnings = "%s" % cursor.fetchone()
         query.answer("К выплате: " + earnings + " рублей")
     elif query.data == "stats":
@@ -227,9 +227,9 @@ def contact_us(bot, update):
 
 def partnership(bot, update, user_data):
     ID = user_data['usrid']
-    cursor.execute('SELECT is_admin FROM users WHERE id=?', (ID,))
+    cursor.execute('SELECT is_admin FROM users WHERE id=%s', (ID,))
     padmin = '%s' % cursor.fetchone()
-    cursor.execute('SELECT is_blogger FROM users WHERE id=?', (ID,))
+    cursor.execute('SELECT is_blogger FROM users WHERE id=%s', (ID,))
     pblogger = '%s' % cursor.fetchone()
     if padmin == '1' or pblogger == '1':
         update.message.reply_text('Ты уже подавал(-а) заявку.')
@@ -277,8 +277,8 @@ def confirmation(bot, update, user_data):
         User = user_data['usrid']
         Nick = user_data['username']
         Link = update.message.text
-        cursor.execute("UPDATE users SET partner_link = ? WHERE id=?", (Link, User))
-        cursor.execute("UPDATE users SET is_admin = 1 WHERE id=?", (User,))
+        cursor.execute("UPDATE users SET partner_link = %s WHERE id=%s", (Link, User))
+        cursor.execute("UPDATE users SET is_admin = 1 WHERE id=%s", (User,))
         conn.commit()
         bot.send_message(
             text=f'Администратор {User} (@{Nick}) хочет стать партнёром. Ссылка: {Link}', chat_id='@bigbetz_orders')
@@ -290,8 +290,8 @@ def confirmation(bot, update, user_data):
         User = user_data['usrid']
         Nick = user_data['username']
         Link = update.message.text
-        cursor.execute("UPDATE users SET partner_link = ? WHERE id=?", (Link, User))
-        cursor.execute("UPDATE users SET is_blogger = 1 WHERE id=?", (User,))
+        cursor.execute("UPDATE users SET partner_link = %s WHERE id=%s", (Link, User))
+        cursor.execute("UPDATE users SET is_blogger = 1 WHERE id=%s", (User,))
         conn.commit()
         bot.send_message(
             text=f'Блоггер {User} (@{Nick}) хочет стать партнёром. Ссылка: {Link}', chat_id='@bigbetz_orders')
@@ -305,14 +305,14 @@ def confirmation(bot, update, user_data):
 
 def free_subscription(bot, update, user_data):
     usrid = user_data['usrid']
-    cursor.execute('SELECT free_sub FROM users WHERE id = ?', (usrid,))
+    cursor.execute('SELECT free_sub FROM users WHERE id = %s', (usrid,))
     if_sub = "%s" % cursor.fetchone()
     if if_sub == '0':
         update.message.reply_text('Ты успешно подписался(-ась) на бесплатную рассылку.')
-        cursor.execute("UPDATE users SET free_sub = 1 WHERE id=?", (usrid,))
+        cursor.execute("UPDATE users SET free_sub = 1 WHERE id=%s", (usrid,))
     elif if_sub == '1':
         update.message.reply_text('Ты успешно отписался(-ась) от бесплатной рассылки.')
-        cursor.execute("UPDATE users SET free_sub = 0 WHERE id=?", (usrid,))
+        cursor.execute("UPDATE users SET free_sub = 0 WHERE id=%s", (usrid,))
     else:
         update.message.reply_text('Что-то пошло не так..')
     conn.commit()
@@ -324,7 +324,7 @@ def custom_promo(bot, update, user_data):
     IDS = user_data['usrid']
     reply_keyboardz = [['Назад']]
     state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
-    cursor.execute("SELECT promo FROM users WHERE id=?", (IDS,))
+    cursor.execute("SELECT promo FROM users WHERE id=%s", (IDS,))
     promocode = "%s" % cursor.fetchone()
     if promocode == "None":
         update.message.reply_text('Введи промокод чтобы получить скидку 20%.', reply_markup=state)
@@ -343,8 +343,8 @@ def promo(bot, update, user_data):
     if code in config.promolist:
         update.message.reply_text("Промокод принят!")
         update.message.reply_text("Скидка на следующую оплату - 20%", reply_markup=markup)
-        cursor.execute("UPDATE users SET code_active = 1 WHERE id=?", (user,))
-        cursor.execute("UPDATE users SET promo = ? WHERE id=?", (code, user))
+        cursor.execute("UPDATE users SET code_active = 1 WHERE id=%s", (user,))
+        cursor.execute("UPDATE users SET promo = %s WHERE id=%s", (code, user))
         conn.commit()
 
         return CHOOSING
@@ -376,7 +376,7 @@ def received_information(bot, update, user_data):
     user_data['choice'] = query.data
     IDS = user_data['usrid']
     # text = update.message.text
-    cursor.execute("SELECT code_active FROM users WHERE id = ?", (IDS,))
+    cursor.execute("SELECT code_active FROM users WHERE id = %s", (IDS,))
     code_active = "%s" % cursor.fetchone()
     if code_active == "1":
         keyboard = [[InlineKeyboardButton("Перейти к оплате (Скидка 20%)", callback_data="Оплата")]]
@@ -385,7 +385,7 @@ def received_information(bot, update, user_data):
     reply_markup = InlineKeyboardMarkup(keyboard)
     try:
         cursor.execute(
-            "SELECT tariff, price, patrons FROM betsdb WHERE id=?", (query.data,))
+            "SELECT tariff, price, patrons FROM betsdb WHERE id=%s", (query.data,))
 
         bot.edit_message_text(text='👇',
                               chat_id=query.message.chat_id,
@@ -408,10 +408,10 @@ def button(bot, update, user_data):
     IDS = user_data['choice']
     user = user_data['usrid']
     try:
-        cursor.execute("SELECT code_active FROM users WHERE id = ?", (user,))
+        cursor.execute("SELECT code_active FROM users WHERE id = %s", (user,))
         code_active = "%s" % cursor.fetchone()
         chat_id = update.effective_message.chat_id
-        cursor.execute("SELECT tariff FROM betsdb WHERE id=?", (IDS,))
+        cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
         tariff = "%s" % cursor.fetchone()
         title = tariff
         description = "BIG Bets Company"
@@ -422,7 +422,7 @@ def button(bot, update, user_data):
         start_parameter = "test-payment"
         currency = "RUB"
         # price in dollars
-        cursor.execute("SELECT price FROM betsdb WHERE id=?", (IDS,))
+        cursor.execute("SELECT price FROM betsdb WHERE id=%s", (IDS,))
         pricez = "%s" % cursor.fetchone()
         if code_active == '1':
             price = round(int(pricez) / 100 * 80)
@@ -441,7 +441,7 @@ def button(bot, update, user_data):
                          chat_id=update.effective_message.chat_id,
                          message_id=update.effective_message.message_id,
                          reply_markup=markup)
-        cursor.execute("UPDATE betsdb SET patrons = patrons+1 WHERE id=?", (IDS,))
+        cursor.execute("UPDATE betsdb SET patrons = patrons+1 WHERE id=%s", (IDS,))
         conn.commit()
 
     return CHOOSING
@@ -463,36 +463,36 @@ def successful_payment_callback(bot, update, user_data):
     IDS = user_data['choice']
     usrid = user_data['usrid']
     nick = user_data['username']
-    cursor.execute("SELECT code_active FROM users WHERE id = ?", (usrid,))
+    cursor.execute("SELECT code_active FROM users WHERE id = %s", (usrid,))
     code_active = "%s" % cursor.fetchone()
     if code_active == '1':
-        cursor.execute("UPDATE users SET code_active = 0 WHERE id=?", (usrid,))
+        cursor.execute("UPDATE users SET code_active = 0 WHERE id=%s", (usrid,))
         conn.commit()
     else:
         pass
-    cursor.execute("SELECT tariff FROM betsdb WHERE id=?", (IDS,))
+    cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
     tariff = "%s" % cursor.fetchone()
     # do something after successful receive of payment?
     update.effective_message.reply_text('''Благодарим за оплату!
 Ожидай, мы скоро добавим тебя в закрытую группу.''', reply_markup=markup)
     cursor.execute("UPDATE betsdb SET patrons = patrons+1 WHERE id=?", (IDS,))
-    cursor.execute("SELECT price FROM betsdb WHERE id=?", (IDS,))
+    cursor.execute("SELECT price FROM betsdb WHERE id=%s", (IDS,))
     product_price = "%d" % cursor.fetchone()
     if code_active == '1':
         tsprice = round(int(product_price) * 0.8)
     else:
         tsprice = int(product_price)
-    cursor.execute("SELECT totalspent FROM users WHERE id=?", (usrid,))
+    cursor.execute("SELECT totalspent FROM users WHERE id=%s", (usrid,))
     ts = "%d" % cursor.fetchone()
     ts = int(ts) + int(tsprice)
-    cursor.execute("UPDATE users SET totalspent = ? WHERE id=?", (str(ts), usrid))
+    cursor.execute("UPDATE users SET totalspent = %s WHERE id=%s", (str(ts), usrid))
     try:
-        cursor.execute("SELECT promo FROM users WHERE id=?", (usrid,))
+        cursor.execute("SELECT promo FROM users WHERE id=%s", (usrid,))
         promoz = "%s" % cursor.fetchone()
-        cursor.execute("SELECT earnings FROM users WHERE mypromo=?", (promoz,))
+        cursor.execute("SELECT earnings FROM users WHERE mypromo=%s", (promoz,))
         earngs = "%d" % cursor.fetchone()
         earngs = round(int(earngs) + (int(tsprice) / 10))
-        cursor.execute("UPDATE users SET earnings = ? WHERE mypromo=?", (str(earngs), promoz))
+        cursor.execute("UPDATE users SET earnings = %s WHERE mypromo=%s", (str(earngs), promoz))
     except:
         pass
     conn.commit()
