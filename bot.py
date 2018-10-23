@@ -149,6 +149,7 @@ def partner_un(bot, update, user_data):
 def partner_promo(bot, update, user_data):
     promocode = update.message.text
     username = user_data['partner']
+    name = user_data['name']
     update.message.reply_text(promocode)
     cursor.execute("UPDATE users SET mypromo = %s WHERE nickname=%s", (promocode, username))
     update.message.reply_text('Готово!')
@@ -157,7 +158,7 @@ def partner_promo(bot, update, user_data):
     chatid = "%s" % cursor.fetchone()
     try:
         bot.send_message(
-            text=f'''@{username}, твоя заявка на партнёрство одобрена!
+            text=f'''{name}, твоя заявка на партнёрство одобрена!
 Свой промокод ты можешь посмотреть в личном кабинете.''', chat_id=int(chatid))
     except:
         bot.send_message(
@@ -340,11 +341,21 @@ def promo(bot, update, user_data):
     reload(config)
     code = update.message.text
     user = user_data['usrid']
+    name = user_data['name']
+    username = user_data['username']
     if code in config.promolist:
         update.message.reply_text("Промокод принят!")
         update.message.reply_text("Скидка на следующую оплату - 20%", reply_markup=markup)
         cursor.execute("UPDATE users SET code_active = 1 WHERE id=%s", (user,))
         cursor.execute("UPDATE users SET promo = %s WHERE id=%s", (code, user))
+        cursor.execute("SELECT id FROM users WHERE mypromo = %s", (code,))
+        target = "%s" % cursor.fetchone()
+        try:
+            bot.send_message(
+                text=f'''{name}, только что 1 из пользователей использовал твой промокод.''', chat_id=int(target))
+        except:
+            bot.send_message(
+                text=f'Пользователь {target} ({username}) не получил уведомление о новом реферале.', chat_id='@bigbetz_orders')
         conn.commit()
 
         return CHOOSING
