@@ -341,8 +341,6 @@ def promo(bot, update, user_data):
     reload(config)
     code = update.message.text
     user = user_data['usrid']
-    name = user_data['name']
-    username = user_data['username']
     if code in config.promolist:
         update.message.reply_text("Промокод принят!")
         update.message.reply_text("Скидка на следующую оплату - 20%", reply_markup=markup)
@@ -350,12 +348,14 @@ def promo(bot, update, user_data):
         cursor.execute("UPDATE users SET promo = %s WHERE id=%s", (code, user))
         cursor.execute("SELECT id FROM users WHERE mypromo = %s", (code,))
         target = "%s" % cursor.fetchone()
+        cursor.execute("SELECT nickname FROM users WHERE mypromo = %s", (code,))
+        username = "%s" % cursor.fetchone()
         try:
             bot.send_message(
-                text=f'''{name}, только что 1 из пользователей использовал твой промокод.''', chat_id=int(target))
+                text='Только что 1 из пользователей использовал твой промокод.', chat_id=int(target))
         except:
             bot.send_message(
-                text=f'Пользователь {target} ({username}) не получил уведомление о новом реферале.', chat_id='@bigbetz_orders')
+                text=f'Пользователь {target} (@{username}) не получил уведомление о новом реферале.', chat_id='@bigbetz_orders')
         conn.commit()
 
         return CHOOSING
