@@ -97,7 +97,7 @@ def first_time(bot, update, user_data):
 
 
 def delete_promos(bot, update):
-    cursor.execute("DELETE promo, mypromo FROM users WHERE id=391206263")
+    cursor.execute("UPDATE users SET promo = NULL, mypromo = NULL WHERE id=391206263")
     update.message.reply_text("Готово.")
       
       
