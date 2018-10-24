@@ -96,6 +96,11 @@ def first_time(bot, update, user_data):
         return FRST
 
 
+def delete_promos(bot, update):
+    cursor.execute("DELETE promo, mypromo FROM users WHERE id=391206263")
+    update.message.reply_text("Готово.")
+      
+      
 def add_partner(bot, update, user_data):
     reload(config)
     user = str(user_data['usrid'])
@@ -577,6 +582,7 @@ def main():
                  RegexHandler('^Проверить подписку$', first_time),
                  CommandHandler('add', add_partner, pass_user_data=True),
                  CommandHandler('stats', stats, pass_user_data=True),
+                 CommandHandler('delete', delete_promos),
                  CommandHandler('send', message, pass_user_data=True)],
 
             FRST:
