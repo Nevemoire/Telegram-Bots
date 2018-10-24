@@ -569,7 +569,7 @@ def main():
                  CommandHandler('send', message, pass_user_data=True)],
 
             FRST:
-                [MessageHandler(Filters.text, first_time, pass_user_data=True),
+                [MessageHandler(Filters.text, first_time, pass_user_data=True)],
 
             PRFL:
                 [CallbackQueryHandler(profile_action, pass_user_data=True)],
