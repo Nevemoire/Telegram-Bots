@@ -158,8 +158,7 @@ def partner_promo(bot, update, user_data):
     chatid = "%s" % cursor.fetchone()
     try:
         bot.send_message(
-            text=f'''{name}, твоя заявка на партнёрство одобрена!
-Свой промокод ты можешь посмотреть в личном кабинете.''', chat_id=int(chatid))
+            text=f'''{name}, мы изменили ваш промокод. Узнать новый можно в личном кабинете. С уважением, команда BIG Betz.''', chat_id=int(chatid))
     except:
         bot.send_message(
             text=f'Пользователь {chatid} ({username}) не получил уведомление.', chat_id='@bigbetz_orders')
@@ -242,6 +241,8 @@ def partnership(bot, update, user_data):
 
 def confirmation(bot, update, user_data):
     text = update.message.text
+    cursor.execute("SELECT mypromo FROM users WHERE mypromo IS NOT NULL")
+    promolist = "%s" % cursor.fetchall()
     if text in ignorelist:
         update.message.reply_text('Сейчас бот не реагирует на эту комманду.')
         pass
@@ -251,6 +252,10 @@ def confirmation(bot, update, user_data):
         update.message.reply_text('Главное меню 👾', reply_markup=markup)
 
         return CHOOSING
+    elif text in promolist:
+        update.message.reply_text('Такой промокод уже есть! Введи другой.')
+        
+        return OK
     else:
         update.message.reply_text('''Готово! Теперь ты официальный партнёр BIG Betz 😎''', reply_markup=markup)
         User = user_data['usrid']
