@@ -101,6 +101,8 @@ def delete_promos(bot, update):
     cursor.execute("UPDATE users SET mypromo = NULL WHERE id=391206263")
     cursor.execute("UPDATE users SET is_partner = 0 WHERE id=391206263")
     update.message.reply_text("Готово.")
+    
+    return CHOOSING
       
       
 def add_partner(bot, update, user_data):
