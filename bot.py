@@ -515,13 +515,15 @@ def stats(bot, update, user_data):
     userid = user_data['usrid']
     cursor.execute("SELECT COUNT(*) FROM users")
     max_users = "%s" % cursor.fetchone()
+    cursor.execute("SELECT COUNT(*) FROM users WHERE free_sub = 1")
+    max_subs = "%s" % cursor.fetchone()
     cursor.execute("SELECT COUNT(*) FROM users WHERE mypromo IS NOT NULL")
     max_partners = "%s" % cursor.fetchone()
     cursor.execute("SELECT COUNT(*) FROM users WHERE promo IS NOT NULL")
     max_referrals = "%s" % cursor.fetchone()
     cursor.execute("SELECT SUM(earnings) FROM users WHERE mypromo IS NOT NULL")
     max_earnings = "%s" % cursor.fetchone()
-    bot.send_message(text=f"""Кол-во пользователей: {max_users}
+    bot.send_message(text=f"""Кол-во пользователей: {max_users} ({max_subs} сабов)
 Кол-во партнёров: {max_partners}
 Кол-во привлечённых пользователей: {max_referrals}
 Наши партнёры заработали: {max_earnings} рублей""", chat_id=userid)
