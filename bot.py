@@ -140,14 +140,12 @@ def message_pr(bot, update):
       chat_id = '%s' % cursor.fetchone()
       try:
         sends += 1
-        if chat_id == 'None':
-            break
         bot.send_message(text=prediction, chat_id=chat_id)
       except:
         cursor.execute("UPDATE users SET free_sub = 0 WHERE id=%s", (chat_id,))
         blocks += 1
-        
-        pass
+      if chat_id == 'None':
+            break
       
     update.message.reply_text(f'''Кол-во отосланных предиктов: {sends}
 Блоков: {blocks}''')
