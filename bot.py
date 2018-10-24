@@ -24,8 +24,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-(CHOOSING, PRTNRSHP, FRST, PREFRST, OK, UN, UP, PR, TYPING_REPLY,
- PROMOCODE, PAYMENT, CHECKOUT, SUC_PAYMENT, PRFL) = range(14)
+(CHOOSING, FRST, PREFRST, OK, UN, UP, PR, TYPING_REPLY,
+ PROMOCODE, PAYMENT, CHECKOUT, SUC_PAYMENT, PRFL) = range(13)
 
 reply_keyboard = [['Бесплатная подписка', 'Платная подписка'],
                   ['Ввести промокод', 'Стать партнёром'],
@@ -228,37 +228,16 @@ def contact_us(bot, update):
 
 def partnership(bot, update, user_data):
     ID = user_data['usrid']
-    cursor.execute('SELECT is_admin FROM users WHERE id=%s', (ID,))
-    padmin = '%s' % cursor.fetchone()
-    cursor.execute('SELECT is_blogger FROM users WHERE id=%s', (ID,))
-    pblogger = '%s' % cursor.fetchone()
-    if padmin == '1' or pblogger == '1':
-        update.message.reply_text('Ты уже подавал(-а) заявку.')
+    cursor.execute('SELECT is_partner FROM users WHERE id=%s', (ID,))
+    ppartner = '%s' % cursor.fetchone()
+    if ppartner == '1':
+        update.message.reply_text('Ты уже являешься партнёром.')
 
         return CHOOSING
     else:
-        reply_keyboardz = [['Я блоггер', 'Я администратор'],
-                           ['Назад']]
-        state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
-        update.message.reply_text(
-            "В эти непростые времена нашими партнерами могут стать только блоггеры "
-            "и администраторы сообществ c количеством подписчиков более 250.", reply_markup=state)
+        update.message.reply_text('Укажи свой промокод (Оптимальное кол-во символов: 4).')
 
-        return PRTNRSHP
-
-
-def blogger(bot, update, user_data):
-    update.message.reply_text('''Отлично, теперь оставь нам ссылку на свой блог.
-Пример: instagram.com/example''', disable_web_page_preview=True)
-
-    return OK
-
-
-def administrator(bot, update, user_data):
-    update.message.reply_text('''Отлично, теперь оставь нам адрес своего канала.
-Пример: @example или t.me/example''', disable_web_page_preview=True)
-
-    return OK
+        return OK
 
 
 def confirmation(bot, update, user_data):
@@ -272,36 +251,18 @@ def confirmation(bot, update, user_data):
         update.message.reply_text('Главное меню 👾', reply_markup=markup)
 
         return CHOOSING
-    elif '@' or 't.me' in text:
-        update.message.reply_text('''Заявка принята!
-Мы свяжемся с тобой сразу же после её рассмотрения.''', reply_markup=markup)
-        User = user_data['usrid']
-        Nick = user_data['username']
-        Link = update.message.text
-        cursor.execute("UPDATE users SET partner_link = %s WHERE id=%s", (Link, User))
-        cursor.execute("UPDATE users SET is_admin = 1 WHERE id=%s", (User,))
-        conn.commit()
-        bot.send_message(
-            text=f'Администратор {User} (@{Nick}) хочет стать партнёром. Ссылка: {Link}', chat_id='@bigbetz_orders')
-
-        return CHOOSING
-    elif '.com' or '.ru' or '.net' in text:
-        update.message.reply_text('''Заявка принята!
-Мы свяжемся с тобой сразу же после её рассмотрения.''', reply_markup=markup)
-        User = user_data['usrid']
-        Nick = user_data['username']
-        Link = update.message.text
-        cursor.execute("UPDATE users SET partner_link = %s WHERE id=%s", (Link, User))
-        cursor.execute("UPDATE users SET is_blogger = 1 WHERE id=%s", (User,))
-        conn.commit()
-        bot.send_message(
-            text=f'Блоггер {User} (@{Nick}) хочет стать партнёром. Ссылка: {Link}', chat_id='@bigbetz_orders')
-
-        return CHOOSING
     else:
-        update.message.reply_text('Ошибка! Неверный формат сообщения.')
+        update.message.reply_text('''Готово! Теперь ты официальный партнёр BIG Betz 😎''', reply_markup=markup)
+        User = user_data['usrid']
+        Nick = user_data['username']
+        Promo = update.message.text
+        cursor.execute("UPDATE users SET mypromo = %s WHERE id=%s", (Promo, User))
+        cursor.execute("UPDATE users SET is_partner = 1 WHERE id=%s", (User,))
+        conn.commit()
+        bot.send_message(
+            text=f'Пользователь {User} (@{Nick}) стал партнёром. Promo: {Promo}', chat_id='@bigbetz_orders')
 
-        return OK
+        return CHOOSING
 
 
 def free_subscription(bot, update, user_data):
@@ -338,10 +299,11 @@ def custom_promo(bot, update, user_data):
 
 
 def promo(bot, update, user_data):
-    reload(config)
     code = update.message.text
     user = user_data['usrid']
-    if code in config.promolist:
+    cursor.execute("SELECT mypromo FROM users WHERE mypromo IS NOT NULL")
+    promolist = "%s" % cursor.fetchall()
+    if code in promolist:
         update.message.reply_text("Промокод принят!")
         update.message.reply_text("Скидка на следующую оплату - 20%", reply_markup=markup)
         cursor.execute("UPDATE users SET code_active = 1 WHERE id=%s", (user,))
@@ -607,12 +569,7 @@ def main():
                  CommandHandler('send', message, pass_user_data=True)],
 
             FRST:
-                [MessageHandler(Filters.text, first_time, pass_user_data=True)],
-
-
-            PRTNRSHP:
-                [RegexHandler('^Я блоггер$', blogger, pass_user_data=True),
-                 RegexHandler('^Я администратор$', administrator, pass_user_data=True)],
+                [MessageHandler(Filters.text, first_time, pass_user_data=True),
 
             PRFL:
                 [CallbackQueryHandler(profile_action, pass_user_data=True)],
