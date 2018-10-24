@@ -306,9 +306,15 @@ def custom_promo(bot, update, user_data):
 def promo(bot, update, user_data):
     code = update.message.text
     user = user_data['usrid']
+    cursor.execute("SELECT mypromo FROM users WHERE id=%s", (user,))
+    ownpromo = "%s" % cursor.fetchone()
     cursor.execute("SELECT mypromo FROM users WHERE mypromo IS NOT NULL")
     promolist = "%s" % cursor.fetchall()
-    if code in promolist:
+    if code in ownpromo:
+        update.message.reply_text("Свой промокод вводить нельзя! Введи другой.")
+        
+        return PROMOCODE
+    elif code in promolist:
         update.message.reply_text("Промокод принят!")
         update.message.reply_text("Скидка на следующую оплату - 20%", reply_markup=markup)
         cursor.execute("UPDATE users SET code_active = 1 WHERE id=%s", (user,))
