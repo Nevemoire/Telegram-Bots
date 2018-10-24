@@ -133,15 +133,23 @@ def message(bot, update, user_data):
 
 def message_pr(bot, update):
     sends = -1
+    blocks = -1
     prediction = update.message.text
     cursor.execute("SELECT id FROM users WHERE free_sub = 1")
     while True:
+      try:
         chat_id = '%s' % cursor.fetchone()
         sends += 1
         if chat_id == 'None':
             break
         bot.send_message(text=prediction, chat_id=chat_id)
-    update.message.reply_text(f'Кол-во отосланных предиктов: {sends}')
+      except:
+        cursor.execute("UPDATE users SET free_sub = 0 WHERE id=%s", (chat_id,))
+        blocks += 1
+        pass
+      
+    update.message.reply_text(f'''Кол-во отосланных предиктов: {sends}
+Блоков: {blocks}''')
 
     return CHOOSING
 
