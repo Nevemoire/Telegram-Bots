@@ -34,8 +34,7 @@ markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 first_keyboard = [['Проверить подписку']]
 first = ReplyKeyboardMarkup(first_keyboard, one_time_keyboard=True, resize_keyboard=True)
 
-commands = ('Бесплатная подписка, Платная подписка, Ввести промокод,'
-            'Связь с нами, Стать партнёром, Личный кабинет, Я блоггер, Я администратор')
+commands = ('Бесплатная подписка, Платная подписка, Ввести промокод, Связь с нами, Стать партнёром, Личный кабинет, Я блоггер, Я администратор')
 ignorelist = commands.split(', ')
 members = 'creator, administrator, member'
 memberslist = members.split(', ')
@@ -248,7 +247,7 @@ def partnership(bot, update, user_data):
 
         return CHOOSING
     else:
-        update.message.reply_text('Укажи свой промокод (Оптимальное кол-во символов: 4).')
+        update.message.reply_text('Укажи свой промокод (Оптимальное кол-во символов: 4).', reply_markup=state)
 
         return OK
 
