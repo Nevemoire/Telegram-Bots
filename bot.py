@@ -239,6 +239,8 @@ def contact_us(bot, update):
 
 
 def partnership(bot, update, user_data):
+    reply_keyboardz = [['Назад']]
+    state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
     ID = user_data['usrid']
     cursor.execute('SELECT is_partner FROM users WHERE id=%s', (ID,))
     ppartner = '%s' % cursor.fetchone()
