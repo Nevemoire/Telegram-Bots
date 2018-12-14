@@ -239,15 +239,15 @@ def main():
         {
             CHOOSING:
                 [
-                    RegexHandler('^FAQ$', bot_faq, pass_user_data=True),
+                    RegexHandler('^FAQ$', bot_faq),
                     RegexHandler('^Топ пользователей$', top_users),
-                    RegexHandler('^Подать заявку$', join_us, pass_user_data=True),
-                    RegexHandler('^Полезные ссылки$', media_links, pass_user_data=True),
-                    RegexHandler('^Обратная связь$', contact_us, pass_user_data=True),
+                    RegexHandler('^Подать заявку$', join_us),
+                    RegexHandler('^Полезные ссылки$', media_links),
+                    RegexHandler('^Обратная связь$', contact_us),
                     RegexHandler('^Личный кабинет$', profile),
                     # RegexHandler('^Проверить подписку$', first_time),
-                    CommandHandler('add', add_user, pass_user_data=True),
-                    CommandHandler('stats', stats, pass_user_data=True),
+                    CommandHandler('add', add_user),
+                    CommandHandler('stats', stats),
                     CommandHandler('id', get_id),
                     CommandHandler('send', message, pass_user_data=True),
                     MessageHandler(Filters.text, random_user)],
