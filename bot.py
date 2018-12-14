@@ -216,7 +216,7 @@ def restore(bot, update):
 
 def random_user(bot, update):
     cursor.execute(
-        "SELECT mdkname, toppost, tags FROM users ORDER BY RANDOM() LIMIT 1")
+        "SELECT mdkname, toppost, tags FROM users WHERE mdkname IS NOT NULL ORDER BY RANDOM() LIMIT 1")
     update.message.reply_text('''*Автор:* %s
 *Лучший пост:* %s
 *Теги:* %s''' % cursor.fetchone(), parse_mode='MARKDOWN')
@@ -253,7 +253,6 @@ def main():
                     CommandHandler('stats', stats),
                     CommandHandler('id', get_id),
                     CommandHandler('send', message, pass_user_data=True),
-                    MessageHandler(Filters.text, random_user)],
 
             FRST:
                 [MessageHandler(Filters.text, first_time, pass_user_data=True)],
