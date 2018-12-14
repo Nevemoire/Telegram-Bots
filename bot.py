@@ -263,7 +263,7 @@ def main():
                     CommandHandler('add', add_user),
                     CommandHandler('stats', stats),
                     CommandHandler('id', get_id),
-                    CommandHandler('send', message, pass_user_data=True),
+                    CommandHandler('send', message, pass_user_data=True),]
 
             FRST:
                 [MessageHandler(Filters.text, first_time, pass_user_data=True)],
