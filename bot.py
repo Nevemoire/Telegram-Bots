@@ -109,7 +109,7 @@ def contact_us(bot, update):
 
 
 def join_us(bot, update):
-    update.message.reply_text('Такс, напиши сюда свой юзернейм из приложения в таком формате: @username')
+    update.message.reply_text('Такс, напиши сюда свой юзернейм из приложения.')
 
     return JOIN
 
@@ -123,17 +123,14 @@ def user_join(bot, update, user_data):
     mdkname = update.message.text
     if mdkname in users:
         update.message.reply_text('Засранец, этот пользователь уже подтверждён.')
-        bot.send_message(text=f'''Пользователь {name} ({nick}) попытался наебать систему и использовать ник {mdkname}
+        bot.send_message(text=f'''Пользователь {name} (@{nick}) попытался наебать систему и использовать ник {mdkname}
 ID: {user}''', chat_id='@whoismdkadmins')
         
         return CHOOSING
-    elif '@' in mdkname:
-        bot.send_message(text=f'Пользователь {user} запросил подтверждение на ник: {mdkname}', chat_id='@whoismdkadmins')
-        update.message.reply_text('Заявка принята.')
-
-        return CHOOSING
     else:
-        update.message.reply_text('Неправильный формат!')
+        bot.send_message(text=f'''Пользователь {name} (@{nick}) запросил подтверждение на ник: {mdkname}
+ID: {user}''', chat_id='@whoismdkadmins')
+        update.message.reply_text('Заявка принята.')
 
         return CHOOSING
 
