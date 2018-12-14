@@ -118,9 +118,9 @@ def user_join(bot, update, user_data):
     user = user_data['userid']
     name = user_data['name']
     nick = user_data['nick']
-    cursor.execute("SELECT cheated FROM users WHERE id=%s", (, user))
+    cursor.execute("SELECT cheated FROM users WHERE id=%s", (user,))
     cheated = "%s" % cursor.fetchone()
-    cursor.execute("SELECT joined FROM users WHERE id=%s", (, user))
+    cursor.execute("SELECT joined FROM users WHERE id=%s", (user,))
     joined = "%s" % cursor.fetchone()
     cursor.execute("SELECT mdkname FROM users WHERE mdkname IS NOT NULL")
     users = "%s" % cursor.fetchall()
@@ -129,7 +129,7 @@ def user_join(bot, update, user_data):
         update.message.reply_text('Засранец, этот пользователь уже подтверждён.')
         bot.send_message(text=f'''Пользователь {name} (@{nick}) попытался наебать систему и использовать ник {mdkname}
 ID: {user}''', chat_id='@whoismdkadmins')
-        cursor.execute("UPDATE users SET cheated = 1 WHERE id=%s", (, user))
+        cursor.execute("UPDATE users SET cheated = 1 WHERE id=%s", (user,))
         
         return CHOOSING
     elif '1' in cheated:
@@ -144,7 +144,7 @@ ID: {user}''', chat_id='@whoismdkadmins')
         bot.send_message(text=f'''Пользователь {name} (@{nick}) запросил подтверждение на ник: {mdkname}
 ID: {user}''', chat_id='@whoismdkadmins')
         update.message.reply_text('Заявка принята.')
-        cursor.execute("UPDATE users SET joined = 1 WHERE id=%s", (, user))
+        cursor.execute("UPDATE users SET joined = 1 WHERE id=%s", (user,))
 
         return CHOOSING
 
