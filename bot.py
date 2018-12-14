@@ -258,6 +258,9 @@ def main():
 
             SEND:
                 [MessageHandler(Filters.text, message_send)],
+          
+            JOIN:
+                [MessageHandler(Filters.text, user_join, pass_user_data=True)],
         },
 
         fallbacks=[RegexHandler('^Назад$', get_back),
