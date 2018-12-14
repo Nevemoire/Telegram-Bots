@@ -214,7 +214,7 @@ def restore(bot, update):
 
 def random_user(bot, update):
     cursor.execute(
-        "SELECT author, top_post, tags FROM infogram ORDER BY RANDOM() LIMIT 1")
+        "SELECT mdkname, top_post, tags FROM infogram ORDER BY RANDOM() LIMIT 1")
     update.message.reply_text('''*Автор:* %s
 *Лучший пост:* %s
 *Теги:* %s''' % cursor.fetchone(), parse_mode='MARKDOWN')
