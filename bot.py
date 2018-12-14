@@ -67,7 +67,7 @@ def start(bot, update, user_data):
 
 def first_time(bot, update, user_data):
     userid = user_data['userid']
-    nick = user_data['username']
+    nick = user_data['nick']
     name = user_data['name']
     member = bot.get_chat_member('@whoismdk', userid)
     if member.status in memberslist:
