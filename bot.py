@@ -66,7 +66,7 @@ def start(bot, update, user_data):
 
 
 def first_time(bot, update, user_data):
-    userid = user_data['usrid']
+    userid = user_data['userid']
     nick = user_data['username']
     name = user_data['name']
     member = bot.get_chat_member('@whoismdk', userid)
@@ -115,7 +115,7 @@ def join_us(bot, update):
 
 
 def user_join(bot, update, user_data):
-    user = user_data['usrid']
+    user = user_data['userid']
     name = user_data['name']
     nick = user_data['nick']
     cursor.execute("SELECT mdkname FROM users WHERE mdkname IS NOT NULL")
@@ -162,7 +162,7 @@ def add_user(bot, update):
 
 def message(bot, update, user_data):
     reload(config)
-    user = str(user_data['usrid'])
+    user = str(user_data['userid'])
     if user in config.admin:
         update.message.reply_text('Че нужно сообщить?')
 
