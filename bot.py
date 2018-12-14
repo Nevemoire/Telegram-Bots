@@ -240,7 +240,8 @@ def main():
             CHOOSING:
                 [
                     RegexHandler('^FAQ$', bot_faq),
-                    RegexHandler('^Топ пользователей$', top_users),
+                    RegexHandler('^Наш топ пользователей$', top_users),
+                    RegexHandler('^Случайный автор$', random_user),
                     RegexHandler('^Подать заявку$', join_us),
                     RegexHandler('^Полезные ссылки$', media_links),
                     RegexHandler('^Обратная связь$', contact_us),
