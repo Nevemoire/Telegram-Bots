@@ -144,7 +144,7 @@ def user_join(bot, update, user_data):
         bot.send_message(text=f'''Пользователь {name} (@{nick}) попытался наебать систему и использовать ник {mdkname}
 ID: {user}''', chat_id='@whoismdkadmins')
         cursor.execute("UPDATE users SET cheated = 1 WHERE id=%s", (user,))
-        con.commit()
+        conn.commit()
         
         return CHOOSING
     else:
