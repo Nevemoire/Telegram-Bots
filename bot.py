@@ -181,8 +181,8 @@ def profile(bot,update, user_data):
     tags = "%s" % cursor.fetchone()
     reply_keyboardz = [['Назад']]
     state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
-    keyboard = [[InlineKeyboardButton("Изменить теги", callback_data="change_tags")],
-                [InlineKeyboardButton("Изменить лучший пост", callback_data="change_toppost")]]
+    keyboard = [[InlineKeyboardButton("Изменить лучший пост", callback_data="change_toppost")],
+                [InlineKeyboardButton("Изменить теги", callback_data="change_tags")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text(f'''Имя пользователя MDK: {mdkname}
 Лучший пост: {toppost}
@@ -226,7 +226,7 @@ def custom_toppost(bot, update, user_data):
     new_toppost = update.message.text
     cursor.execute("UPDATE users SET toppost = %s WHERE id=%s", (new_toppost, IDS))
     conn.commit()
-    update.message.reply_text(f"Готово! Новая ссылка: {toppost}", reply_markup=markup)
+    update.message.reply_text(f"Готово! Новая ссылка: {new_toppost}", reply_markup=markup)
     
     return CHOOSING
 
