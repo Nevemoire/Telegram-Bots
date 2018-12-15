@@ -3,7 +3,7 @@
 
 from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, RegexHandler,
-                          ConversationHandler, CallbackQueryHandler, PreCheckoutQueryHandler)
+                          ConversationHandler, CallbackQueryHandler, PreCheckoutQueryHandler, PicklePersistence)
 import logging
 import psycopg2
 import config
@@ -47,8 +47,7 @@ def start(bot, update, user_data):
     user_data['userid'] = userid
     member = bot.get_chat_member('@whoismdk', userid)
     if member.status in memberslist:
-        update.message.reply_text('''Я помогу освоиться тебе в приложении MDK!
-Воспользуйся меню ниже чтобы мы понимали друг друга без проблем ;)''', reply_markup=markup)
+        update.message.reply_text('С возвращением :)', reply_markup=markup)
         cursor.execute("SELECT id FROM users WHERE id=%s", (userid,))
         result = "%s" % cursor.fetchone()
         if result == "None":
@@ -73,6 +72,7 @@ def first_time(bot, update, user_data):
     if member.status in memberslist:
         update.message.reply_text('Благодарим за подписку! :)')
         update.message.reply_text('''Я помогу освоиться тебе в приложении MDK!
+        
 Воспользуйся меню ниже чтобы мы понимали друг друга без проблем ;)''', reply_markup=markup)
         cursor.execute("SELECT id FROM users WHERE id=%s", (userid,))
         result = "%s" % cursor.fetchone()
@@ -116,11 +116,13 @@ def join_us(bot, update, user_data):
     joined = "%s" % cursor.fetchone()
     if '1' in cheated:
         update.message.reply_text('''Мы уже поймали тебя на обмане, теперь эта функция заблокирована.
+
 Если ты считаешь что произошла ошибка, пиши: @wimhelpBot''', reply_markup=markup)
         
         return CHOOSING
     elif '1' in joined:
         update.message.reply_text('''Ты уже подавал заявку. Если она всё-ещё не обработана, ожидай подтверждения :)
+
 Если подтверждение длится дольше 2 часов, пиши: @wimhelpBot''', reply_markup=markup)
         
         return CHOOSING
@@ -249,7 +251,8 @@ def error(bot, update, error):
 
 
 def main():
-    updater = Updater(os.environ['token'])
+    pp = PicklePersistence(filename='conversationbot')
+    updater = Updater(os.environ['token'], persistence=pp)
 
     dp = updater.dispatcher
 
@@ -284,7 +287,9 @@ def main():
         },
 
         fallbacks=[RegexHandler('^Назад$', get_back),
-                   CommandHandler('help', restore)]
+                   CommandHandler('help', restore)],
+        name="my_conversation",
+        persistent=True
     )
 
     dp.add_handler(conv_handler)
