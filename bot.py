@@ -339,7 +339,7 @@ def main():
             JOIN:
                 [MessageHandler(Filters.text, user_join, pass_user_data=True)],
             TGS:
-                [MessageHandler(Filters.text, custop_tags, pass_user_data=True)],
+                [MessageHandler(Filters.text, custom_tags, pass_user_data=True)],
             PST:
                 [MessageHandler(Filters.text, custom_toppost, pass_user_data=True)],
             PRFL:
