@@ -108,43 +108,48 @@ def contact_us(bot, update):
     return CHOOSING
 
 
-def join_us(bot, update):
-    update.message.reply_text('Такс, напиши сюда свой юзернейм из приложения.')
+def join_us(bot, update, user_data):
+    user = user_data['userid']
+    cursor.execute("SELECT cheated FROM users WHERE id=%s", (user,))
+    cheated = "%s" % cursor.fetchone()
+    cursor.execute("SELECT joined FROM users WHERE id=%s", (user,))
+    joined = "%s" % cursor.fetchone()
+    if '1' in cheated:
+        update.message.reply_text('''Мы уже поймали тебя на обмане, теперь эта функция заблокирована.
+Если ты считаешь что произошла ошибка, пиши: @wimhelpBot''', reply_markup=markup)
+        
+        return CHOOSING
+    elif '1' in joined:
+        update.message.reply_text('Ты уже подавал заявку. Если она всё-ещё не обработана, ожидай подтверждения :)', reply_markup=markup)
+        
+        return CHOOSING
+    else:
+        update.message.reply_text('Такс, напиши сюда свой юзернейм из приложения.')
 
-    return JOIN
+        return JOIN
 
 
 def user_join(bot, update, user_data):
     user = user_data['userid']
     name = user_data['name']
     nick = user_data['nick']
-    cursor.execute("SELECT cheated FROM users WHERE id=%s", (user,))
-    cheated = "%s" % cursor.fetchone()
-    cursor.execute("SELECT joined FROM users WHERE id=%s", (user,))
-    joined = "%s" % cursor.fetchone()
     cursor.execute("SELECT mdkname FROM users WHERE mdkname IS NOT NULL")
     users = "%s" % cursor.fetchall()
     mdkname = update.message.text
     if mdkname in users:
-        update.message.reply_text('Засранец, этот пользователь уже подтверждён.')
+        update.message.reply_text('Засранец, этот пользователь уже подтверждён. За попытку обмана мы отбираем возможность подтвердить свой аккаунт.', reply_markup=markup)
         bot.send_message(text=f'''Пользователь {name} (@{nick}) попытался наебать систему и использовать ник {mdkname}
 ID: {user}''', chat_id='@whoismdkadmins')
         cursor.execute("UPDATE users SET cheated = 1 WHERE id=%s", (user,))
         con.commit()
         
         return CHOOSING
-    elif '1' in cheated:
-        update.message.reply_text('Мы уже поймали тебя на обмане, теперь эта функция заблокирована.')
-        
-        return CHOOSING
-    elif '1' in joined:
-        update.message.reply_text('Ты уже подавал заявку. Если она всё-ещё не обработана, ожидай подтверждения :)')
-        
-        return CHOOSING
     else:
         bot.send_message(text=f'''Пользователь {name} (@{nick}) запросил подтверждение на ник: {mdkname}
 ID: {user}''', chat_id='@whoismdkadmins')
-        update.message.reply_text('Заявка принята.')
+        update.message.reply_text(f'''Заявка принята.
+Код подтверждения: {user}''', reply_markup=markup)
+        update.message.reply_text('Теперь укажи этот код в комментариях к публикации: example.com')
         cursor.execute("UPDATE users SET joined = 1 WHERE id=%s", (user,))
         conn.commit()
 
@@ -229,7 +234,7 @@ def restore(bot, update):
 
 def random_user(bot, update):
     cursor.execute(
-        "SELECT mdkname, toppost, tags FROM users WHERE mdkname IS NOT NULL ORDER BY RANDOM() LIMIT 1")
+        "SELECT mdkname, toppost, tags FROM users WHERE mdkname IS NOT NULL AND tags IS NOT NULL AND toppost IS NOT NULL ORDER BY RANDOM() LIMIT 1")
     update.message.reply_text('''*Автор:* %s
 *Лучший пост:* %s
 *Теги:* %s''' % cursor.fetchone(), parse_mode='MARKDOWN')
@@ -257,7 +262,7 @@ def main():
                     RegexHandler('^FAQ$', bot_faq),
                     RegexHandler('^Наш топ пользователей$', top_users),
                     RegexHandler('^Случайный автор$', random_user),
-                    RegexHandler('^Подать заявку$', join_us),
+                    RegexHandler('^Подать заявку$', join_us, pass_user_data=True),
                     RegexHandler('^Полезные ссылки$', media_links),
                     RegexHandler('^Обратная связь$', contact_us),
                     RegexHandler('^Личный кабинет$', profile),
