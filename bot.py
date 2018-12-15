@@ -20,7 +20,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-CHOOSING, SEND, FRST, JOIN = range(4)
+CHOOSING, SEND, FRST, JOIN, TGS, PST, PRFL = range(7)
 
 reply_keyboard = [['Наш топ пользователей'],
                   ['FAQ', 'Случайный автор'],
@@ -171,9 +171,63 @@ def media_links(bot,update):
     return CHOOSING
 
 
-def profile(bot,update):
-    update.message.reply_text('PROFILE')
+def profile(bot,update, user_data):
+    IDS = user_data['userid']
+    cursor.execute("SELECT mdkname FROM users WHERE id=%s", (IDS,))
+    mdkname = "%s" % cursor.fetchone()
+    cursor.execute("SELECT toppost FROM users WHERE id=%s", (IDS,))
+    toppost = "%s" % cursor.fetchone()
+    cursor.execute("SELECT tags FROM users WHERE id=%s", (IDS,))
+    tags = "%s" % cursor.fetchone()
+    reply_keyboardz = [['Назад']]
+    state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
+    keyboard = [[InlineKeyboardButton("Изменить теги", callback_data="change_tags")],
+                [InlineKeyboardButton("Изменить лучший пост", callback_data="change_toppost")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text('''Имя пользователя MDK: {mdkname}
+Лучший пост: {toppost}
+Теги: {tags}''', reply_markup=state)
+    update.message.reply_text('Выбери действие 👇', reply_markup=reply_markup)
 
+    return PRFL
+  
+  
+def profile_action(bot, update, user_data):
+    IDS = user_data['userid']
+    query = update.callback_query
+
+    if query.data == "change_tags":
+        update.message.reply_text("Напиши сюда новые теги одним сообщением.")
+
+        return TGS
+    elif query.data == "change_toppost":
+        update.message.reply_text("Укажи новую ссылку на лучший пост.")
+        query.answer("Только без 'http://', так будет красивее 😎")
+        
+        return PST
+    else:
+        update.message.reply_text("Ошибка!")
+
+        return PRFL
+      
+      
+def custom_tags(bot, update, user_data):
+    IDS = user_data['userid']
+    new_tags = update.message.text
+    cursor.execute("UPDATE users SET tags = %s WHERE id=%s", (new_tags, IDS))
+    conn.commit()
+    update.message.reply_text(f"Готово! Новые теги: {new_tags}", reply_markup=markup)
+    
+    return CHOOSING
+  
+  
+def custom_toppost(bot, update, user_data):
+    IDS = user_data['userid']
+    new_toppost = update.message.text
+    cursor.execute("UPDATE users SET toppost = %s WHERE id=%s", (new_toppost, IDS))
+    conn.commit()
+    update.message.reply_text(f"Готово! Новая ссылка: {toppost}", reply_markup=markup)
+    
     return CHOOSING
 
 
@@ -269,7 +323,7 @@ def main():
                     RegexHandler('^Подать заявку$', join_us, pass_user_data=True),
                     RegexHandler('^Полезные ссылки$', media_links),
                     RegexHandler('^Обратная связь$', contact_us),
-                    RegexHandler('^Личный кабинет$', profile),
+                    RegexHandler('^Личный кабинет$', profile, pass_user_data=True),
                     # RegexHandler('^Проверить подписку$', first_time),
                     CommandHandler('add', add_user),
                     CommandHandler('stats', stats),
@@ -284,6 +338,12 @@ def main():
           
             JOIN:
                 [MessageHandler(Filters.text, user_join, pass_user_data=True)],
+            TGS:
+                [MessageHandler(Filters.text, custop_tags, pass_user_data=True)],
+            PST:
+                [MessageHandler(Filters.text, custom_toppost, pass_user_data=True)],
+            PRFL:
+                [CallbackQueryHandler(profile_action, pass_user_data=True)],
         },
 
         fallbacks=[RegexHandler('^Назад$', get_back),
