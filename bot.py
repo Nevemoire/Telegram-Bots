@@ -184,7 +184,7 @@ def profile(bot,update, user_data):
     keyboard = [[InlineKeyboardButton("Изменить теги", callback_data="change_tags")],
                 [InlineKeyboardButton("Изменить лучший пост", callback_data="change_toppost")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text('''Имя пользователя MDK: {mdkname}
+    update.message.reply_text(f'''Имя пользователя MDK: {mdkname}
 Лучший пост: {toppost}
 Теги: {tags}''', reply_markup=state)
     update.message.reply_text('Выбери действие 👇', reply_markup=reply_markup)
@@ -197,11 +197,11 @@ def profile_action(bot, update, user_data):
     query = update.callback_query
 
     if query.data == "change_tags":
-        update.message.reply_text("Напиши сюда новые теги одним сообщением.")
+        bot.send_message(text="Напиши сюда новые теги одним сообщением.", chat_id=IDS)
 
         return TGS
     elif query.data == "change_toppost":
-        update.message.reply_text("Укажи новую ссылку на лучший пост.")
+        bot.send_message(text="Укажи новую ссылку на лучший пост.", chat_id=IDS)
         query.answer("Только без 'http://', так будет красивее 😎")
         
         return PST
