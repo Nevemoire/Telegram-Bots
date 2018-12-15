@@ -3,7 +3,7 @@
 
 from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, RegexHandler,
-                          ConversationHandler, CallbackQueryHandler, PreCheckoutQueryHandler, PicklePersistence)
+                          ConversationHandler, CallbackQueryHandler, PreCheckoutQueryHandler)#, PicklePersistence)
 import logging
 import psycopg2
 import config
@@ -251,8 +251,8 @@ def error(bot, update, error):
 
 
 def main():
-    pp = PicklePersistence(filename='conversationbot')
-    updater = Updater(os.environ['token'], persistence=pp)
+    #pp = PicklePersistence(filename='conversationbot')
+    updater = Updater(os.environ['token'])#, persistence=pp)
 
     dp = updater.dispatcher
 
@@ -287,9 +287,9 @@ def main():
         },
 
         fallbacks=[RegexHandler('^Назад$', get_back),
-                   CommandHandler('help', restore)],
-        name="my_conversation",
-        persistent=True
+                   CommandHandler('help', restore)]#,
+        #name="my_conversation",
+        #persistent=True
     )
 
     dp.add_handler(conv_handler)
