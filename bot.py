@@ -287,7 +287,8 @@ def main():
         },
 
         fallbacks=[RegexHandler('^Назад$', get_back),
-                   CommandHandler('help', restore)]#,
+                   CommandHandler('help', restore)],
+        allow_reentry=True
         #name="my_conversation",
         #persistent=True
     )
