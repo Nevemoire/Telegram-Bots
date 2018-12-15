@@ -5,7 +5,7 @@ from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMa
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, RegexHandler,
                           ConversationHandler, CallbackQueryHandler, PreCheckoutQueryHandler)#, PicklePersistence)
 import logging
-import psycopg2-binary
+import psycopg2
 import config
 import os
 from importlib import reload
