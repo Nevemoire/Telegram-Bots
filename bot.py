@@ -120,11 +120,12 @@ def join_us(bot, update, user_data):
         
         return CHOOSING
     elif '1' in joined:
-        update.message.reply_text('Ты уже подавал заявку. Если она всё-ещё не обработана, ожидай подтверждения :)', reply_markup=markup)
+        update.message.reply_text('''Ты уже подавал заявку. Если она всё-ещё не обработана, ожидай подтверждения :)
+Если подтверждение длится дольше 2 часов, пиши: @wimhelpBot''', reply_markup=markup)
         
         return CHOOSING
     else:
-        update.message.reply_text('Такс, напиши сюда свой юзернейм из приложения.')
+        update.message.reply_text('Такс, напиши сюда свой юзернейм из приложения. (Пример: admin)')
 
         return JOIN
 
