@@ -93,7 +93,7 @@ def first_time(bot, update, user_data):
 
 
 def bot_faq(bot, update):
-    update.message.reply_text('FAQ')
+    update.message.reply_text('Пока что мы заняты написанием длиннопоста, как только он будет готов, этот раздел обновится :)')
 
     return CHOOSING
 
@@ -292,10 +292,18 @@ def add_user(bot, update):
   
   
 def new_user(bot, update):
-    code = update.message.text
-    data = code.split(', ')
-    update.message.reply_text(data[0])
-    update.message.reply_text(data[1])
+    try:
+        code = update.message.text
+        data = code.split(', ')
+        ID = data[0]
+        nick = data[1]
+        cursor.execute("UPDATE users SET mdkname = %s WHERE id=%s", (nick, ID))
+        conn.commit()
+        update.message.reply_text("Готово.")
+        bot.send_message(text="Твоя заявка успешно обработана, приятного пользования нашим ботом :)", chat_id=ID)
+    except:
+        update.message.reply_text("""Упс, произошла ошибочка.
+Возможные причины: введены некоректные данные (скорее всего), пользователь заблокировал бота (возможно), телеге плохо (самый неправдоподобный вариант).""")
     
     return CHOOSING
 
