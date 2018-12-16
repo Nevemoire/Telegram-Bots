@@ -20,9 +20,9 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-CHOOSING, SEND, FRST, JOIN, TGS, PST, PRFL = range(7)
+CHOOSING, SEND, FRST, JOIN, TGS, PST, PRFL, TOP = range(8)
 
-reply_keyboard = [['Наш топ пользователей'],
+reply_keyboard = [['Как стать топом 🚀'],
                   ['FAQ', 'Случайный автор'],
                   ['Подать заявку', 'Полезные ссылки'],
                   ['Обратная связь', 'Личный кабинет']]
@@ -97,13 +97,52 @@ def bot_faq(bot, update):
 
 
 def top_users(bot, update):
-    update.message.reply_text('TOP USERS')
+    reply_keyboardz = [['Назад']]
+    state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
+    keyboard = [[InlineKeyboardButton("Руководство по шрифтам", callback_data="fonts_guide")],
+                [InlineKeyboardButton("Шаблоны для мемов", callback_data="mem_pics")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text("Такс, вот с чем я могу помочь тебе сейчас.", reply_markup=state)
+    update.message.reply_text('Выбирай 👇', reply_markup=reply_markup)
 
-    return CHOOSING
+    return TOP
+  
+  
+def top_users_action(bot, update, user_data):
+    IDS = user_data['userid']
+    query = update.callback_query
+
+    if query.data == "fonts_guide":
+        bot.send_message(text="Отличный гайд по шрифтам: mdk.is/m/AgR1MP", chat_id=IDS)
+        query.answer("Благодарочка Eugene_hs 😎")
+
+        return TOP
+    elif query.data == "mem_pics":
+        bot.send_message(text="""Подборки с шаблонами, забирай:
+1. mdk.is/m/Ag7NjA
+2. mdk.is/m/Aq1YkA
+3. mdk.is/m/AKkNlA
+4. mdk.is/m/vnVmgv
+5. mdk.is/m/v4NLYA
+6. mdk.is/m/P1ZaBA
+7. mdk.is/m/P6jREP
+8. mdk.is/m/voOJov
+9. mdk.is/m/D7JBrA
+10. mdk.is/m/AE36Rv
+11. mdk.is/m/AE07MP
+12. mdk.is/m/AWaqbv
+13. mdk.is/m/DLMnJv""", chat_id=IDS, disable_web_page_preview=True)
+        query.answer("Благодарочка Eugene_hs и leriben 😎")
+        
+        return TOP
+    else:
+        update.message.reply_text("Ошибка!")
+
+        return TOP
 
 
 def contact_us(bot, update):
-    update.message.reply_text('CONTACT US')
+    update.message.reply_text('Остались вопросы? Напиши нам: @wimhelpBot')
 
     return CHOOSING
 
@@ -318,7 +357,7 @@ def main():
             CHOOSING:
                 [
                     RegexHandler('^FAQ$', bot_faq),
-                    RegexHandler('^Наш топ пользователей$', top_users),
+                    RegexHandler('^Как стать топом 🚀$', top_users),
                     RegexHandler('^Случайный автор$', random_user),
                     RegexHandler('^Подать заявку$', join_us, pass_user_data=True),
                     RegexHandler('^Полезные ссылки$', media_links),
