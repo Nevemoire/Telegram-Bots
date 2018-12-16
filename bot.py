@@ -204,7 +204,7 @@ ID: {user}''', chat_id='@whoismdkadmins')
 ID: {user}''', chat_id='@whoismdkadmins')
         update.message.reply_text(f'''Заявка принята!
 Код подтверждения: {user}''', reply_markup=markup)
-        update.message.reply_text('Теперь укажи этот код в комментариях к публикации: example.com')
+        update.message.reply_text('Теперь укажи этот код в комментариях к публикации: mdk.is/m/vmJlzP', disable_web_page_preview=True)
         cursor.execute("UPDATE users SET joined = 1 WHERE id=%s", (user,))
         conn.commit()
 
