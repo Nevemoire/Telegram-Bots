@@ -382,7 +382,9 @@ def main():
             PST:
                 [MessageHandler(Filters.text, custom_toppost, pass_user_data=True)],
             PRFL:
-                [CallbackQueryHandler(profile_action, pass_user_data=True)],
+                [CallbackQueryHandler(profile_action, pass_user_data=True),
+            TOP:
+                [CallbackQueryHandler(top_users_action, pass_user_data=True)],
         },
 
         fallbacks=[RegexHandler('^Назад$', get_back),
