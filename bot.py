@@ -344,8 +344,8 @@ def message_send(bot, update):
     return CHOOSING
 
 
-def stats(bot, update):
-    userid = user_data['usrid']
+def stats(bot, update, user_id):
+    userid = user_data['userid']
     cursor.execute("SELECT COUNT(*) FROM users")
     all_users = "%s" % cursor.fetchone()
     cursor.execute("SELECT COUNT(*) FROM users WHERE mdkname IS NOT NULL")
@@ -405,7 +405,7 @@ def main():
                     RegexHandler('^Личный кабинет$', profile, pass_user_data=True),
                     # RegexHandler('^Проверить подписку$', first_time),
                     CommandHandler('add', add_user),
-                    CommandHandler('stats', stats),
+                    CommandHandler('stats', stats, pass_user_data=True),
                     CommandHandler('id', get_id),
                     CommandHandler('send', message, pass_user_data=True)],
 
