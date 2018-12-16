@@ -20,7 +20,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-CHOOSING, SEND, FRST, JOIN, TGS, PST, PRFL, TOP = range(8)
+CHOOSING, SEND, FRST, JOIN, TGS, PST, PRFL, TOP, ADDING = range(9)
 
 reply_keyboard = [['Как стать топом 🚀'],
                   ['FAQ', 'Случайный автор'],
@@ -33,6 +33,8 @@ first = ReplyKeyboardMarkup(first_keyboard, one_time_keyboard=True, resize_keybo
 
 members = 'creator, administrator, member'
 memberslist = members.split(', ')
+commands = ('Как стать топом 🚀, FAQ, Случайный автор, Подать заявку, Полезные ссылки, Обратная связь, Личный кабинет')
+ignorelist = commands.split(', ')
 
 
 def start(bot, update, user_data):
@@ -148,6 +150,8 @@ def contact_us(bot, update):
 
 
 def join_us(bot, update, user_data):
+    reply_keyboardz = [['Назад']]
+    state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
     user = user_data['userid']
     cursor.execute("SELECT cheated FROM users WHERE id=%s", (user,))
     cheated = "%s" % cursor.fetchone()
@@ -166,7 +170,7 @@ def join_us(bot, update, user_data):
         
         return CHOOSING
     else:
-        update.message.reply_text('Такс, напиши сюда свой юзернейм из приложения. (Пример: admin)')
+        update.message.reply_text('Такс, напиши сюда свой юзернейм из приложения. (Пример: admin)', reply_markup=state)
 
         return JOIN
 
@@ -177,8 +181,17 @@ def user_join(bot, update, user_data):
     nick = user_data['nick']
     cursor.execute("SELECT mdkname FROM users WHERE mdkname IS NOT NULL")
     users = "%s" % cursor.fetchall()
+    back = "Назад"
     mdkname = update.message.text
-    if mdkname in users:
+    if mdkname in ignorelist:
+        update.message.reply_text("Сейчас бот не реагирует на эту команду, введи ник из приложения.")
+        
+        return JOIN
+    elif mdkname in back:
+        update.message.reply_text('Главное меню 👾', reply_markup=markup)
+
+        return CHOOSING
+    elif mdkname in users:
         update.message.reply_text('Засранец, этот пользователь уже подтверждён. За попытку обмана мы отбираем возможность подтвердить свой аккаунт.', reply_markup=markup)
         bot.send_message(text=f'''Пользователь {name} (@{nick}) попытался наебать систему и использовать ник {mdkname}
 ID: {user}''', chat_id='@whoismdkadmins')
@@ -189,7 +202,7 @@ ID: {user}''', chat_id='@whoismdkadmins')
     else:
         bot.send_message(text=f'''Пользователь {name} (@{nick}) запросил подтверждение на ник: {mdkname}
 ID: {user}''', chat_id='@whoismdkadmins')
-        update.message.reply_text(f'''Заявка принята.
+        update.message.reply_text(f'''Заявка принята!
 Код подтверждения: {user}''', reply_markup=markup)
         update.message.reply_text('Теперь укажи этот код в комментариях к публикации: example.com')
         cursor.execute("UPDATE users SET joined = 1 WHERE id=%s", (user,))
@@ -205,7 +218,9 @@ def get_id(bot, update):
 
 
 def media_links(bot,update):
-    update.message.reply_text('LINKS')
+    update.message.reply_text('''@whoismdk - Канал, где мы освещаем разные события и постим лучшие мемы (по нашему скромному мнению) :)
+
+Это пока всё, но мы будем дополнять этот раздел вашими постами из приложения.''')
 
     return CHOOSING
 
@@ -271,8 +286,17 @@ def custom_toppost(bot, update, user_data):
 
 
 def add_user(bot, update):
-    update.message.reply_text('ADD')
+    update.message.reply_text('Введи код заявки и ник через запятую.')
 
+    return ADDING
+  
+  
+def new_user(bot, update):
+    code = update.message.text
+    data = code.split(', ')
+    update.message.reply_text(data[0])
+    update.message.reply_text(data[1])
+    
     return CHOOSING
 
 
@@ -311,7 +335,13 @@ def message_send(bot, update):
 
 
 def stats(bot, update):
-    update.message.reply_text('STATS')
+    userid = user_data['usrid']
+    cursor.execute("SELECT COUNT(*) FROM users")
+    all_users = "%s" % cursor.fetchone()
+    cursor.execute("SELECT COUNT(*) FROM users WHERE mdkname IS NOT NULL")
+    verified_users = "%s" % cursor.fetchone()
+    bot.send_message(text=f"""Кол-во пользователей: {max_users}
+Подтверждённых: {verified_users}""", chat_id=userid)
 
     return CHOOSING
 
@@ -385,6 +415,8 @@ def main():
                 [CallbackQueryHandler(profile_action, pass_user_data=True)],
             TOP:
                 [CallbackQueryHandler(top_users_action, pass_user_data=True)],
+            ADDING:
+                [MessageHandler(Filters.text, new_user)],
         },
 
         fallbacks=[RegexHandler('^Назад$', get_back),
