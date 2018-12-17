@@ -376,7 +376,7 @@ def restore(bot, update):
 
 def random_user(bot, update):
     cursor.execute(
-        "SELECT mdkname, toppost, tags FROM users WHERE mdkname IS NOT NULL AND tags IS NOT NULL AND toppost IS NOT NULL ORDER BY RANDOM() LIMIT 1")
+        "SELECT mdkname, toppost, tags FROM users WHERE mdkname IS NOT NULL ORDER BY RANDOM() LIMIT 1")
     update.message.reply_text('''*Автор:* %s
 *Лучший пост:* %s
 *Теги:* %s''' % cursor.fetchone(), parse_mode='MARKDOWN')
