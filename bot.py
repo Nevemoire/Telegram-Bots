@@ -356,7 +356,7 @@ def stats(bot, update, user_data):
     all_users = "%s" % cursor.fetchone()
     cursor.execute("SELECT COUNT(*) FROM users WHERE mdkname IS NOT NULL")
     verified_users = "%s" % cursor.fetchone()
-    bot.send_message(text=f"""Кол-во ЭмДиКей'ов: {max_users}
+    bot.send_message(text=f"""Кол-во ЭмДиКей'ов: {all_users}
 Подтверждённых: {verified_users}""", chat_id=userid)
 
     return CHOOSING
