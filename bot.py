@@ -101,11 +101,12 @@ def bot_faq(bot, update):
 def top_users(bot, update):
     reply_keyboardz = [['Назад']]
     state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
-    keyboard = [[InlineKeyboardButton("Руководство по шрифтам", callback_data="fonts_guide")],
+    keyboard = [[InlineKeyboardButton("Чит коды на MDK", callback_data="cheat_codes")],
+                [InlineKeyboardButton("Руководство по шрифтам", callback_data="fonts_guide")],
                 [InlineKeyboardButton("Шаблоны для мемов", callback_data="mem_pics")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text("Такс, вот с чем я могу помочь тебе сейчас.", reply_markup=state)
-    update.message.reply_text('Выбирай 👇', reply_markup=reply_markup)
+    update.message.reply_text("Такс, вот с чем я могу тебе помочь.", reply_markup=state)
+    update.message.reply_text('Забирай себе 👇', reply_markup=reply_markup)
 
     return TOP
   
@@ -117,6 +118,11 @@ def top_users_action(bot, update, user_data):
     if query.data == "fonts_guide":
         bot.send_message(text="Отличный гайд по шрифтам: mdk.is/m/AgR1MP", chat_id=IDS)
         query.answer("Благодарочка Eugene_hs 😎")
+
+        return TOP
+    elif query.data == "cheat_codes":
+        bot.send_message(text="Настоящие чит коды, только не пались: mdk.is/m/P1p1xv", chat_id=IDS)
+        query.answer("Благодарочка MDK 😎")
 
         return TOP
     elif query.data == "mem_pics":
@@ -344,13 +350,13 @@ def message_send(bot, update):
     return CHOOSING
 
 
-def stats(bot, update, user_id):
+def stats(bot, update, user_data):
     userid = user_data['userid']
     cursor.execute("SELECT COUNT(*) FROM users")
     all_users = "%s" % cursor.fetchone()
     cursor.execute("SELECT COUNT(*) FROM users WHERE mdkname IS NOT NULL")
     verified_users = "%s" % cursor.fetchone()
-    bot.send_message(text=f"""Кол-во пользователей: {max_users}
+    bot.send_message(text=f"""Кол-во ЭмДиКей'ов: {max_users}
 Подтверждённых: {verified_users}""", chat_id=userid)
 
     return CHOOSING
