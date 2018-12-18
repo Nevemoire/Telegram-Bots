@@ -241,14 +241,18 @@ def profile(bot,update, user_data):
     toppost = "%s" % cursor.fetchone()
     cursor.execute("SELECT tags FROM users WHERE id=%s", (IDS,))
     tags = "%s" % cursor.fetchone()
+    cursor.execute("SELECT media FROM users WHERE id=%s", (IDS,))
+    media = "%s" % cursor.fetchone()
     reply_keyboardz = [['Назад']]
     state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
     keyboard = [[InlineKeyboardButton("Изменить лучший пост", callback_data="change_toppost")],
-                [InlineKeyboardButton("Изменить теги", callback_data="change_tags")]]
+                [InlineKeyboardButton("Изменить теги", callback_data="change_tags")],
+                [InlineKeyboardButton("Задеанониться", callback_data="change_media")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text(f'''Имя пользователя MDK: {mdkname}
 Лучший пост: {toppost}
-Теги: {tags}''', reply_markup=state)
+Теги: {tags}
+Деанон: {media}''', reply_markup=state, disable_web_page_preview=True)
     update.message.reply_text('Выбери действие 👇', reply_markup=reply_markup)
 
     return PRFL
