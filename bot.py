@@ -267,6 +267,11 @@ def profile_action(bot, update, user_data):
         query.answer("Только без 'http://', так будет красивее 😎")
         
         return PST
+    elif query.data == "change_media":
+        bot.send_message(text="Укажи ссылку на любую из твоих соц. сетей.", chat_id=IDS)
+        query.answer("Только без 'http://', так будет красивее 😎")
+        
+        return MDA
     else:
         update.message.reply_text("Ошибка!")
 
@@ -291,6 +296,16 @@ def custom_toppost(bot, update, user_data):
     update.message.reply_text(f"Готово! Новая ссылка: {new_toppost}", reply_markup=markup)
     
     return CHOOSING
+  
+  
+def custom_media(bot, update, user_data):
+    IDS = user_data['userid']
+    new_media = update.message.text
+    cursor.execute("UPDATE users SET media = %s WHERE id=%s", (new_media, IDS))
+    conn.commit()
+    update.message.reply_text(f"Готово! Ссылка на тебя: {new_media}", reply_markup=markup)
+    
+    return CHOOSING
 
 
 def add_user(bot, update):
@@ -313,6 +328,21 @@ def new_user(bot, update):
         update.message.reply_text("""Упс, произошла ошибочка.
 Возможные причины: введены некоректные данные (скорее всего), пользователь заблокировал бота (возможно), телеге плохо (самый неправдоподобный вариант).""")
     
+    return CHOOSING
+  
+  
+def echo(bot, update):
+    mdkname = update.message.text
+    try:
+      cursor.execute(
+          "SELECT mdkname, toppost, tags, media FROM users WHERE mdkname = %s", (mdkname,))
+      update.message.reply_text('''*Автор:* %s
+*Лучший пост:* %s
+*Теги:* %s
+*Деанон:* %s''' % cursor.fetchone(), parse_mode='MARKDOWN')
+    except:
+      update.message.reply_text("Этого пользователя пока что нет в нашей базе, самое время кинуть ему/ей ссылку на бота :)")
+
     return CHOOSING
 
 
@@ -413,7 +443,8 @@ def main():
                     CommandHandler('add', add_user),
                     CommandHandler('stats', stats, pass_user_data=True),
                     CommandHandler('id', get_id),
-                    CommandHandler('send', message, pass_user_data=True)],
+                    CommandHandler('send', message, pass_user_data=True),
+                    MessageHandler(Filters.text, echo),],
 
             FRST:
                 [MessageHandler(Filters.text, first_time, pass_user_data=True)],
@@ -427,6 +458,8 @@ def main():
                 [MessageHandler(Filters.text, custom_tags, pass_user_data=True)],
             PST:
                 [MessageHandler(Filters.text, custom_toppost, pass_user_data=True)],
+            MDA
+                [MessageHandler(Filters.text, custom_media, pass_user_data=True)],
             PRFL:
                 [CallbackQueryHandler(profile_action, pass_user_data=True)],
             TOP:
