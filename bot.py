@@ -462,7 +462,7 @@ def main():
                 [MessageHandler(Filters.text, custom_tags, pass_user_data=True)],
             PST:
                 [MessageHandler(Filters.text, custom_toppost, pass_user_data=True)],
-            MDA
+            MDA:
                 [MessageHandler(Filters.text, custom_media, pass_user_data=True)],
             PRFL:
                 [CallbackQueryHandler(profile_action, pass_user_data=True)],
