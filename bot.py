@@ -20,7 +20,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-CHOOSING, SEND, FRST, JOIN, TGS, PST, PRFL, TOP, ADDING = range(9)
+CHOOSING, SEND, FRST, JOIN, TGS, PST, PRFL, TOP, MDA, ADDING = range(10)
 
 reply_keyboard = [['Как стать топом 🚀'],
                   ['FAQ', 'Случайный автор'],
