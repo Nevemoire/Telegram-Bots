@@ -102,6 +102,14 @@ def order(update, context):
     update.message.reply_text("Заказ")
 
     return CHOOSING
+  
+  
+def photo(update, context):
+    id = update.message.from_user.id
+    photo = context.bot.get_user_profile_photos(user_id=id)
+    update.message.reply_text(photo)
+
+    return CHOOSING
 
 
 def custom_choice(update, context):
@@ -255,7 +263,8 @@ def main():
                        MessageHandler(Filters.regex('^Контакты 📲$'), contacts),
                        MessageHandler(Filters.regex('^Статистика 📊$'), stats),
                        MessageHandler(Filters.regex('^Хочу такого бота 🚀$'), order),
-                       CommandHandler('stats', stats)],
+                       CommandHandler('stats', stats),
+                       CommandHandler('photo', photo)],
 
             PAYMENT:    [CallbackQueryHandler(button)],
 
