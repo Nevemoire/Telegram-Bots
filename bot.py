@@ -254,7 +254,7 @@ def main():
                  MessageHandler(Filters.regex('^О авторе$', about_author),
                  MessageHandler(Filters.regex('^Пример$', custom_choice, pass_user_data=True),
                  MessageHandler(Filters.regex('^Контакты$', contacts),
-                 CommandHandler('stats', stats, pass_user_data=True)],
+                 CommandHandler('stats', stats)],
 
             PAYMENT:    [CallbackQueryHandler(button, pass_user_data=True)],
 
