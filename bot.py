@@ -57,15 +57,15 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
-def start(update, context, user_data):
+def start(update, context):
     name = update.message.from_user.full_name
     update.message.reply_text(
         f'Привет, {name}!')
     nick = update.message.from_user.username
     userid = update.message.from_user.id
-    user_data['usrid'] = userid
-    user_data['username'] = nick
-    user_data['name'] = name
+    context.user_data['usrid'] = userid
+    context.user_data['username'] = nick
+    context.user_data['name'] = name
     update.message.reply_text('''Воспользуйся меню ниже для взаимодействия с ботом.''', reply_markup=markup)
     cursor.execute("SELECT id FROM users WHERE id=%s", (userid,))
     result = "%s" % cursor.fetchone()
@@ -96,7 +96,7 @@ def contacts(context, update):
     return CHOOSING
 
 
-def custom_choice(context, update, user_data):
+def custom_choice(context, update):
     reply_keyboardz = [['Назад']]
     state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
     keyboard = [[InlineKeyboardButton("Базовый (1000р)", callback_data="1"),
@@ -110,9 +110,9 @@ def custom_choice(context, update, user_data):
     return TYPING_REPLY
 
 
-def received_information(context, update, user_data):
+def received_information(context, update):
     query = update.callback_query
-    user_data['choice'] = query.data
+    context.user_data['choice'] = query.data
     # text = update.message.text
     keyboard = [[InlineKeyboardButton("Перейти к оплате", callback_data="Оплата")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -137,8 +137,8 @@ def received_information(context, update, user_data):
     return PAYMENT
 
 
-def button(bot, update, user_data):
-    IDS = user_data['choice']
+def button(bot, update):
+    IDS = context.user_data['choice']
     try:
         chat_id = update.effective_message.chat_id
         cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
@@ -185,10 +185,10 @@ def precheckout_callback(update, context):
 
 
 # finally, after contacting to the payment provider...
-def successful_payment_callback(update, context, user_data):
-    IDS = user_data['choice']
-    usrid = user_data['usrid']
-    nick = user_data['username']
+def successful_payment_callback(update, context):
+    IDS = context.user_data['choice']
+    usrid = context.user_data['usrid']
+    nick = context.user_data['username']
     cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
     tariff = "%s" % cursor.fetchone()
     # do something after successful receive of payment?
@@ -202,15 +202,6 @@ def successful_payment_callback(update, context, user_data):
     ts = "%d" % cursor.fetchone()
     ts = int(ts) + int(tsprice)
     cursor.execute("UPDATE users SET totalspent = %s WHERE id=%s", (str(ts), usrid))
-    try:
-        cursor.execute("SELECT promo FROM users WHERE id=%s", (usrid,))
-        promoz = "%s" % cursor.fetchone()
-        cursor.execute("SELECT earnings FROM users WHERE mypromo=%s", (promoz,))
-        earngs = "%d" % cursor.fetchone()
-        earngs = round(int(earngs) + (int(tsprice) / 10))
-        cursor.execute("UPDATE users SET earnings = %s WHERE mypromo=%s", (str(earngs), promoz))
-    except:
-        pass
     conn.commit()
     context.bot.send_message(
         text=f'''Пользователь {usrid} (@{nick}) оплатил {tsprice} рублей.
@@ -224,13 +215,13 @@ def get_back(context, update):
     return CHOOSING
 
 
-def stats(bot, update, user_data):
-    userid = user_data['usrid']
+def stats(context, update):
+    userid = context.user_data['usrid']
     cursor.execute("SELECT COUNT(*) FROM users")
     max_users = "%s" % cursor.fetchone()
-    cursor.execute("SELECT SUM(earnings) FROM users")
+    cursor.execute("SELECT SUM(totalspent) FROM users")
     max_earnings = "%s" % cursor.fetchone()
-    bot.send_message(text=f"""Кол-во пользователей: {max_users}
+    context.bot.send_message(text=f"""Кол-во пользователей: {max_users}
 Всего заработано: {max_earnings} рублей""", chat_id=userid)
 
     return CHOOSING
@@ -246,19 +237,19 @@ def main():
     dp = updater.dispatcher
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', start, pass_user_data=True)],
+        entry_points=[CommandHandler('start', start)],
 
         states={
             CHOOSING:
                 [MessageHandler(Filters.regex('^О боте$', about_bot),
                  MessageHandler(Filters.regex('^О авторе$', about_author),
-                 MessageHandler(Filters.regex('^Пример$', custom_choice, pass_user_data=True),
+                 MessageHandler(Filters.regex('^Пример$', custom_choice),
                  MessageHandler(Filters.regex('^Контакты$', contacts),
                  CommandHandler('stats', stats)],
 
-            PAYMENT:    [CallbackQueryHandler(button, pass_user_data=True)],
+            PAYMENT:    [CallbackQueryHandler(button)],
 
-            TYPING_REPLY: [CallbackQueryHandler(received_information, pass_user_data=True)],
+            TYPING_REPLY: [CallbackQueryHandler(received_information)],
         },
 
         fallbacks=[MessageHandler(Filters.regex('^Назад$', get_back)]
