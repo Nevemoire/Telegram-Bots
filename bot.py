@@ -14,7 +14,7 @@ import logging
 
 from telegram import (ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice)
 from telegram.ext import (Updater, CommandHandler, MessageHandler,
-                          Filters, RegexHandler,
+                          Filters,
                           ConversationHandler, CallbackQueryHandler,
                           PreCheckoutQueryHandler, ShippingQueryHandler)
 import psycopg2
@@ -251,10 +251,10 @@ def main():
         states={
             CHOOSING:
                 [
-                    RegexHandler('^О боте$', about_bot),
-                    RegexHandler('^О авторе$', about_author),
-                    RegexHandler('^Пример$', custom_choice, pass_user_data=True),
-                    RegexHandler('^Контакты$', contacts),
+                    MessageHandler(Filters.regex('^О боте$', about_bot),
+                    MessageHandler(Filters.regex('^О авторе$', about_author),
+                    MessageHandler(Filters.regex('^Пример$', custom_choice, pass_user_data=True),
+                    MessageHandler(Filters.regex('^Контакты$', contacts),
                     CommandHandler('stats', stats, pass_user_data=True)],
 
             PAYMENT:    [CallbackQueryHandler(button, pass_user_data=True)],
@@ -262,7 +262,7 @@ def main():
             TYPING_REPLY: [CallbackQueryHandler(received_information, pass_user_data=True)],
         },
 
-        fallbacks=[RegexHandler('^Назад$', get_back)]
+        fallbacks=[MessageHandler(Filters.regex('^Назад$', get_back)]
     )
 
     # Pre-checkout handler to final check
