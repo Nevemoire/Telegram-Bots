@@ -78,25 +78,25 @@ def start(update, context):
     return CHOOSING
 
 
-def about_bot(context, update):
+def about_bot(update, context):
     update.message.reply_text("О боте")
 
     return CHOOSING
 
 
-def about_author(context, update):
+def about_author(update, context):
     update.message.reply_text("О авторе")
 
     return CHOOSING
 
 
-def contacts(context, update):
+def contacts(update, context):
     update.message.reply_text("Контакты")
 
     return CHOOSING
 
 
-def custom_choice(context, update):
+def custom_choice(update, context):
     reply_keyboardz = [['Назад']]
     state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
     keyboard = [[InlineKeyboardButton("Базовый (1000р)", callback_data="1"),
@@ -110,7 +110,7 @@ def custom_choice(context, update):
     return TYPING_REPLY
 
 
-def received_information(context, update):
+def received_information(update, context):
     query = update.callback_query
     context.user_data['choice'] = query.data
     # text = update.message.text
@@ -137,7 +137,7 @@ def received_information(context, update):
     return PAYMENT
 
 
-def button(bot, update):
+def button(update, context):
     IDS = context.user_data['choice']
     try:
         chat_id = update.effective_message.chat_id
@@ -160,10 +160,10 @@ def button(bot, update):
 
         # optionally pass need_name=True, need_phone_number=True,
         # need_email=True, need_shipping_address=True, is_flexible=True
-        bot.sendInvoice(chat_id, title, description, payload,
+        context.bot.sendInvoice(chat_id, title, description, payload,
                         provider_token, start_parameter, currency, prices)
     except:
-        bot.send_message(text='Бесплатные услуги оплачивать не нужно.',
+        context.bot.send_message(text='Бесплатные услуги оплачивать не нужно.',
                          chat_id=update.effective_message.chat_id,
                          message_id=update.effective_message.message_id,
                          reply_markup=markup)
@@ -209,13 +209,13 @@ def successful_payment_callback(update, context):
     Дата: {now.day}.{now.month}.{now.year}''', chat_id='@orderspaymentstg')
 
 
-def get_back(context, update):
+def get_back(update, context):
     update.message.reply_text("Главное меню 👾", reply_markup=markup)
 
     return CHOOSING
 
 
-def stats(context, update):
+def stats(update, context):
     userid = context.user_data['usrid']
     cursor.execute("SELECT COUNT(*) FROM users")
     max_users = "%s" % cursor.fetchone()
