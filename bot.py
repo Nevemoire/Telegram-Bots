@@ -93,7 +93,7 @@ def about_author(update, context):
 
 def contacts(update, context):
     update.message.reply_text("""Telegram: @daaetoya
-Instagram: [@daniel.nvmr](instagram://user?username=daniel.nvmr)""")
+Instagram: [@daniel.nvmr](instagram://user?username=daniel.nvmr)""", parse_mode="MARKDOWN")
 
     return CHOOSING
   
