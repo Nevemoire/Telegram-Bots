@@ -244,7 +244,7 @@ def main():
                        MessageHandler(Filters.regex('^О авторе$', about_author),
                        MessageHandler(Filters.regex('^Пример$', custom_choice),
                        MessageHandler(Filters.regex('^Контакты$', contacts),
-                       CommandHandler('stats', stats),
+                       CommandHandler('stats', stats)],
 
             PAYMENT:    [CallbackQueryHandler(button)],
 
@@ -258,7 +258,7 @@ def main():
     dp.add_handler(PreCheckoutQueryHandler(precheckout_callback))
 
     # Success! Notify your user!
-    dp.add_handler(MessageHandler(Filters.successful_payment, successful_payment_callback, pass_user_data=True))
+    dp.add_handler(MessageHandler(Filters.successful_payment, successful_payment_callback))
 
     dp.add_handler(conv_handler)
 
