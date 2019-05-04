@@ -106,8 +106,8 @@ def order(update, context):
   
 def photo(update, context):
     id = update.message.from_user.id
-    photo = context.bot.get_user_profile_photos(user_id=id)
-    update.message.reply_text(photo)
+    avatar = context.bot.get_user_profile_photos(user_id=id)
+    context.bot.send_photo(chat_id=id, photo=avatar)
 
     return CHOOSING
 
