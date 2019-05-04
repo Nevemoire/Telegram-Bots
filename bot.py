@@ -106,7 +106,7 @@ def order(update, context):
   
 def photo(update, context):
     id = update.message.from_user.id
-    avatar = context.bot.get_user_profile_photos(user_id=id)
+    avatar = 'https://images.pexels.com/photos/207962/pexels-photo-207962.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260'
     context.bot.send_photo(chat_id=id, photo=avatar)
 
     return CHOOSING
