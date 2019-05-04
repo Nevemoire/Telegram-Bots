@@ -30,8 +30,9 @@ cursor = conn.cursor()
 
 now = datetime.datetime.now()
 
-reply_keyboard = [['О боте', 'О авторе'],
-                  ['Пример', 'Контакты']]
+reply_keyboard = [['О боте 👾', 'О авторе 👨🏻‍💻'],
+                  ['Пример 💶', 'Контакты 📲'],
+                  ['Статистика 📊'],['Хочу такого бота 🚀']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 
 
@@ -39,7 +40,7 @@ markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 
 
 commands = (
-    'О боте, О авторе, Пример, Контакты')
+    'О боте 👾, О авторе 👨🏻‍💻, Пример 💶, Контакты 📲, Статистика 📊, Хочу такого бота 🚀')
 ignorelist = commands.split(', ')
 members = 'creator, administrator, member'
 memberslist = members.split(', ')
@@ -91,7 +92,14 @@ def about_author(update, context):
 
 
 def contacts(update, context):
-    update.message.reply_text("Контакты")
+    update.message.reply_text("""Telegram: @daaetoya
+Instagram: [@daniel.nvmr](instagram://user?username=daniel.nvmr)""")
+
+    return CHOOSING
+  
+  
+def order(update, context):
+    update.message.reply_text("Заказ")
 
     return CHOOSING
 
@@ -241,10 +249,12 @@ def main():
         allow_reentry=True,
 
         states={
-            CHOOSING: [MessageHandler(Filters.regex('^О боте$'), about_bot),
-                       MessageHandler(Filters.regex('^О авторе$'), about_author),
-                       MessageHandler(Filters.regex('^Пример$'), custom_choice),
-                       MessageHandler(Filters.regex('^Контакты$'), contacts),
+            CHOOSING: [MessageHandler(Filters.regex('^О боте 👾$'), about_bot),
+                       MessageHandler(Filters.regex('^О авторе 👨🏻‍💻$'), about_author),
+                       MessageHandler(Filters.regex('^Пример 💶$'), custom_choice),
+                       MessageHandler(Filters.regex('^Контакты 📲$'), contacts),
+                       MessageHandler(Filters.regex('^Статистика 📊$'), stats),
+                       MessageHandler(Filters.regex('^Хочу такого бота 🚀$'), order),
                        CommandHandler('stats', stats)],
 
             PAYMENT:    [CallbackQueryHandler(button)],
