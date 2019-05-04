@@ -193,8 +193,8 @@ def successful_payment_callback(update, context):
     tariff = "%s" % cursor.fetchone()
     # do something after successful receive of payment?
     update.effective_message.reply_text('''Благодарим за проведение тестовой оплаты!
-    Канал для просмотра успешных заявок: @orderspaymentstg''', reply_markup=markup)
-    cursor.execute("UPDATE betsdb SET patrons = patrons+1 WHERE id=?", (IDS,))
+Посмотреть как выглядят заказы: @orderspaymentstg''', reply_markup=markup)
+    cursor.execute("UPDATE betsdb SET patrons = patrons+1 WHERE id=%s", (IDS,))
     cursor.execute("SELECT price FROM betsdb WHERE id=%s", (IDS,))
     product_price = "%d" % cursor.fetchone()
     tsprice = int(product_price)
@@ -205,8 +205,8 @@ def successful_payment_callback(update, context):
     conn.commit()
     context.bot.send_message(
         text=f'''Пользователь {usrid} (@{nick}) оплатил {tsprice} рублей.
-    Тариф: {tariff}.
-    Дата: {now.day}.{now.month}.{now.year}''', chat_id='@orderspaymentstg')
+Тариф: {tariff}.
+Дата: {now.day}.{now.month}.{now.year}''', chat_id='@orderspaymentstg')
 
 
 def get_back(update, context):
@@ -238,6 +238,7 @@ def main():
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
+        allow_reentry=True,
 
         states={
             CHOOSING: [MessageHandler(Filters.regex('^О боте$'), about_bot),
