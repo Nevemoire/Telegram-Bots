@@ -251,7 +251,7 @@ def main():
             TYPING_REPLY: [CallbackQueryHandler(received_information)],
         },
 
-        fallbacks=[MessageHandler(Filters.regex('^Назад$', get_back)]
+        fallbacks=[MessageHandler(Filters.regex('^Назад$', get_back))]
     )
 
     # Pre-checkout handler to final check
