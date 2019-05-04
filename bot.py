@@ -240,10 +240,10 @@ def main():
         entry_points=[CommandHandler('start', start)],
 
         states={
-            CHOOSING: [MessageHandler(Filters.regex('^О боте$', about_bot),
-                       MessageHandler(Filters.regex('^О авторе$', about_author),
-                       MessageHandler(Filters.regex('^Пример$', custom_choice),
-                       MessageHandler(Filters.regex('^Контакты$', contacts),
+            CHOOSING: [MessageHandler(Filters.regex('^О боте$', about_bot)),
+                       MessageHandler(Filters.regex('^О авторе$', about_author)),
+                       MessageHandler(Filters.regex('^Пример$', custom_choice)),
+                       MessageHandler(Filters.regex('^Контакты$', contacts)),
                        CommandHandler('stats', stats)],
 
             PAYMENT:    [CallbackQueryHandler(button)],
