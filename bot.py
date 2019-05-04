@@ -1,18 +1,23 @@
-# !/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, RegexHandler,
-                          ConversationHandler, CallbackQueryHandler, PreCheckoutQueryHandler)#, PicklePersistence)
+                          ConversationHandler, CallbackQueryHandler, PreCheckoutQueryHandler)
+
 import logging
 import psycopg2
 import config
 import os
+import datetime
 from importlib import reload
 
-conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], password=os.environ['password'], host=os.environ['host'])
+conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], password=os.environ['password'],
+                        host=os.environ['host'])
 
 cursor = conn.cursor()
+
+now = datetime.datetime.now()
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -20,61 +25,36 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-CHOOSING, SEND, FRST, JOIN, TGS, PST, PRFL, TOP, MDA, ADDING = range(10)
+(CHOOSING, FRST, PREFRST, OK, UN, UP, PR, TYPING_REPLY,
+ PROMOCODE, PAYMENT, CHECKOUT, SUC_PAYMENT, PRFL) = range(13)
 
-reply_keyboard = [['Как стать топом 🚀'],
-                  ['FAQ', 'Случайный автор'],
-                  ['Подать заявку', 'Полезные ссылки'],
-                  ['Обратная связь', 'Личный кабинет']]
-markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
-
+reply_keyboard = [['Бесплатная подписка', 'Платная подписка'],
+                  ['Ввести промокод', 'Стать партнёром'],
+                  ['Связь с нами', 'Личный кабинет']]
+markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 first_keyboard = [['Проверить подписку']]
 first = ReplyKeyboardMarkup(first_keyboard, one_time_keyboard=True, resize_keyboard=True)
 
+commands = (
+    'Бесплатная подписка, Платная подписка, Ввести промокод, Связь с нами, Стать партнёром, Личный кабинет, Я блоггер, Я администратор')
+ignorelist = commands.split(', ')
 members = 'creator, administrator, member'
 memberslist = members.split(', ')
-commands = ('Как стать топом 🚀, FAQ, Случайный автор, Подать заявку, Полезные ссылки, Обратная связь, Личный кабинет')
-ignorelist = commands.split(', ')
+back = 'Назад'
 
 
 def start(bot, update, user_data):
-    """Send a message when the command /start is issued."""
     name = update.message.from_user.full_name
-    update.message.reply_text(f'''Здарова, {name}.
-Только тебя и ждали!''')
+    update.message.reply_text(
+        f'Привет, {name}!')
     nick = update.message.from_user.username
     userid = update.message.from_user.id
+    user_data['usrid'] = userid
+    user_data['username'] = nick
     user_data['name'] = name
-    user_data['nick'] = nick
-    user_data['userid'] = userid
-    member = bot.get_chat_member('@whoismdk', userid)
+    member = bot.get_chat_member('@bigbetz', userid)
     if member.status in memberslist:
-        update.message.reply_text('С возвращением :)', reply_markup=markup)
-        cursor.execute("SELECT id FROM users WHERE id=%s", (userid,))
-        result = "%s" % cursor.fetchone()
-        if result == "None":
-            cursor.execute("INSERT INTO users (nickname, namesurname, id) VALUES (%s, %s, %s)", (nick, name, userid))
-            conn.commit()
-        else:
-            pass
-
-        return CHOOSING
-    else:
-        update.message.reply_text('Для начала, будь добр(-а), подпишись на наш канал с новостями: @whoismdk'
-                                  , reply_markup=first)
-
-        return FRST
-
-
-def first_time(bot, update, user_data):
-    userid = user_data['userid']
-    nick = user_data['nick']
-    name = user_data['name']
-    member = bot.get_chat_member('@whoismdk', userid)
-    if member.status in memberslist:
-        update.message.reply_text('Благодарим за подписку! :)')
-        update.message.reply_text('''Я помогу освоиться тебе в приложении MDK!
-        
+        update.message.reply_text('''Я твой персональный бот-прогнозист!
 Воспользуйся меню ниже чтобы мы понимали друг друга без проблем ;)''', reply_markup=markup)
         cursor.execute("SELECT id FROM users WHERE id=%s", (userid,))
         result = "%s" % cursor.fetchone()
@@ -86,318 +66,490 @@ def first_time(bot, update, user_data):
 
         return CHOOSING
     else:
-        update.message.reply_text('Для начала, будь добр(-а), подпишись на наш главный канал: @whoismdk'
-                                  , reply_markup=first)
+        update.message.reply_text(
+            'Для начала, будь добр(-а), подпишись на наш главный канал: @bigbetz', reply_markup=first)
 
         return FRST
 
 
-def bot_faq(bot, update):
-    update.message.reply_text('Пока что мы заняты написанием длиннопоста, как только он будет готов, этот раздел обновится :)')
-
-    return CHOOSING
-
-
-def top_users(bot, update):
-    reply_keyboardz = [['Назад']]
-    state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
-    keyboard = [[InlineKeyboardButton("Чит коды на MDK", callback_data="cheat_codes")],
-                [InlineKeyboardButton("Руководство по шрифтам", callback_data="fonts_guide")],
-                [InlineKeyboardButton("Шаблоны для мемов", callback_data="mem_pics")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text("Такс, вот с чем я могу тебе помочь.", reply_markup=state)
-    update.message.reply_text('Забирай себе 👇', reply_markup=reply_markup)
-
-    return TOP
-  
-  
-def top_users_action(bot, update, user_data):
-    IDS = user_data['userid']
-    query = update.callback_query
-
-    if query.data == "fonts_guide":
-        bot.send_message(text="Отличный гайд по шрифтам: mdk.is/m/AgR1MP", chat_id=IDS)
-        query.answer("Благодарочка Eugene_hs 😎")
-
-        return TOP
-    elif query.data == "cheat_codes":
-        bot.send_message(text="Настоящие чит коды, только не пались: mdk.is/m/P1p1xv", chat_id=IDS)
-        query.answer("Благодарочка MDK 😎")
-
-        return TOP
-    elif query.data == "mem_pics":
-        bot.send_message(text="""Подборки с шаблонами, забирай:
-1. mdk.is/m/Ag7NjA
-2. mdk.is/m/Aq1YkA
-3. mdk.is/m/AKkNlA
-4. mdk.is/m/vnVmgv
-5. mdk.is/m/v4NLYA
-6. mdk.is/m/P1ZaBA
-7. mdk.is/m/P6jREP
-8. mdk.is/m/voOJov
-9. mdk.is/m/D7JBrA
-10. mdk.is/m/AE36Rv
-11. mdk.is/m/AE07MP
-12. mdk.is/m/AWaqbv
-13. mdk.is/m/DLMnJv""", chat_id=IDS, disable_web_page_preview=True)
-        query.answer("Благодарочка Eugene_hs и leriben 😎")
-        
-        return TOP
-    else:
-        update.message.reply_text("Ошибка!")
-
-        return TOP
-
-
-def contact_us(bot, update):
-    update.message.reply_text('Остались вопросы? Напиши нам: @wimhelpBot')
-
-    return CHOOSING
-
-
-def join_us(bot, update, user_data):
-    reply_keyboardz = [['Назад']]
-    state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
-    user = user_data['userid']
-    cursor.execute("SELECT cheated FROM users WHERE id=%s", (user,))
-    cheated = "%s" % cursor.fetchone()
-    cursor.execute("SELECT joined FROM users WHERE id=%s", (user,))
-    joined = "%s" % cursor.fetchone()
-    if '1' in cheated:
-        update.message.reply_text('''Мы уже поймали тебя на обмане, теперь эта функция заблокирована.
-
-Если ты считаешь что произошла ошибка, пиши: @wimhelpBot''', reply_markup=markup)
-        
-        return CHOOSING
-    elif '1' in joined:
-        update.message.reply_text('''Ты уже подавал заявку. Если она всё-ещё не обработана, ожидай подтверждения :)
-
-Если подтверждение длится дольше 2 часов, пиши: @wimhelpBot''', reply_markup=markup)
-        
-        return CHOOSING
-    else:
-        update.message.reply_text('Такс, напиши сюда свой юзернейм из приложения. (Пример: admin)', reply_markup=state)
-
-        return JOIN
-
-
-def user_join(bot, update, user_data):
-    user = user_data['userid']
+def first_time(bot, update, user_data):
+    userid = user_data['usrid']
+    nick = user_data['username']
     name = user_data['name']
-    nick = user_data['nick']
-    cursor.execute("SELECT mdkname FROM users WHERE mdkname IS NOT NULL")
-    users = "%s" % cursor.fetchall()
-    back = "Назад"
-    mdkname = update.message.text
-    if mdkname in ignorelist:
-        update.message.reply_text("Сейчас бот не реагирует на эту команду, введи ник из приложения.")
-        
-        return JOIN
-    elif mdkname in back:
-        update.message.reply_text('Главное меню 👾', reply_markup=markup)
+    member = bot.get_chat_member('@bigbetz', userid)
+    if member.status in memberslist:
+        update.message.reply_text('Благодарим за подписку! :)', reply_markup=markup)
+        update.message.reply_text('''Я твой персональный бот-прогнозист!
+Воспользуйся меню ниже чтобы мы понимали друг друга без проблем ;)''', reply_markup=markup)
+        cursor.execute("SELECT id FROM users WHERE id=%s", (userid,))
+        result = "%s" % cursor.fetchone()
+        if result == "None":
+            cursor.execute("INSERT INTO users (nickname, namesurname, id) VALUES (%s, %s, %s)", (nick, name, userid))
+            conn.commit()
+        else:
+            pass
 
-        return CHOOSING
-    elif mdkname in users:
-        update.message.reply_text('Засранец, этот пользователь уже подтверждён. За попытку обмана мы отбираем возможность подтвердить свой аккаунт.', reply_markup=markup)
-        bot.send_message(text=f'''Пользователь {name} (@{nick}) попытался наебать систему и использовать ник {mdkname}
-ID: {user}''', chat_id='@whoismdkadmins')
-        cursor.execute("UPDATE users SET cheated = 1 WHERE id=%s", (user,))
-        conn.commit()
-        
         return CHOOSING
     else:
-        bot.send_message(text=f'''Пользователь {name} (@{nick}) запросил подтверждение на ник: {mdkname}
-ID: {user}''', chat_id='@whoismdkadmins')
-        update.message.reply_text(f'''Заявка принята!
-Код подтверждения: {user}''', reply_markup=markup)
-        update.message.reply_text('Теперь укажи этот код в комментариях к публикации: mdk.is/m/vmJlzP', disable_web_page_preview=True)
-        cursor.execute("UPDATE users SET joined = 1 WHERE id=%s", (user,))
-        conn.commit()
+        update.message.reply_text('Ошибка! Проверь что ты подписался(-ась) на канал @bigbetz '
+                                  'и нажми кнопку заново.', reply_markup=first)
 
-        return CHOOSING
+        return FRST
 
 
-def get_id(bot, update):
-    update.message.reply_text(update.message.from_user.id)
+def delete_promos(bot, update):
+    cursor.execute("UPDATE users SET promo = NULL WHERE id=391206263")
+    cursor.execute("UPDATE users SET mypromo = NULL WHERE id=391206263")
+    cursor.execute("UPDATE users SET is_partner = 0 WHERE id=391206263")
+    update.message.reply_text("Готово.")
 
     return CHOOSING
 
 
-def media_links(bot,update):
-    update.message.reply_text('''@whoismdk - Канал, где мы освещаем разные события и постим лучшие мемы (по нашему скромному мнению) :)
-
-Челлендж Ель, прояви свою креативность - mdk.is/m/vZJZ7v 
-
-Это пока всё, но мы будем дополнять этот раздел вашими постами из приложения.''', disable_web_page_preview=True)
-
-    return CHOOSING
-
-
-def profile(bot,update, user_data):
-    IDS = user_data['userid']
-    cursor.execute("SELECT mdkname FROM users WHERE id=%s", (IDS,))
-    mdkname = "%s" % cursor.fetchone()
-    cursor.execute("SELECT toppost FROM users WHERE id=%s", (IDS,))
-    toppost = "%s" % cursor.fetchone()
-    cursor.execute("SELECT tags FROM users WHERE id=%s", (IDS,))
-    tags = "%s" % cursor.fetchone()
-    cursor.execute("SELECT media FROM users WHERE id=%s", (IDS,))
-    media = "%s" % cursor.fetchone()
-    reply_keyboardz = [['Назад']]
-    state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
-    keyboard = [[InlineKeyboardButton("Изменить лучший пост", callback_data="change_toppost")],
-                [InlineKeyboardButton("Изменить теги", callback_data="change_tags")],
-                [InlineKeyboardButton("Задеанониться", callback_data="change_media")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text(f'''Имя пользователя MDK: {mdkname}
-Лучший пост: {toppost}
-Теги: {tags}
-Деанон: {media}''', reply_markup=state, disable_web_page_preview=True)
-    update.message.reply_text('Выбери действие 👇', reply_markup=reply_markup)
-
-    return PRFL
-  
-  
-def profile_action(bot, update, user_data):
-    IDS = user_data['userid']
-    query = update.callback_query
-
-    if query.data == "change_tags":
-        bot.send_message(text="Напиши сюда новые теги одним сообщением.", chat_id=IDS)
-
-        return TGS
-    elif query.data == "change_toppost":
-        bot.send_message(text="Укажи новую ссылку на лучший пост.", chat_id=IDS)
-        query.answer("Только без 'http://', так будет красивее 😎")
-        
-        return PST
-    elif query.data == "change_media":
-        bot.send_message(text="Укажи ссылку на любую из твоих соц. сетей.", chat_id=IDS)
-        query.answer("Только без 'http://', так будет красивее 😎")
-        
-        return MDA
-    else:
-        update.message.reply_text("Ошибка!")
-
-        return PRFL
-      
-      
-def custom_tags(bot, update, user_data):
-    IDS = user_data['userid']
-    new_tags = update.message.text
-    cursor.execute("UPDATE users SET tags = %s WHERE id=%s", (new_tags, IDS))
-    conn.commit()
-    update.message.reply_text(f"Готово! Новые теги: {new_tags}", reply_markup=markup)
-    
-    return CHOOSING
-  
-  
-def custom_toppost(bot, update, user_data):
-    IDS = user_data['userid']
-    new_toppost = update.message.text
-    cursor.execute("UPDATE users SET toppost = %s WHERE id=%s", (new_toppost, IDS))
-    conn.commit()
-    update.message.reply_text(f"Готово! Новая ссылка: {new_toppost}", reply_markup=markup)
-    
-    return CHOOSING
-  
-  
-def custom_media(bot, update, user_data):
-    IDS = user_data['userid']
-    new_media = update.message.text
-    cursor.execute("UPDATE users SET media = %s WHERE id=%s", (new_media, IDS))
-    conn.commit()
-    update.message.reply_text(f"Готово! Ссылка на тебя: {new_media}", reply_markup=markup)
-    
-    return CHOOSING
-
-
-def add_user(bot, update):
-    update.message.reply_text('Введи код заявки и ник через запятую.')
-
-    return ADDING
-  
-  
-def new_user(bot, update):
-    try:
-        code = update.message.text
-        data = code.split(', ')
-        ID = data[0]
-        nick = data[1]
-        cursor.execute("UPDATE users SET mdkname = %s WHERE id=%s", (nick, ID))
-        conn.commit()
-        update.message.reply_text("Готово.")
-        bot.send_message(text="Твоя заявка успешно обработана, приятного пользования нашим ботом :)", chat_id=ID)
-    except:
-        update.message.reply_text("""Упс, произошла ошибочка.
-Возможные причины: введены некоректные данные (скорее всего), пользователь заблокировал бота (возможно), телеге плохо (самый неправдоподобный вариант).""")
-    
-    return CHOOSING
-  
-  
-def echo(bot, update):
-    mdkname = update.message.text
-    try:
-      cursor.execute(
-          "SELECT mdkname, toppost, tags, media FROM users WHERE mdkname = %s", (mdkname,))
-      update.message.reply_text('''*Автор:* %s
-*Лучший пост:* %s
-*Теги:* %s
-*Деанон:* %s''' % cursor.fetchone(), parse_mode='MARKDOWN')
-    except:
-      update.message.reply_text("Этого пользователя пока что нет в нашей базе, самое время кинуть ему/ей ссылку на бота :)")
-
-    return CHOOSING
-
-
-def message(bot, update, user_data):
+def add_partner(bot, update, user_data):
     reload(config)
-    user = str(user_data['userid'])
+    user = str(user_data['usrid'])
     if user in config.admin:
-        update.message.reply_text('Че нужно сообщить?')
+        update.message.reply_text('Введи юзернейм. (Без @)')
 
-        return SEND
+        return UN
     else:
         update.message.reply_text('Ты не админ.')
 
         return CHOOSING
 
 
-def message_send(bot, update):
-    sends = 0
+def message(bot, update, user_data):
+    reload(config)
+    user = str(user_data['usrid'])
+    if user in config.admin:
+        update.message.reply_text('Введи прогноз на событие.')
+
+        return PR
+    else:
+        update.message.reply_text('Ты не админ.')
+
+        return CHOOSING
+
+
+def message_pr(bot, update):
+    sends = -1
     blocks = 0
-    notification = update.message.text
-    cursor.execute("SELECT id FROM users")
+    prediction = update.message.text
+    cursor.execute("SELECT id FROM users WHERE free_sub = 1")
     while True:
         try:
             chat_id = '%s' % cursor.fetchone()
             sends += 1
             if chat_id == 'None':
                 break
-            bot.send_message(text=notification, chat_id=chat_id)
+            bot.send_message(text=prediction, chat_id=chat_id)
         except:
             blocks += 1
             pass
-    update.message.reply_text(f'''Кол-во отосланных сообщений: {sends}
-Не дошло: {blocks}''')
+    update.message.reply_text(f'Кол-во отосланных предиктов: {sends} ({blocks})')
+
+    return CHOOSING
+
+
+def partner_un(bot, update, user_data):
+    username = update.message.text
+    update.message.reply_text('@' + username)
+    user_data['partner'] = username
+    update.message.reply_text('Введи промокод для пользователя @' + username)
+
+    return UP
+
+
+def partner_promo(bot, update, user_data):
+    promocode = update.message.text
+    username = user_data['partner']
+    name = user_data['name']
+    update.message.reply_text(promocode)
+    cursor.execute("UPDATE users SET mypromo = %s WHERE nickname=%s", (promocode, username))
+    update.message.reply_text('Готово!')
+    conn.commit()
+    cursor.execute("SELECT id FROM users WHERE nickname=%s", (username,))
+    chatid = "%s" % cursor.fetchone()
+    try:
+        bot.send_message(
+            text=f'''{name}, мы изменили ваш промокод. Узнать новый можно в личном кабинете. С уважением, команда BIG Betz.''',
+            chat_id=int(chatid))
+    except:
+        bot.send_message(
+            text=f'Пользователь {chatid} ({username}) не получил уведомление.', chat_id='@bigbetz_orders')
+
+    return CHOOSING
+
+
+def profile(bot, update):
+    reply_keyboardz = [['Назад']]
+    state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
+    keyboard = [[InlineKeyboardButton("Мой промокод", callback_data="promocode")],
+                [InlineKeyboardButton("Счётчик рефералов", callback_data="promo_patrons")],
+                [InlineKeyboardButton("Баланс", callback_data="balance"),
+                 InlineKeyboardButton("Статистика", callback_data="stats")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text('Добро пожаловать в личный кабинет.', reply_markup=state)
+    update.message.reply_text('Выбери действие 👇', reply_markup=reply_markup)
+
+    return PRFL
+
+
+def profile_action(bot, update, user_data):
+    IDS = user_data['usrid']
+    cursor.execute("SELECT mypromo FROM users WHERE id=%s", (IDS,))
+    promocode = "%s" % cursor.fetchone()
+    query = update.callback_query
+
+    if query.data == "promocode":
+        if promocode == "None":
+            query.answer("Ты не являешься партнёром.")
+
+            return PRFL
+        else:
+            query.answer("Промокод: " + promocode)
+
+            return PRFL
+    elif query.data == "promo_patrons":
+        cursor.execute("SELECT COUNT(*) FROM users WHERE promo=%s", (promocode,))
+        patrons = "%s" % cursor.fetchone()
+        query.answer("У тебя " + patrons + " рефералов")
+
+        return PRFL
+    elif query.data == "balance":
+        cursor.execute("SELECT earnings FROM users WHERE id=%s", (IDS,))
+        earnings = "%s" % cursor.fetchone()
+        query.answer("К выплате: " + earnings + " рублей")
+    elif query.data == "stats":
+        query.answer("Статистика 👇")
+        stats(bot, update, user_data)
+
+        return PRFL
+    else:
+        update.message.reply_text("Ошибка!")
+
+        return PRFL
+
+
+def contact_us(bot, update):
+    update.message.reply_text("""По всем вопросам писать: @daaetoya
+Сразу уточняйте *причину* обращения.
+*Важно!* Рассматриваются только сообщения с пометками: #Реклама, #Сотрудничество, #Баг.""", parse_mode='MARKDOWN'
+                              , reply_markup=markup)
+
+    return CHOOSING
+
+
+def partnership(bot, update, user_data):
+    reply_keyboardz = [['Назад']]
+    state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
+    ID = user_data['usrid']
+    cursor.execute('SELECT is_partner FROM users WHERE id=%s', (ID,))
+    ppartner = '%s' % cursor.fetchone()
+    if ppartner == '1':
+        update.message.reply_text('Ты уже являешься партнёром.')
+
+        return CHOOSING
+    else:
+        update.message.reply_text('Укажи свой промокод (Оптимальное кол-во символов: 4).', reply_markup=state)
+
+        return OK
+
+
+def confirmation(bot, update, user_data):
+    text = update.message.text
+    cursor.execute("SELECT mypromo FROM users WHERE mypromo IS NOT NULL")
+    promolist = "%s" % cursor.fetchall()
+    if text in ignorelist:
+        update.message.reply_text('Сейчас бот не реагирует на эту комманду.')
+        pass
+
+        return OK
+    elif text in back:
+        update.message.reply_text('Главное меню 👾', reply_markup=markup)
+
+        return CHOOSING
+    elif text in promolist:
+        update.message.reply_text('Такой промокод уже есть! Введи другой.')
+
+        return OK
+    else:
+        update.message.reply_text('''Готово! Теперь ты официальный партнёр BIG Betz 😎''', reply_markup=markup)
+        User = user_data['usrid']
+        Nick = user_data['username']
+        Promo = update.message.text
+        cursor.execute("UPDATE users SET mypromo = %s WHERE id=%s", (Promo, User))
+        cursor.execute("UPDATE users SET is_partner = 1 WHERE id=%s", (User,))
+        conn.commit()
+        bot.send_message(
+            text=f'Пользователь {User} (@{Nick}) стал партнёром. Promo: {Promo}', chat_id='@bigbetz_orders')
+
+        return CHOOSING
+
+
+def free_subscription(bot, update, user_data):
+    usrid = user_data['usrid']
+    cursor.execute('SELECT free_sub FROM users WHERE id = %s', (usrid,))
+    if_sub = "%s" % cursor.fetchone()
+    if if_sub == '0':
+        update.message.reply_text('Ты успешно подписался(-ась) на бесплатную рассылку.')
+        cursor.execute("UPDATE users SET free_sub = 1 WHERE id=%s", (usrid,))
+    elif if_sub == '1':
+        update.message.reply_text('Ты успешно отписался(-ась) от бесплатной рассылки.')
+        cursor.execute("UPDATE users SET free_sub = 0 WHERE id=%s", (usrid,))
+    else:
+        update.message.reply_text('Что-то пошло не так..')
+    conn.commit()
+
+    return CHOOSING
+
+
+def custom_promo(bot, update, user_data):
+    IDS = user_data['usrid']
+    reply_keyboardz = [['Назад']]
+    state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
+    cursor.execute("SELECT promo FROM users WHERE id=%s", (IDS,))
+    promocode = "%s" % cursor.fetchone()
+    if promocode == "None":
+        update.message.reply_text('Введи промокод чтобы получить скидку 20%.', reply_markup=state)
+
+        return PROMOCODE
+    else:
+        update.message.reply_text('Ты уже использовал(-а) промокод :(')
+
+        return CHOOSING
+
+
+def promo(bot, update, user_data):
+    code = update.message.text
+    user = user_data['usrid']
+    cursor.execute("SELECT mypromo FROM users WHERE id=%s", (user,))
+    ownpromo = "%s" % cursor.fetchone()
+    cursor.execute("SELECT mypromo FROM users WHERE mypromo IS NOT NULL")
+    promolist = "%s" % cursor.fetchall()
+    if code in ownpromo:
+        update.message.reply_text("Свой промокод вводить нельзя! Введи другой.")
+
+        return PROMOCODE
+    elif code in promolist:
+        update.message.reply_text("Промокод принят!")
+        update.message.reply_text("Скидка на следующую оплату - 20%", reply_markup=markup)
+        cursor.execute("UPDATE users SET code_active = 1 WHERE id=%s", (user,))
+        cursor.execute("UPDATE users SET promo = %s WHERE id=%s", (code, user))
+        cursor.execute("SELECT id FROM users WHERE mypromo = %s", (code,))
+        target = "%s" % cursor.fetchone()
+        cursor.execute("SELECT nickname FROM users WHERE mypromo = %s", (code,))
+        username = "%s" % cursor.fetchone()
+        try:
+            bot.send_message(
+                text='Только что 1 из пользователей использовал твой промокод.', chat_id=int(target))
+        except:
+            bot.send_message(
+                text=f'Пользователь {target} (@{username}) не получил уведомление о новом реферале.',
+                chat_id='@bigbetz_orders')
+        conn.commit()
+
+        return CHOOSING
+    elif code in back:
+        update.message.reply_text("Главное меню 👾", reply_markup=markup)
+
+        return CHOOSING
+    else:
+        update.message.reply_text("Такого промокода нет! Попробуй ввести другой.")
+
+        return PROMOCODE
+
+
+def custom_choice(bot, update, user_data):
+    reply_keyboardz = [['Назад']]
+    state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
+    keyboard = [[InlineKeyboardButton("Неделя", callback_data="1"),
+                 InlineKeyboardButton("2 недели", callback_data="2")],
+                [InlineKeyboardButton("Месяц", callback_data="3")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text('''Отлично 😎''', reply_markup=state)
+    update.message.reply_text('Теперь выбери длительность подписки 👇', reply_markup=reply_markup)
+
+    return TYPING_REPLY
+
+
+def received_information(bot, update, user_data):
+    query = update.callback_query
+    user_data['choice'] = query.data
+    IDS = user_data['usrid']
+    # text = update.message.text
+    cursor.execute("SELECT code_active FROM users WHERE id = %s", (IDS,))
+    code_active = "%s" % cursor.fetchone()
+    if code_active == "1":
+        keyboard = [[InlineKeyboardButton("Перейти к оплате (Скидка 20%)", callback_data="Оплата")]]
+    else:
+        keyboard = [[InlineKeyboardButton("Перейти к оплате", callback_data="Оплата")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    try:
+        cursor.execute(
+            "SELECT tariff, price, patrons FROM betsdb WHERE id=%s", (query.data,))
+
+        bot.edit_message_text(text='👇',
+                              chat_id=query.message.chat_id,
+                              message_id=query.message.message_id)
+
+        query.answer('Отличный выбор 😎')
+
+        update.effective_message.reply_text('''*Тариф:* %s
+*Цена:* %s рублей
+*Уже купили:* %s человек''' % cursor.fetchone(), parse_mode='MARKDOWN', reply_markup=reply_markup)
+    except:
+        update.effective_message.reply_text(f"""*Ошибка!* Что-то пошло не так..""", parse_mode='MARKDOWN')
+
+        return TYPING_REPLY
+
+    return PAYMENT
+
+
+def button(bot, update, user_data):
+    IDS = user_data['choice']
+    user = user_data['usrid']
+    try:
+        cursor.execute("SELECT code_active FROM users WHERE id = %s", (user,))
+        code_active = "%s" % cursor.fetchone()
+        chat_id = update.effective_message.chat_id
+        cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
+        tariff = "%s" % cursor.fetchone()
+        title = tariff
+        description = "BIG Bets Company"
+        # select a payload just for you to recognize its the donation from your bot
+        payload = "Custom-Payload"
+        # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
+        provider_token = os.environ['provider_token']
+        start_parameter = "test-payment"
+        currency = "RUB"
+        # price in dollars
+        cursor.execute("SELECT price FROM betsdb WHERE id=%s", (IDS,))
+        pricez = "%s" % cursor.fetchone()
+        if code_active == '1':
+            price = round(int(pricez) / 100 * 80)
+        else:
+            price = int(pricez)
+        # price * 100 so as to include 2 d.p.
+        prices = [LabeledPrice(tariff, price * 100)]
+
+        # optionally pass need_name=True, need_phone_number=True,
+        # need_email=True, need_shipping_address=True, is_flexible=True
+        bot.sendInvoice(chat_id, title, description, payload,
+                        provider_token, start_parameter, currency, prices)
+
+    except:
+        bot.send_message(text='Бесплатные услуги оплачивать не нужно.',
+                         chat_id=update.effective_message.chat_id,
+                         message_id=update.effective_message.message_id,
+                         reply_markup=markup)
+        cursor.execute("UPDATE betsdb SET patrons = patrons+1 WHERE id=%s", (IDS,))
+        conn.commit()
+
+    return CHOOSING
+
+
+def precheckout_callback(bot, update):
+    query = update.pre_checkout_query
+    # check the payload, is this from your bot?
+    if query.invoice_payload != 'Custom-Payload':
+        # answer False pre_checkout_query
+        bot.answer_pre_checkout_query(pre_checkout_query_id=query.id, ok=False,
+                                      error_message="Ошибка. Оплата не принята.")
+    else:
+        bot.answer_pre_checkout_query(pre_checkout_query_id=query.id, ok=True)
+
+
+# finally, after contacting to the payment provider...
+def successful_payment_callback(bot, update, user_data):
+    IDS = user_data['choice']
+    usrid = user_data['usrid']
+    nick = user_data['username']
+    cursor.execute("SELECT code_active FROM users WHERE id = %s", (usrid,))
+    code_active = "%s" % cursor.fetchone()
+    if code_active == '1':
+        cursor.execute("UPDATE users SET code_active = 0 WHERE id=%s", (usrid,))
+        conn.commit()
+    else:
+        pass
+    cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
+    tariff = "%s" % cursor.fetchone()
+    # do something after successful receive of payment?
+    update.effective_message.reply_text('''Благодарим за оплату!
+Ожидай, мы скоро добавим тебя в закрытую группу.''', reply_markup=markup)
+    cursor.execute("UPDATE betsdb SET patrons = patrons+1 WHERE id=?", (IDS,))
+    cursor.execute("SELECT price FROM betsdb WHERE id=%s", (IDS,))
+    product_price = "%d" % cursor.fetchone()
+    if code_active == '1':
+        tsprice = round(int(product_price) * 0.8)
+    else:
+        tsprice = int(product_price)
+    cursor.execute("SELECT totalspent FROM users WHERE id=%s", (usrid,))
+    ts = "%d" % cursor.fetchone()
+    ts = int(ts) + int(tsprice)
+    cursor.execute("UPDATE users SET totalspent = %s WHERE id=%s", (str(ts), usrid))
+    try:
+        cursor.execute("SELECT promo FROM users WHERE id=%s", (usrid,))
+        promoz = "%s" % cursor.fetchone()
+        cursor.execute("SELECT earnings FROM users WHERE mypromo=%s", (promoz,))
+        earngs = "%d" % cursor.fetchone()
+        earngs = round(int(earngs) + (int(tsprice) / 10))
+        cursor.execute("UPDATE users SET earnings = %s WHERE mypromo=%s", (str(earngs), promoz))
+    except:
+        pass
+    conn.commit()
+    bot.send_message(
+        text=f'''Пользователь {usrid} (@{nick}) оплатил {tsprice} рублей.
+Тариф: {tariff}.
+Дата: {now.day}.{now.month}.{now.year}''', chat_id='@bigbetz_orders')
+
+
+def get_back(bot, update):
+    update.message.reply_text("Главное меню 👾", reply_markup=markup)
+
+    return CHOOSING
+
+
+def paid_sub(bot, update):
+    update.message.reply_text('''Эта функция пока-что недоступна.
+Однако, у тебя есть *возможность* вступить в наш закрытый чат по предоплате и получить *скидку 50%*.
+Текущие расценки _(без скидки)_:
+*Неделя* - 1500р.
+*2 недели* - 2500р.
+*Месяц* - 4000р.
+Писать: @daaetoya''', parse_mode='MARKDOWN')
 
     return CHOOSING
 
 
 def stats(bot, update, user_data):
-    userid = user_data['userid']
+    userid = user_data['usrid']
     cursor.execute("SELECT COUNT(*) FROM users")
-    all_users = "%s" % cursor.fetchone()
-    cursor.execute("SELECT COUNT(*) FROM users WHERE mdkname IS NOT NULL")
-    verified_users = "%s" % cursor.fetchone()
-    bot.send_message(text=f"""Кол-во ЭмДиКей'ов: {all_users}
-Подтверждённых: {verified_users}""", chat_id=userid)
+    max_users = "%s" % cursor.fetchone()
+    cursor.execute("SELECT COUNT(*) FROM users WHERE free_sub = 1")
+    max_subs = "%s" % cursor.fetchone()
+    cursor.execute("SELECT COUNT(*) FROM users WHERE mypromo IS NOT NULL")
+    max_partners = "%s" % cursor.fetchone()
+    cursor.execute("SELECT COUNT(*) FROM users WHERE promo IS NOT NULL")
+    max_referrals = "%s" % cursor.fetchone()
+    cursor.execute("SELECT SUM(earnings) FROM users WHERE mypromo IS NOT NULL")
+    max_earnings = "%s" % cursor.fetchone()
+    bot.send_message(text=f"""Кол-во пользователей: {max_users} ({max_subs} сабов)
+Кол-во партнёров: {max_partners}
+Кол-во привлечённых пользователей: {max_referrals}
+Наши партнёры заработали: {max_earnings} рублей""", chat_id=userid)
 
     return CHOOSING
 
 
-def get_back(bot, update):
-    update.message.reply_text("Главное меню 👾", reply_markup=markup)
+def error(bot, update, error):
+    """Log Errors caused by Updates."""
+    logger.warning('Update "%s" caused error "%s"', update, error)
+
+
+def partner_beta(bot, update):
+    update.message.reply_text('Эта функция пока-что недоступна. Следи за новостями в нашем канале: @BIGBetz')
 
     return CHOOSING
 
@@ -408,76 +560,81 @@ def restore(bot, update):
     return CHOOSING
 
 
-def random_user(bot, update):
-    cursor.execute(
-        "SELECT mdkname, toppost, tags FROM users WHERE mdkname IS NOT NULL ORDER BY RANDOM() LIMIT 1")
-    update.message.reply_text('''*Автор:* %s
-*Лучший пост:* %s
-*Теги:* %s''' % cursor.fetchone(), parse_mode='MARKDOWN')
+def rules(bot, update):
+    update.message.reply_text('''*Правила BIG Betz*
+
+1. Пользоваться ботом могут только лица достигшие совершеннолетия (18+).
+2. Перед оплатой убедись что в настройках профиля поле @username не пустое.
+3. Заново проверь пункт 2.
+
+_* - если пункт 2 нарушен, мы не сможем добавить тебя в закрытую группу.
+Такая оплата расценивается как пожертвование и возврату не подлежит._
+''', parse_mode='MARKDOWN')
 
     return CHOOSING
 
 
-def error(bot, update, error):
-    """Log Errors caused by Updates."""
-    logger.warning('Update "%s" caused error "%s"', update, error)
-
-
 def main():
-    #pp = PicklePersistence(filename='conversationbot')
-    updater = Updater(os.environ['token'])#, persistence=pp)
+    # Create the Updater and pass it your bot's token.
+    updater = Updater(os.environ['token'])
 
+    # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
+    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start, pass_user_data=True)],
 
-        states=
-        {
+        states={
             CHOOSING:
                 [
-                    RegexHandler('^FAQ$', bot_faq),
-                    RegexHandler('^Как стать топом 🚀$', top_users),
-                    RegexHandler('^Случайный автор$', random_user),
-                    RegexHandler('^Подать заявку$', join_us, pass_user_data=True),
-                    RegexHandler('^Полезные ссылки$', media_links),
-                    RegexHandler('^Обратная связь$', contact_us),
-                    RegexHandler('^Личный кабинет$', profile, pass_user_data=True),
-                    # RegexHandler('^Проверить подписку$', first_time),
-                    CommandHandler('add', add_user),
+                    RegexHandler('^Ввести промокод$', custom_promo, pass_user_data=True),
+                    RegexHandler('^Связь с нами$', contact_us),
+                    RegexHandler('^Стать партнёром$', partnership, pass_user_data=True),
+                    # RegexHandler('^Платная подписка$', paid_sub),
+                    RegexHandler('^Платная подписка$', custom_choice, pass_user_data=True),
+                    RegexHandler('^Бесплатная подписка$', free_subscription, pass_user_data=True),
+                    RegexHandler('^Личный кабинет$', profile),
+                    RegexHandler('^Проверить подписку$', first_time),
+                    CommandHandler('add', add_partner, pass_user_data=True),
                     CommandHandler('stats', stats, pass_user_data=True),
-                    CommandHandler('id', get_id),
-                    CommandHandler('send', message, pass_user_data=True),
-                    MessageHandler(Filters.text, echo),],
+                    CommandHandler('delete', delete_promos),
+                    CommandHandler('send', message, pass_user_data=True)],
 
             FRST:
                 [MessageHandler(Filters.text, first_time, pass_user_data=True)],
 
-            SEND:
-                [MessageHandler(Filters.text, message_send)],
-          
-            JOIN:
-                [MessageHandler(Filters.text, user_join, pass_user_data=True)],
-            TGS:
-                [MessageHandler(Filters.text, custom_tags, pass_user_data=True)],
-            PST:
-                [MessageHandler(Filters.text, custom_toppost, pass_user_data=True)],
-            MDA:
-                [MessageHandler(Filters.text, custom_media, pass_user_data=True)],
             PRFL:
                 [CallbackQueryHandler(profile_action, pass_user_data=True)],
-            TOP:
-                [CallbackQueryHandler(top_users_action, pass_user_data=True)],
-            ADDING:
-                [MessageHandler(Filters.text, new_user)],
+
+            OK:
+                [MessageHandler(Filters.text, confirmation, pass_user_data=True)],
+
+            UN:
+                [MessageHandler(Filters.text, partner_un, pass_user_data=True)],
+
+            UP:
+                [MessageHandler(Filters.text, partner_promo, pass_user_data=True)],
+
+            PR:
+                [MessageHandler(Filters.text, message_pr)],
+
+            PROMOCODE:
+                [MessageHandler(Filters.text, promo, pass_user_data=True)],
+
+            PAYMENT:
+                [CallbackQueryHandler(button, pass_user_data=True)],
+
+            TYPING_REPLY: [CallbackQueryHandler(received_information, pass_user_data=True)],
         },
 
         fallbacks=[RegexHandler('^Назад$', get_back),
-                   CommandHandler('help', restore)],
-        allow_reentry=True
-        #name="my_conversation",
-        #persistent=True
+                   CommandHandler('help', restore),
+                   CommandHandler('rules', rules)]
     )
+    dp.add_handler(PreCheckoutQueryHandler(precheckout_callback))
+
+    dp.add_handler(MessageHandler(Filters.successful_payment, successful_payment_callback, pass_user_data=True))
 
     dp.add_handler(conv_handler)
 
