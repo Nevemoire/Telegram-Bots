@@ -250,13 +250,11 @@ def main():
 
         states={
             CHOOSING:
-                [
-                    MessageHandler(Filters.regex('^О боте$', about_bot),
-                    MessageHandler(Filters.regex('^О авторе$', about_author),
-                    MessageHandler(Filters.regex('^Пример$', custom_choice, pass_user_data=True),
-                    MessageHandler(Filters.regex('^Контакты$', contacts),
-                    CommandHandler('stats', stats, pass_user_data=True),
-                ],
+                [MessageHandler(Filters.regex('^О боте$', about_bot),
+                 MessageHandler(Filters.regex('^О авторе$', about_author),
+                 MessageHandler(Filters.regex('^Пример$', custom_choice, pass_user_data=True),
+                 MessageHandler(Filters.regex('^Контакты$', contacts),
+                 CommandHandler('stats', stats, pass_user_data=True)],
 
             PAYMENT:    [CallbackQueryHandler(button, pass_user_data=True)],
 
