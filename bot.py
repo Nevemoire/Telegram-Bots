@@ -70,7 +70,7 @@ def start(update, context):
     cursor.execute("SELECT id FROM users WHERE id=%s", (userid,))
     result = "%s" % cursor.fetchone()
     if result == "None":
-        cursor.execute("INSERT INTO users (nickname, namesurname, id) VALUES (%s, %s, %s)", (nick, name, userid))
+        cursor.execute("INSERT INTO users (nickname, namesurname, id, totalspent) VALUES (%s, %s, %s, 0)", (nick, name, userid))
         conn.commit()
     else:
         pass
