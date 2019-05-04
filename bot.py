@@ -254,7 +254,7 @@ def main():
                     RegexHandler('^О боте$', about_bot),
                     RegexHandler('^О авторе$', about_author),
                     RegexHandler('^Пример$', custom_choice, pass_user_data=True),
-                    RegexHandler('^Контакты$', contacts, pass_user_data=True),
+                    RegexHandler('^Контакты$', contacts),
                     CommandHandler('stats', stats, pass_user_data=True)],
 
             PAYMENT:    [CallbackQueryHandler(button, pass_user_data=True)],
