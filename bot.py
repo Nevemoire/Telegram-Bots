@@ -179,9 +179,9 @@ def precheckout_callback(update, context):
     # check the payload, is this from your bot?
     if query.invoice_payload != 'Custom-Payload':
         # answer False pre_checkout_query
-        query.answer(pre_checkout_query_id=query.id, ok=False, error_message="Something went wrong...")
+        query.answer(ok=False, error_message="Something went wrong...")
     else:
-        query.answer(pre_checkout_query_id=query.id, ok=True)
+        query.answer(ok=True)
 
 
 # finally, after contacting to the payment provider...
