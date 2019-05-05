@@ -188,7 +188,7 @@ def button(update, context):
 
     # optionally pass need_name=True, need_phone_number=True,
     # need_email=True, need_shipping_address=True, is_flexible=True
-    context.bot.sendInvoice(chat_id, title, description, payload, photo_url,
+    context.bot.sendInvoice(chat_id, title, description, payload,
                         provider_token, start_parameter, currency, prices)
 
     return CHOOSING
