@@ -225,9 +225,9 @@ def successful_payment_callback(update, context):
     cursor.execute("UPDATE users SET totalspent = %s WHERE id=%s", (str(ts), usrid))
     conn.commit()
     context.bot.send_message(
-        text=f'''Пользователь [{name}](tg://user?id={usrid}) оплатил {tsprice} рублей.
-Тариф: {tariff}.
-Дата: {now.day}.{now.month}.{now.year}''', chat_id='@orderspaymentstg')
+        text=f'''Пользователь [{name}](tg://user?id={usrid}) оплатил *{tsprice}* рублей.
+*Тариф*: {tariff}.
+*Дата*: {now.day}.{now.month}.{now.year}''', chat_id='@orderspaymentstg', parse_mode='MARKDOWN')
 
 
 def get_back(update, context):
