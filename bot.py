@@ -280,7 +280,7 @@ def main():
                        CommandHandler('stats', stats),
                        CommandHandler('photo', photo),
                        CommandHandler('doc', doc),
-                       MessageHandler(Filters.text, echo)],
+                       MessageHandler(Filters.document, echo)],
 
             PAYMENT:    [CallbackQueryHandler(button)],
 
