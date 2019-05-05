@@ -110,6 +110,13 @@ def photo(update, context):
     context.bot.send_photo(chat_id=id, photo=avatar)
 
     return CHOOSING
+  
+def doc(update, context):
+    id = update.message.from_user.id
+    doc = 'https://my-files.ru/Save/72r94v/Price-list.txt'
+    context.bot.send_document(chat_id=id, document=doc)
+    
+    return CHOOSING
 
 
 def custom_choice(update, context):
@@ -264,7 +271,8 @@ def main():
                        MessageHandler(Filters.regex('^Статистика 📊$'), stats),
                        MessageHandler(Filters.regex('^Хочу такого бота 🚀$'), order),
                        CommandHandler('stats', stats),
-                       CommandHandler('photo', photo)],
+                       CommandHandler('photo', photo),
+                       CommandHandler('doc', doc)],
 
             PAYMENT:    [CallbackQueryHandler(button)],
 
