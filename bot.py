@@ -28,8 +28,6 @@ conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], pa
 
 cursor = conn.cursor()
 
-now = datetime.datetime.now()
-
 reply_keyboard = [['О боте 👾', 'О авторе 👨🏻‍💻'],
                   ['Пример 💶', 'Контакты 📲'],
                   ['Статистика 📊'],['Хочу такого бота 🚀']]
@@ -210,6 +208,7 @@ def successful_payment_callback(update, context):
     IDS = context.user_data['choice']
     usrid = context.user_data['usrid']
     name = context.user_data['name']
+    date = today.strftime("%d/%m/%Y %H.%M")
     cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
     tariff = "%s" % cursor.fetchone()
     # do something after successful receive of payment?
@@ -227,7 +226,7 @@ def successful_payment_callback(update, context):
     context.bot.send_message(
         text=f'''Пользователь [{name}](tg://user?id={usrid}) оплатил *{tsprice}* рублей.
 *Тариф*: {tariff}.
-*Дата*: {now.day}.{now.month}.{now.year}''', chat_id='@orderspaymentstg', parse_mode='MARKDOWN')
+*Дата*: {date}''', chat_id='@orderspaymentstg', parse_mode='MARKDOWN')
 
 
 def get_back(update, context):
