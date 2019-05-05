@@ -209,7 +209,7 @@ def precheckout_callback(update, context):
 def successful_payment_callback(update, context):
     IDS = context.user_data['choice']
     usrid = context.user_data['usrid']
-    nick = context.user_data['username']
+    name = context.user_data['name']
     cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
     tariff = "%s" % cursor.fetchone()
     # do something after successful receive of payment?
@@ -225,7 +225,7 @@ def successful_payment_callback(update, context):
     cursor.execute("UPDATE users SET totalspent = %s WHERE id=%s", (str(ts), usrid))
     conn.commit()
     context.bot.send_message(
-        text=f'''Пользователь {usrid} (@{nick}) оплатил {tsprice} рублей.
+        text=f'''Пользователь [{name}](tg://user?id={usrid}) оплатил {tsprice} рублей.
 Тариф: {tariff}.
 Дата: {now.day}.{now.month}.{now.year}''', chat_id='@orderspaymentstg')
 
