@@ -28,6 +28,8 @@ conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], pa
 
 cursor = conn.cursor()
 
+today = datetime.datetime.today()
+
 reply_keyboard = [['О боте 👾', 'О авторе 👨🏻‍💻'],
                   ['Пример 💶', 'Контакты 📲'],
                   ['Статистика 📊'],['Хочу такого бота 🚀']]
