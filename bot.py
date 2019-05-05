@@ -120,7 +120,7 @@ def photo(update, context):
   
 def doc(update, context):
     id = update.message.from_user.id
-    doc = 'https://my-files.ru/Save/72r94v/Price-list.txt'
+    doc = 'BQADAgADMQQAAripcEowvtbh9IiHMQI'
     context.bot.send_document(chat_id=id, document=doc)
     
     return CHOOSING
