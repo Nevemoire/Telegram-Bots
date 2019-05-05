@@ -112,16 +112,14 @@ def order(update, context):
   
   
 def photo(update, context):
-    id = update.message.from_user.id
     avatar = 'https://images.pexels.com/photos/207962/pexels-photo-207962.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260'
-    context.bot.send_photo(chat_id=id, photo=avatar)
+    context.bot.send_photo(update.message.chat_id, photo=avatar)
 
     return CHOOSING
   
 def doc(update, context):
-    id = update.message.from_user.id
     doc = 'BQADAgADMQQAAripcEowvtbh9IiHMQI'
-    context.bot.send_document(chat_id=id, document=doc)
+    context.bot.send_document(update.message.chat_id, document=doc)
     
     return CHOOSING
 
