@@ -98,6 +98,13 @@ Instagram: [daniel.nvmr](https://instagram.com/daniel.nvmr)""", parse_mode="MARK
     return CHOOSING
   
   
+def echo(update, context):
+    doc = update.message.document
+    update.message.reply_text(doc.file_id)
+    
+    return CHOOSING
+  
+  
 def order(update, context):
     update.message.reply_text("Заказ")
 
@@ -272,7 +279,8 @@ def main():
                        MessageHandler(Filters.regex('^Хочу такого бота 🚀$'), order),
                        CommandHandler('stats', stats),
                        CommandHandler('photo', photo),
-                       CommandHandler('doc', doc)],
+                       CommandHandler('doc', doc),
+                       MessageHandler(Filters.text, echo)],
 
             PAYMENT:    [CallbackQueryHandler(button)],
 
