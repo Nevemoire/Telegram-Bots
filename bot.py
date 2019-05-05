@@ -167,37 +167,29 @@ def received_information(update, context):
 
 def button(update, context):
     IDS = context.user_data['choice']
-    try:
-        chat_id = update.effective_message.chat_id
-        cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
-        tariff = "%s" % cursor.fetchone()
-        title = tariff
-        description = "Бот для оплат 💳"
-        # select a payload just for you to recognize its the donation from your bot
-        payload = "Custom-Payload"
-        photo_url = 'https://images.pexels.com/photos/207962/pexels-photo-207962.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260'
-        # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
-        provider_token = os.environ['provider_token']
-        start_parameter = "test-payment"
-        currency = "RUB"
-        # price in dollars
-        cursor.execute("SELECT price FROM betsdb WHERE id=%s", (IDS,))
-        pricez = "%s" % cursor.fetchone()
-        price = int(pricez)
-        # price * 100 so as to include 2 d.p.
-        prices = [LabeledPrice(tariff, price * 100)]
+    chat_id = update.effective_message.chat_id
+    cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
+    tariff = "%s" % cursor.fetchone()
+    title = tariff
+    description = "Бот для оплат 💳"
+    # select a payload just for you to recognize its the donation from your bot
+    payload = "Custom-Payload"
+    photo_url = 'https://images.pexels.com/photos/207962/pexels-photo-207962.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260'
+    # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
+    provider_token = os.environ['provider_token']
+    start_parameter = "test-payment"
+    currency = "RUB"
+    # price in dollars
+    cursor.execute("SELECT price FROM betsdb WHERE id=%s", (IDS,))
+    pricez = "%s" % cursor.fetchone()
+    price = int(pricez)
+    # price * 100 so as to include 2 d.p.
+    prices = [LabeledPrice(tariff, price * 100)]
 
-        # optionally pass need_name=True, need_phone_number=True,
-        # need_email=True, need_shipping_address=True, is_flexible=True
-        context.bot.sendInvoice(chat_id, title, description, payload, photo_url,
+    # optionally pass need_name=True, need_phone_number=True,
+    # need_email=True, need_shipping_address=True, is_flexible=True
+    context.bot.sendInvoice(chat_id, title, description, payload, photo_url,
                         provider_token, start_parameter, currency, prices)
-    except:
-        context.bot.send_message(text='Бесплатные услуги оплачивать не нужно.',
-                         chat_id=update.effective_message.chat_id,
-                         message_id=update.effective_message.message_id,
-                         reply_markup=markup)
-        cursor.execute("UPDATE betsdb SET patrons = patrons+1 WHERE id=%s", (IDS,))
-        conn.commit()
 
     return CHOOSING
 
