@@ -174,7 +174,6 @@ def button(update, context):
     description = "Бот для оплат 💳"
     # select a payload just for you to recognize its the donation from your bot
     payload = "Custom-Payload"
-    photo_url = 'https://images.pexels.com/photos/207962/pexels-photo-207962.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260'
     # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
     provider_token = os.environ['provider_token']
     start_parameter = "test-payment"
@@ -189,7 +188,7 @@ def button(update, context):
     # optionally pass need_name=True, need_phone_number=True,
     # need_email=True, need_shipping_address=True, is_flexible=True
     context.bot.sendInvoice(chat_id, title, description, payload,
-                        provider_token, start_parameter, currency, prices)
+                        provider_token, start_parameter, currency, prices, photo_url='https://images.pexels.com/photos/207962/pexels-photo-207962.jpeg')
 
     return CHOOSING
 
