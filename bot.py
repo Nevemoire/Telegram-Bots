@@ -210,7 +210,7 @@ def successful_payment_callback(update, context):
     IDS = context.user_data['choice']
     usrid = context.user_data['usrid']
     name = context.user_data['name']
-    date = today.strftime("%d/%m/%Y %H.%M")
+    date = today.strftime("%d-%m-%Y %H:%M UTC")
     cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
     tariff = "%s" % cursor.fetchone()
     # do something after successful receive of payment?
