@@ -113,7 +113,7 @@ def about_author(update, context):
 - https://active-sp.ru (калькулятор, презентация, рекламные макеты и др.) - собран на WP.
 
 Также, ссылка на мой сайт:
-https://nevermore.red - собран на Tilda.ws, вскоре будет заново переписан по технологии [SPA (Single Page Application)](https://ru.wikipedia.org/wiki/%D0%9E%D0%B4%D0%BD%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%87%D0%BD%D0%BE%D0%B5_%D0%BF%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5), на основе Bootstrap 4 + React.js.
+https://nevermore.red - собран на Tilda.ws, вскоре будет заново переписан по технологии ["SPA (Single Page Application)"](https://ru.wikipedia.org/wiki/%D0%9E%D0%B4%D0%BD%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%87%D0%BD%D0%BE%D0%B5_%D0%BF%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5), на основе Bootstrap 4 + React.js.
 
 Есть вопросы и/или предложения? Пиши мне: @daaetoya""", disable_web_page_preview=True)
 
