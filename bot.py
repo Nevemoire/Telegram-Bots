@@ -104,8 +104,8 @@ def about_bot(update, context):
 
 @run_async  
 def about_author(update, context):
-    update.message.reply_text("""Привет! Меня зовут Данил.
-Студент, начинающий разработчик (учу python) и front-end (js/react) девелопер.
+    update.message.reply_text("""*Привет!* Меня зовут Данил.
+Студент (но это не точно), пока ещё не миллиардер, начинающий разработчик (учу `python`) и front-end (`js/react`) девелопер.
 
 Несколько работ из моего портфолио:
 - https://poli-trade.com.ua - собран на Tilda.ws.
@@ -115,7 +115,7 @@ def about_author(update, context):
 Также, ссылка на мой сайт:
 https://nevermore.red - собран на Tilda.ws, вскоре будет заново переписан по технологии [Single Page Application](http://www.codenet.ru/webmast/js/spa/), на основе Bootstrap 4 + React.js.
 
-Есть вопросы и/или предложения? Пиши мне: @daaetoya""", disable_web_page_preview=True)
+Есть вопросы и/или предложения? Пиши мне: @daaetoya""",  parse_mode='MARKDOWN', disable_web_page_preview=True)
 
     return CHOOSING
 
