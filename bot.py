@@ -17,6 +17,7 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler,
                           Filters,
                           ConversationHandler, CallbackQueryHandler,
                           PreCheckoutQueryHandler, ShippingQueryHandler)
+from telegram.ext.dispatcher import run_async
 import psycopg2
 import config
 import os
@@ -67,7 +68,9 @@ def start(update, context):
     context.user_data['usrid'] = userid
     context.user_data['username'] = nick
     context.user_data['name'] = name
-    update.message.reply_text('''Воспользуйся меню ниже для взаимодействия с ботом.''', reply_markup=markup)
+    update.message.reply_text('''Воспользуйся меню ниже для взаимодействия с ботом.
+    
+ Не знаешь с чего начать? Возможности бота описаны в разделе "О боте".''', reply_markup=markup)
     cursor.execute("SELECT id FROM users WHERE id=%s", (userid,))
     result = "%s" % cursor.fetchone()
     if result == "None":
@@ -79,46 +82,76 @@ def start(update, context):
     return CHOOSING
 
 
+@run_async  
 def about_bot(update, context):
-    update.message.reply_text("О боте")
+    update.message.reply_text("""*Возможности бота*
+    
+- Запись, считывание и хранение информации в базах данных.
+- Массовая рассылка сообщений пользователям.
+- Функция обратной связи. (Для тех, кто не хочет палить свой аккаунт tg. Пересылает сообщения пользователей в личку или на указанный канал.)
+- *Форматирование* _текста_ `разными` [способами](http://www.example.com/)
+    
+Доступные команды:
+/start - запустить/перезагрузить бота
+/photo - бот пришлёт фото
+/doc - бот пришлёт документ
+/stats - статистика бота
+
+Также, при заказе я учту и реализую все ваши пожелания.""", parse_mode='MARKDOWN')
 
     return CHOOSING
 
 
+@run_async  
 def about_author(update, context):
-    update.message.reply_text("О авторе")
+    update.message.reply_text("""Привет! Меня зовут Данил.
+Студент, начинающий разработчик (учу python) и front-end (js/react) девелопер.
+
+Пара работ из моего портфолио:
+- https://poli-trade.com.ua
+- https://mjm-corp.ee
+- https://active-sp.ru (калькулятор, презентация, рекламные макеты и др.)
+
+Также, ссылка на мой сайт: https://nevermore.red
+
+Есть вопросы и/или предложения? Пиши мне: @daaetoya""")
 
     return CHOOSING
 
 
+@run_async  
 def contacts(update, context):
     update.message.reply_text("""Telegram: @daaetoya
 Instagram: [daniel.nvmr](https://instagram.com/daniel.nvmr)""", parse_mode="MARKDOWN", disable_web_page_preview=True)
 
     return CHOOSING
   
-  
+
+@run_async  
 def echo(update, context):
     doc = update.message.document
     update.message.reply_text(doc.file_id)
     
     return CHOOSING
-  
-  
+ 
+
+@run_async  
 def order(update, context):
-    update.message.reply_text("Заказ")
+    update.message.reply_text("Проконсультироваться и заказать бота можно у @daaetoya ;)")
 
     return CHOOSING
   
-  
+
+@run_async  
 def photo(update, context):
     avatar = 'https://images.pexels.com/photos/207962/pexels-photo-207962.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260'
     context.bot.send_photo(update.message.chat_id, photo=avatar)
 
     return CHOOSING
-  
+
+@run_async  
 def doc(update, context):
-    doc = 'BQADAgADMQQAAripcEowvtbh9IiHMQI'
+    doc = 'BQADAgAD3AMAApBwiEjvdRoQ7cnNDgI'
     context.bot.send_document(update.message.chat_id, document=doc)
     
     return CHOOSING
@@ -148,9 +181,15 @@ def received_information(update, context):
         cursor.execute(
             "SELECT tariff, price, patrons FROM betsdb WHERE id=%s", (query.data,))
 
-        context.bot.edit_message_text(text='👇',
-                                      chat_id=query.message.chat_id,
-                                      message_id=query.message.message_id)
+        context.bot.edit_message_text(text='''*Инструкция*
+        
+Оплата работает в тестовом режиме, не вводите данные настоящих карт!
+Чтобы провести тестовую оплату используйте данные ниже:
+Карта: 4242 4242 4242 4242
+Действительна до: любая дата, но не раньше сегодняшнего дня
+CVV: любое трёхзначное число
+
+👇''', chat_id=query.message.chat_id, message_id=query.message.message_id, parse_mode='MARKDOWN')
 
         query.answer('Отличный выбор 😎')
 
@@ -158,7 +197,7 @@ def received_information(update, context):
 *Цена:* %s рублей
 *Уже купили:* %s человек''' % cursor.fetchone(), parse_mode='MARKDOWN', reply_markup=reply_markup)
     except:
-        update.effective_message.reply_text(f"""*Ошибка!* Что-то пошло не так..""", parse_mode='MARKDOWN')
+        update.effective_message.reply_text("*Ошибка!* Что-то пошло не так..", parse_mode='MARKDOWN')
 
         return TYPING_REPLY
 
@@ -168,29 +207,37 @@ def received_information(update, context):
 def button(update, context):
     IDS = context.user_data['choice']
     chat_id = update.effective_message.chat_id
-    cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
-    tariff = "%s" % cursor.fetchone()
-    title = tariff
-    description = "Бот для оплат 💳"
-    # select a payload just for you to recognize its the donation from your bot
-    payload = "Custom-Payload"
-    # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
-    provider_token = os.environ['provider_token']
-    start_parameter = "test-payment"
-    currency = "RUB"
-    # price in dollars
-    cursor.execute("SELECT price FROM betsdb WHERE id=%s", (IDS,))
-    pricez = "%s" % cursor.fetchone()
-    price = int(pricez)
-    # price * 100 so as to include 2 d.p.
-    prices = [LabeledPrice(tariff, price * 100)]
+    try:
+      cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
+      tariff = "%s" % cursor.fetchone()
+      title = tariff
+      description = "Бот для оплат 💳"
+      # select a payload just for you to recognize its the donation from your bot
+      payload = "Custom-Payload"
+      # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
+      provider_token = os.environ['provider_token']
+      start_parameter = "test-payment"
+      currency = "RUB"
+      # price in dollars
+      cursor.execute("SELECT price FROM betsdb WHERE id=%s", (IDS,))
+      pricez = "%s" % cursor.fetchone()
+      price = int(pricez)
+      # price * 100 so as to include 2 d.p.
+      prices = [LabeledPrice(tariff, price * 100)]
 
-    # optionally pass need_name=True, need_phone_number=True,
-    # need_email=True, need_shipping_address=True, is_flexible=True
-    context.bot.sendInvoice(chat_id, title, description, payload,
-                        provider_token, start_parameter, currency, prices, photo_url='https://images.pexels.com/photos/207962/pexels-photo-207962.jpeg')
+      # optionally pass need_name=True, need_phone_number=True,
+      # need_email=True, need_shipping_address=True, is_flexible=True
+      context.bot.sendInvoice(chat_id, title, description, payload,
+                          provider_token, start_parameter, currency, prices, photo_url='https://images.pexels.com/photos/207962/pexels-photo-207962.jpeg')
 
-    return CHOOSING
+      return CHOOSING
+    except:
+      update.effective_message.reply_text('''Бесплатные услуги оплачивать не нужно.
+
+*Ваш код*''')
+      
+      return CHOOSING
+      
 
 
 # after (optional) shipping, it's the pre-checkout
