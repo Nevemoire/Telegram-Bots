@@ -27,7 +27,7 @@ from uuid import uuid4
 
 
 from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent
-from telegram.ext import Updater, InlineQueryHandler, CommandHandler
+from telegram.ext import Updater, InlineQueryHandler, CommandHandler, MessageHandler, Filters
 
 
 # Enable logging
@@ -51,6 +51,23 @@ def start(update, context):
 def help(update, context):
     """Send a message when the command /help is issued."""
     update.message.reply_text('Help!')
+    
+    
+@run_async
+def echo(update, context):
+    text = update.message.text
+    command1 = '!8ball'
+    command2 = '!love'
+    invoker = update.message.from_user.full_name
+    target = text.partition(' ')[2]
+    if command1 in update.message.text:
+        update.message.reply_text(
+            f'Такс.. Розбійник говорит что твои шансы на успех равны: {random.randrange(101)}%')
+    elif command2 in update.message.text:
+        update.message.reply_text(
+            f'Здесь {random.randrange(101)}% совместимости между {invoker} и {target}')
+    else:
+        pass
 
 
 @run_async
@@ -99,6 +116,7 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
+    da.add_handler(MessageHandler(filters.text, echo))
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(InlineQueryHandler(inlinequery))
