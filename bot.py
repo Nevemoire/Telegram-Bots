@@ -116,7 +116,7 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
-    da.add_handler(MessageHandler(filters.text, echo))
+    dp.add_handler(MessageHandler(filters.text, echo))
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(InlineQueryHandler(inlinequery))
