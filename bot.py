@@ -48,7 +48,7 @@ def start(update, context):
     """Send a message when the command /start is issued."""
     update.message.reply_text('Здарова! Все новости я выкладываю здесь: @rozbiynuki')
     user_says = " ".join(context.args)
-    if user_says is not None:
+    if user_says is not "":
       update.message.reply_text("Ты сказал: " + user_says)
     else:
       pass
@@ -128,7 +128,7 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
-    dp.add_handler(CommandHandler("audio", getAudio))
+    dp.add_handler(MessageHandler(Filters.audio, getAudio))
     dp.add_handler(MessageHandler(Filters.text, echo))
 
     # on noncommand i.e message - echo the message on Telegram
