@@ -91,12 +91,9 @@ def inlinequery(update, context):
     member = context.bot.get_chat_member('@rozbiynuki', userid)
     if member.status in memberslist:
         results = [
-            InlineQueryResultArticle(
+            InlineQueryResultCachedAudio(
                 id=uuid4(),
-                title="Выйди отсюда",
-                # input_message_content=InlineQueryResultCachedAudio('1', audio_file_id='CQADBAADIBAAAjsPuFOaao2JdnIm2RYE')),
-                input_message_content=InputTextMessageContent(
-                    message_text=f'{name} {random.choice(actions.action1)} {target} {random.choice(actions.action2)}')),
+                audio_file_id='CQADBAADIBAAAjsPuFOaao2JdnIm2RYE'),
             InlineQueryResultArticle(
                 id=uuid4(),
                 title="Їбемо " + update.inline_query.query,
