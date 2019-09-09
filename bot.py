@@ -43,14 +43,26 @@ memberslist = members.split(', ')
 
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
+@run_async
 def start(update, context):
     """Send a message when the command /start is issued."""
     update.message.reply_text('Здарова! Все новости я выкладываю здесь: @rozbiynuki')
+    user_says = " ".join(context.args)
+    if user_says is not None:
+      update.message.reply_text("Ты сказал: " + user_says)
+    else:
+      pass
 
 
 def help(update, context):
     """Send a message when the command /help is issued."""
     update.message.reply_text('Help!')
+    
+    
+@run_async  
+def getAudio(update, context):
+    audio = update.message.audio
+    update.message.reply_text(audio.file_id)
     
     
 @run_async
@@ -116,6 +128,7 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("audio", getAudio))
     dp.add_handler(MessageHandler(Filters.text, echo))
 
     # on noncommand i.e message - echo the message on Telegram
