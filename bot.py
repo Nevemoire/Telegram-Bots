@@ -94,7 +94,7 @@ def inlinequery(update, context):
             InlineQueryResultArticle(
                 id=uuid4(),
                 title="Выйди отсюда",
-                input_message_content=InlineQueryResultCachedAudio(type='audio', id='1', audio_file_id='CQADBAADIBAAAjsPuFOaao2JdnIm2RYE')),
+                input_message_content=InlineQueryResultCachedAudio('audio', '1', audio_file_id='CQADBAADIBAAAjsPuFOaao2JdnIm2RYE')),
             InlineQueryResultArticle(
                 id=uuid4(),
                 title="Їбемо " + update.inline_query.query,
