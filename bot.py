@@ -26,7 +26,7 @@ import uuid
 from uuid import uuid4
 
 
-from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent
+from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent, InputMediaAudio
 from telegram.ext import Updater, InlineQueryHandler, CommandHandler, MessageHandler, Filters
 
 
