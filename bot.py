@@ -93,6 +93,10 @@ def inlinequery(update, context):
         results = [
             InlineQueryResultArticle(
                 id=uuid4(),
+                title="Выйди отсюда",
+                input_message_content=InputMediaAudio(CQADBAADIBAAAjsPuFOaao2JdnIm2RYE)),
+            InlineQueryResultArticle(
+                id=uuid4(),
                 title="Їбемо " + update.inline_query.query,
                 input_message_content=InputTextMessageContent(
                     message_text=f'{name} {random.choice(actions.action1)} {target} {random.choice(actions.action2)}'))]
