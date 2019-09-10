@@ -74,7 +74,7 @@ def echo(update, context):
     target = text.partition(' ')[2]
     if command1 in update.message.text:
         update.message.reply_text(
-            f'Такс.. Розбійник говорит что твои шансы на успех равны: {random.randrange(101)}%')
+            f'Такс.. Розбійник посовещался с паном президентом и говорит: {random.choice(actions.action3)}')
     elif command2 in update.message.text:
         update.message.reply_text(
             f'Здесь {random.randrange(101)}% совместимости между {invoker} и {target}')
