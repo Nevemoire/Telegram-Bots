@@ -132,7 +132,7 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(MessageHandler(Filters.audio, getAudio))
-    dp.add_handler(MessageHandler(Filters.group, echo))
+    dp.add_handler(MessageHandler(Filters.text, echo))
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(InlineQueryHandler(inlinequery))
