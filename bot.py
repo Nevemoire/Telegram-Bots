@@ -68,17 +68,27 @@ def getAudio(update, context):
 @run_async
 def echo(update, context):
     text = update.message.text
+    userid = update.message.from_user.id
+    member1 = context.bot.get_chat_member('@rozbiynuki', userid)
+    member2 = context.bot.get_chat_member('@rozbiynukirofls', userid)
     command1 = '!8ball'
     command2 = '!love'
     invoker = update.message.from_user.full_name
     target = text.partition(' ')[2]
-    if command1 in update.message.text:
-        update.message.reply_text(
-            f'Такс.. Розбійник посовещался с паном президентом и говорит: {random.choice(actions.action3)}')
-    elif command2 in update.message.text:
-        update.message.reply_text(
-            f'Здесь {random.randrange(101)}% совместимости между {invoker} и {target}')
+    if (member1.status in memberslist and member2.status in memberslist):
+      if command1 in update.message.text:
+          update.message.reply_text(
+              f'Такс.. Розбійник посовещался с паном президентом и говорит: {random.choice(actions.action3)}')
+      elif command2 in update.message.text:
+          update.message.reply_text(
+              f'Здесь {random.randrange(101)}% совместимости между {invoker} и {target}')
+      else:
+          pass
     else:
+      if (command1 in update.message.text or command2 in update.message.text):
+        update.message.reply_text('''Ненене, так не пойдёт.
+Для начала подпишись на: @Rozbiynuki и @RozbiynukiRofls''')
+      else:
         pass
 
 
@@ -88,8 +98,9 @@ def inlinequery(update, context):
     userid = update.inline_query.from_user.id
     target = update.inline_query.query
     name = update.inline_query.from_user.full_name
-    member = context.bot.get_chat_member('@rozbiynuki', userid)
-    if member.status in memberslist:
+    member1 = context.bot.get_chat_member('@rozbiynuki', userid)
+    member2 = context.bot.get_chat_member('@rozbiynukirofls', userid)
+    if (member1.status in memberslist and member2.status in memberslist):
         results = [
             InlineQueryResultCachedAudio(
                 id=uuid4(),
@@ -106,10 +117,11 @@ def inlinequery(update, context):
         results = [
             InlineQueryResultArticle(
                 id=uuid4(),
-                title="Перед трахом підпишися на @razbiynuki",
+                title="Перед трахом підпишися на @rozbiynuki",
                 input_message_content=InputTextMessageContent(
                     message_text=
-                    'Чтобы трахать всё и вся, надо подписаться на наш ламповый канал! Жми: @rozbiynuki'))]
+                    '''Ненене, так не пойдёт.
+Для начала подпишись на: @Rozbiynuki и @RozbiynukiRofls'''))]
 
         update.inline_query.answer(results)
 
