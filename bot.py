@@ -208,6 +208,7 @@ def received_information(update, context):
 
 def button(update, context):
     IDS = context.user_data['choice']
+    usrid = context.user_data['usrid']
     chat_id = update.effective_message.chat_id
     try:
       cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
@@ -218,7 +219,7 @@ def button(update, context):
       payload = "Custom-Payload"
       # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
       provider_token = os.environ['provider_token']
-      start_parameter = "test-payment"
+      start_parameter = f"{usrid}"
       currency = "RUB"
       # price in dollars
       cursor.execute("SELECT price FROM betsdb WHERE id=%s", (IDS,))
