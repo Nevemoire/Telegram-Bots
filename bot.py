@@ -27,7 +27,7 @@ from uuid import uuid4
 
 
 from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent, InlineQueryResultCachedAudio
-from telegram.ext import Updater, InlineQueryHandler, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, InlineQueryHandler, CommandHandler, MessageHandler, Filters, ConversationHandler
 
 
 # Enable logging
@@ -35,6 +35,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+
+ID, MESSAGE = range(2)
 
 
 members = 'creator, administrator, member'
@@ -63,16 +65,24 @@ def help(update, context):
 def getAudio(update, context):
     audio = update.message.audio
     update.message.reply_text(audio.file_id)
+
+@run_async  
+def getId(update, context):
+    ids = update.message.chat.id
+    context.bot.deleteMessage(chat_id=update.message.chat.id, message_id=update.message.message_id)
+    context.bot.sendMessage(chat_id=update.message.chat.id, text=f'*ID* группы: {ids}\nКопировать без знака "-"!', parse_mode='MARKDOWN')
     
     
 @run_async
 def echo(update, context):
     text = update.message.text
+    text2 = update.message.chat.title
     userid = update.message.from_user.id
     member1 = context.bot.get_chat_member('@rozbiynuki', userid)
     member2 = context.bot.get_chat_member('@rozbiynukirofls', userid)
     command1 = '!8ball'
     command2 = '!love'
+    command3 = '!ping'
     invoker = update.message.from_user.full_name
     target = text.partition(' ')[2]
     if (member1.status in memberslist and member2.status in memberslist):
@@ -82,6 +92,8 @@ def echo(update, context):
       elif command2 in update.message.text:
           update.message.reply_text(
               f'Здесь {random.randrange(101)}% совместимости между {invoker} и {target}')
+      elif command3 in update.message.text:
+      	  update.message.reply_text(update.message.chat.id)
       else:
           pass
     else:
@@ -104,7 +116,7 @@ def inlinequery(update, context):
         results = [
             InlineQueryResultCachedAudio(
                 id=uuid4(),
-                audio_file_id='CQADBAADIBAAAjsPuFOaao2JdnIm2RYE'),
+                audio_file_id='CQADBAADIBAAAjsPuFMvbgABZjW0M5cWBA'),
             InlineQueryResultArticle(
                 id=uuid4(),
                 title="Їбемо " + update.inline_query.query,
@@ -126,6 +138,46 @@ def inlinequery(update, context):
         update.inline_query.answer(results)
 
 
+def anon(update, context):
+    update.message.reply_text(
+        '''Наконец что-то интересненькое ;)
+
+Для начала, отправь мне *ID* чата, куда хочешь написать.
+*Как получить ID?* Просто отправь в чат комманду /id.
+_Не волнуйся, бот быстренько удалит твоё сообщение, никто не спалит._
+
+*P.S.* Ты же вкурсе, чтобы сообщение отправилось, я должен присутствовать в этом чате? Конечно, вкурсе.''',
+        parse_mode='MARKDOWN')
+
+    return ID
+
+
+def anonId(update, context):
+    context.user_data['groupid'] = update.message.text
+    update.message.reply_text('Отлично, теперь напиши сообщение для отправки.')
+
+    return MESSAGE
+
+
+def anonMessage(update, context):
+    groupid = context.user_data['groupid']
+    message = update.message.text
+    try:
+        context.bot.sendMessage(chat_id=f'-{groupid}', text=f'*Какой-то анон написал(-а):*\n{message}', parse_mode='MARKDOWN')
+
+        return ConversationHandler.END
+    except:
+	    update.message.reply_text(f'Что-то пошло не так :(\nТы точно удалил(-а) знак "-" перед числами?')
+
+	    return ConversationHandler.END
+
+
+def cancel(update, context):
+    update.message.reply_text('Эх! В этот раз без интрижек:(')
+
+    return ConversationHandler.END
+
+
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
@@ -135,6 +187,9 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
+    # REQUEST_KWARGS={
+    # 'proxy_url': 'socks5h://207.180.238.12:1080',}
+    # updater = Updater('972573533:AAEGNRCTQd_x4e6j3W6Z36pa8bNFAKkn7Vg', request_kwargs=REQUEST_KWARGS, use_context=True)
     updater = Updater(os.environ['token'], use_context=True)
 
     # Get the dispatcher to register handlers
@@ -143,8 +198,22 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("id", getId))
     dp.add_handler(MessageHandler(Filters.audio, getAudio))
-    dp.add_handler(MessageHandler(Filters.text, echo))
+    dp.add_handler(MessageHandler(Filters.group, echo))
+
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler("anon", anon)],
+
+    states={
+           	ID: [MessageHandler(Filters.text, anonId)],
+           	MESSAGE: [MessageHandler(Filters.text, anonMessage)]
+        },
+
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+
+    dp.add_handler(conv_handler)
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(InlineQueryHandler(inlinequery))
