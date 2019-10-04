@@ -61,10 +61,10 @@ def help(update, context):
     update.message.reply_text('Help!')
     
     
-@run_async  
-def getAudio(update, context):
-    audio = update.message.audio
-    update.message.reply_text(audio.file_id)
+# @run_async  
+# def getAudio(update, context):
+    # audio = update.message.audio
+    # update.message.reply_text(audio.file_id)
 
 @run_async  
 def getId(update, context):
@@ -139,17 +139,27 @@ def inlinequery(update, context):
 
 
 def anon(update, context):
-    update.message.reply_text(
-        '''Наконец что-то интересненькое ;)
+    userid = update.message.from_user.id
+    member1 = context.bot.get_chat_member('@rozbiynuki', userid)
+    member2 = context.bot.get_chat_member('@rozbiynukirofls', userid)
+    if (member1.status in memberslist and member2.status in memberslist):
+    	update.message.reply_text(
+        	'''Наконец что-то интересненькое ;)
 
 Для начала, отправь мне *ID* чата, куда хочешь написать.
 *Как получить ID?* Просто отправь в чат комманду /id.
 _Не волнуйся, бот быстренько удалит твоё сообщение, никто не спалит._
 
 *P.S.* Ты же вкурсе, чтобы сообщение отправилось, я должен присутствовать в этом чате? Конечно, вкурсе.''',
-        parse_mode='MARKDOWN')
+        	parse_mode='MARKDOWN')
+    	context.user_data['user'] = update.message.from_user.full_name
 
-    return ID
+    	return ID
+    else:
+	update.message.reply_text('''Ненене, так не пойдёт.
+Для начала подпишись на: @Rozbiynuki и @RozbiynukiRofls''')
+	
+	return ConversationHandler.END
 
 
 def anonId(update, context):
@@ -161,9 +171,11 @@ def anonId(update, context):
 
 def anonMessage(update, context):
     groupid = context.user_data['groupid']
+    user = context.user_data['user']
     message = update.message.text
     try:
         context.bot.sendMessage(chat_id=f'-{groupid}', text=f'*Какой-то анон написал(-а):*\n{message}', parse_mode='MARKDOWN')
+	context.bot.sendMessage(chat_id=-1001184148918, text=f'*{user} написал(-а):*\n{message}', parse_mode='MARKDOWN')
 
         return ConversationHandler.END
     except:
@@ -199,7 +211,7 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("id", getId))
-    dp.add_handler(MessageHandler(Filters.audio, getAudio))
+    # dp.add_handler(MessageHandler(Filters.audio, getAudio))
     dp.add_handler(MessageHandler(Filters.group, echo))
 
     conv_handler = ConversationHandler(
