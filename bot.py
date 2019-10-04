@@ -175,13 +175,13 @@ def anonMessage(update, context):
     message = update.message.text
     try:
         context.bot.sendMessage(chat_id=f'-{groupid}', text=f'*Какой-то анон написал(-а):*\n{message}', parse_mode='MARKDOWN')
-	context.bot.sendMessage(chat_id=-1001184148918, text=f'*{user} написал(-а):*\n{message}', parse_mode='MARKDOWN')
+        context.bot.sendMessage(chat_id=-1001184148918, text=f'*{user} написал(-а):*\n{message}', parse_mode='MARKDOWN')
 
         return ConversationHandler.END
     except:
-	    update.message.reply_text(f'Что-то пошло не так :(\nТы точно удалил(-а) знак "-" перед числами?')
+	update.message.reply_text(f'Что-то пошло не так :(\nТы точно удалил(-а) знак "-" перед числами?')
 
-	    return ConversationHandler.END
+	return ConversationHandler.END
 
 
 def cancel(update, context):
