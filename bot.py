@@ -179,9 +179,9 @@ def anonMessage(update, context):
 
         return ConversationHandler.END
     except:
-	update.message.reply_text(f'Что-то пошло не так :(\nТы точно удалил(-а) знак "-" перед числами?')
-
-	return ConversationHandler.END
+		update.message.reply_text(f'Что-то пошло не так :(\nТы точно удалил(-а) знак "-" перед числами?')
+		
+		return ConversationHandler.END
 
 
 def cancel(update, context):
