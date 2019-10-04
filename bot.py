@@ -156,10 +156,10 @@ _Не волнуйся, бот быстренько удалит твоё соо
 
     	return ID
     else:
-	update.message.reply_text('''Ненене, так не пойдёт.
+        update.message.reply_text('''Ненене, так не пойдёт.
 Для начала подпишись на: @Rozbiynuki и @RozbiynukiRofls''')
 	
-	return ConversationHandler.END
+        return ConversationHandler.END
 
 
 def anonId(update, context):
