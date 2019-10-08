@@ -24,6 +24,7 @@ import actions
 from telegram.ext.dispatcher import run_async
 import uuid
 from uuid import uuid4
+import psycopg2
 
 
 from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent, InlineQueryResultCachedAudio
@@ -43,6 +44,11 @@ members = 'creator, administrator, member'
 memberslist = members.split(', ')
 
 
+conn = psycopg2.connect(dbname='d3p95g4d436dvm', user='gogkpkgabilgaj', 
+                        password='984caca9804921aaba645e063270277f0aca1cf316578740c29104822e91254c', host='ec2-54-228-252-67.eu-west-1.compute.amazonaws.com')
+cursor = conn.cursor()
+
+
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
 @run_async
@@ -54,6 +60,51 @@ def start(update, context):
       update.message.reply_text("Ты сказал: " + user_says)
     else:
       pass
+
+
+def setbd(update, context):
+	cursor.execute("""create table users (
+id int,
+fullname varchar(50) NOT NULL,
+username varchar(50) NOT NULL,
+balance int NOT NULL,
+PRIMARY KEY (id)
+);""")
+	conn.commit()
+	update.message.reply_text('Таблица создана')
+
+
+def registration(update, context):
+	ids = update.message.from_user.id
+	fullname = update.message.from_user.full_name
+	username = update.message.from_user.username
+	balance_Query = "select balance from users where id = %s"
+	cursor.execute(balance_Query, (ids,))
+	balance = cursor.fetchone()
+	error = "None"	
+	if error not in str(balance):
+		update.message.reply_text('*Ошибка!* Регистрироваться можно только один раз!', parse_mode='MARKDOWN')
+	elif (error in str(fullname) or error in str(username)):
+		update.message.reply_text('*Ошибка!* _Name_ или _Username_ имеют пустое значение.', parse_mode='MARKDOWN')
+	else:
+		registration_Query = "INSERT INTO users (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
+		cursor.execute(registration_Query, (ids, fullname, username,))
+		conn.commit()
+		update.message.reply_text('Регистрация пройдена успешно.')
+
+
+def getInfo(update, context):
+	usrid = update.message.from_user.id
+	user_info_Query = "select * from users where id = %s"
+
+	cursor.execute(user_info_Query, (usrid,))
+	info = cursor.fetchall()
+	for row in info:
+		update.message.reply_text(f"""
+*Name*: {row[1]}
+*Username*: {row[2]}
+*Balance*: {row[3]}
+*ID*: {row[0]}""", parse_mode="MARKDOWN")
 
 
 def help(update, context):
@@ -76,24 +127,47 @@ def getId(update, context):
 @run_async
 def echo(update, context):
     text = update.message.text
-    text2 = update.message.chat.title
     userid = update.message.from_user.id
     member1 = context.bot.get_chat_member('@rozbiynuki', userid)
     member2 = context.bot.get_chat_member('@rozbiynukirofls', userid)
     command1 = '!8ball'
     command2 = '!love'
     command3 = '!ping'
+    gambling1 = '!coinflip'
     invoker = update.message.from_user.full_name
-    target = text.partition(' ')[2]
+    ginvoker = update.message.from_user.username
+
     if (member1.status in memberslist and member2.status in memberslist):
       if command1 in update.message.text:
           update.message.reply_text(
               f'Такс.. Розбійник посовещался с паном президентом и говорит: {random.choice(actions.action3)}')
       elif command2 in update.message.text:
-          update.message.reply_text(
+      	  target = text.partition(' ')[2]
+      	  update.message.reply_text(
               f'Здесь {random.randrange(101)}% совместимости между {invoker} и {target}')
       elif command3 in update.message.text:
       	  update.message.reply_text(update.message.chat.id)
+      elif gambling1 in update.message.text:  
+      	  try:
+      	  	gtarget = text.split(maxsplit=3)[1]
+      	  	summ = text.split(maxsplit=3)[2]
+      	  	id_Query = "select * from users where username = %s"
+      	  	cursor.execute(id_Query, (gtarget,))
+      	  	gtarget_id = cursor.fetchall()
+      	  	for row in gtarget_id:
+      	  		try:
+      	  			summint=int(summ)
+      	  		except:
+      	  			update.message.reply_text('Жаль, но ты не можешь расплатиться своей *натурой* вместо *монет*:(', parse_mode='MARKDOWN')
+      	  			break
+      	  		
+      	  		update.message.reply_text(f'*{ginvoker}* предложил *{gtarget}* сыграть в _Coinflip_ на сумму: *{summint}* монет.', parse_mode="MARKDOWN")
+      	  		context.bot.send_message(chat_id=row[0], text=f'{invoker} предлагает тебе сыграть в _Coinflip_ на {summint} монет.', parse_mode="MARKDOWN")
+
+      	  except:
+      	  	update.message.reply_text(f'''*Ошибка!* Возможные причины:
+*1)* Не могу написать пользователю:(\nПопроси его начать со мной переписку.
+*2)* Неправильный формат запроса.\nУбедись что он выглядит примерно так: !coinflip username 100''', parse_mode="MARKDOWN")
       else:
           pass
     else:
@@ -102,6 +176,11 @@ def echo(update, context):
 Для начала подпишись на: @Rozbiynuki и @RozbiynukiRofls''')
       else:
         pass
+
+
+def delete(update, context):
+	cursor.execute("TRUNCATE TABLE users")
+	conn.commit()
 
 
 @run_async
@@ -213,8 +292,12 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("id", getId))
+    dp.add_handler(CommandHandler("set", setbd))
+    dp.add_handler(CommandHandler("del", delete))
+    dp.add_handler(CommandHandler("info", getInfo))
+    dp.add_handler(CommandHandler("reg", registration))
     # dp.add_handler(MessageHandler(Filters.audio, getAudio))
-    dp.add_handler(MessageHandler(Filters.group, echo))
+    dp.add_handler(MessageHandler(Filters.text, echo))
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("anon", anon)],
