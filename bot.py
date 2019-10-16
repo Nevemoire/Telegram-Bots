@@ -6,46 +6,28 @@
 # If you're still using version 11.1.0, please see the examples at
 # https://github.com/python-telegram-bot/python-telegram-bot/tree/v11.1.0/examples
 
-"""
-Basic example for a bot that can receive payment from user.
-"""
 
+"""
+First, a few handler functions are defined. Then, those functions are passed to
+the Dispatcher and registered at their respective places.
+Then, the bot is started and runs until we press Ctrl-C on the command line.
+
+Usage:
+Basic inline bot example. Applies different text transformations.
+Press Ctrl-C on the command line or send a signal to the process to stop the
+bot.
+"""
 import logging
-
-from telegram import (ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice)
-from telegram.ext import (Updater, CommandHandler, MessageHandler,
-                          Filters,
-                          ConversationHandler, CallbackQueryHandler,
-                          PreCheckoutQueryHandler, ShippingQueryHandler)
+import random
+import os
+import actions
 from telegram.ext.dispatcher import run_async
 import psycopg2
-import config
-import os
-import datetime
-from importlib import reload
-
-conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], password=os.environ['password'],
-                        host=os.environ['host'])
-
-cursor = conn.cursor()
-
-today = datetime.datetime.today()
-
-reply_keyboard = [['О боте 👾', 'О авторе 👨🏻‍💻'],
-                  ['Пример 💶', 'Контакты 📲'],
-                  ['Статистика 📊'],['Хочу такого бота 🚀']]
-markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 
 
-(CHOOSING, TYPING_REPLY, PAYMENT) = range(3)
+from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters, ConversationHandler
 
-
-commands = (
-    'О боте 👾, О авторе 👨🏻‍💻, Пример 💶, Контакты 📲, Статистика 📊, Хочу такого бота 🚀')
-ignorelist = commands.split(', ')
-members = 'creator, administrator, member'
-memberslist = members.split(', ')
-back = 'Назад'
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -53,289 +35,381 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
+ID, MESSAGE, TOTAL = range(3)
+
+
+members = 'creator, administrator, member'
+memberslist = members.split(', ')
+
+
+conn = psycopg2.connect(dbname='d3p95g4d436dvm', user='gogkpkgabilgaj', 
+                        password='984caca9804921aaba645e063270277f0aca1cf316578740c29104822e91254c', host='ec2-54-228-252-67.eu-west-1.compute.amazonaws.com')
+cursor = conn.cursor()
+
+bot_link = 'telegram.me/therozbiynukbot'
+bot_username = '@therozbiynukbot'
+channel_username = '@mdkcasino'
+
+
+# Define a few command handlers. These usually take the two arguments bot and
+# update. Error handlers also receive the raised TelegramError object in error.
+@run_async
+def start(update, context):
+	"""Send a message when the command /start is issued."""
+	ids = update.message.from_user.id
+	fullname = update.message.from_user.full_name
+	usern = update.message.from_user.username
+	username = usern.lower()
+	# balance_Query = 
+	id_Query = 'select "balance" from userz where id = %s'
+	cursor.execute(id_Query, (ids,))
+	balance = cursor.fetchone()
+	error = "None"	
+	if error not in str(balance):
+		pass
+	elif (error in str(fullname) or error in str(username)):
+		update.message.reply_text('''Приветствуем тебя в нашем клубе!
+
+Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
+		update.message.reply_text('''*Ты у нас впервые?*
+Чтобы иметь возможность играть у нас, поля _Name_ и _Username_ не должны быть пустыми.
+Исправь ситуацию и напиши мне /reg :)''', parse_mode='MARKDOWN')
+	else:
+		update.message.reply_text('''Приветствуем тебя в нашем клубе!
+
+Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
+		registration_Query = "INSERT INTO userz (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
+		cursor.execute(registration_Query, (ids, fullname, username,))
+		conn.commit()
+		update.message.reply_text('*Ты у нас впервые?*\nТвой профиль успешно создан, для справки введи /info ;)')
+
+	user_says = " ".join(context.args)
+	if user_says is not "":
+		invoker = update.message.from_user.id
+		error = 'None'
+		cursor.execute('SELECT refferrer FROM userz WHERE id = %s', (invoker,))
+		promo_used = cursor.fetchone()
+		cursor.execute('SELECT id FROM userz')
+		totalb = cursor.fetchall()
+		if user_says not in str(totalb):
+			update.message.reply_text('Такого промокода не существует.')
+			update.message.reply_text(totalb)
+		elif user_says in str(invoker):
+			update.message.reply_text('Свой промокод использовать нельзя!')
+		elif error not in str(promo_used):
+			update.message.reply_text('Упси, промокод можно использовать только 1 раз.')
+		else:
+			cursor.execute('UPDATE userz SET balance = balance + 20 WHERE id = %s', (user_says,))
+			cursor.execute('UPDATE userz SET reffs = reffs + 1, balance = balance + 100, refferrer = %s WHERE id = %s', (user_says, invoker,))
+			update.message.reply_text('Промокод принят. (+100 монет тебе и +20 владельцу промокода)')
+			conn.commit()
+	else:
+		pass
+
+
+def registration(update, context):
+	ids = update.message.from_user.id
+	fullname = update.message.from_user.full_name
+	usern = update.message.from_user.username
+	username = usern.lower()
+	# balance_Query = 
+	id_Query = 'select "balance" from userz where id = %s'
+	cursor.execute(id_Query, (ids,))
+	balance = cursor.fetchone()
+	error = "None"	
+	if error not in str(balance):
+		update.message.reply_text('*Ошибка!* Регистрироваться можно только один раз!', parse_mode='MARKDOWN')
+	elif (error in str(fullname) or error in str(username)):
+		update.message.reply_text('*Ошибка!* _Name_ или _Username_ имеют пустое значение.', parse_mode='MARKDOWN')
+	else:
+		registration_Query = "INSERT INTO userz (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
+		cursor.execute(registration_Query, (ids, fullname, username,))
+		conn.commit()
+		update.message.reply_text('Регистрация пройдена успешно.')
+
+
+def getInfo(update, context):
+	usrid = update.message.from_user.id
+	cursor.execute('SELECT id FROM userz')
+	all_users = cursor.fetchall()
+	try:
+		target = update.message.reply_to_message.from_user.id
+		if '/info' in update.message.reply_to_message.text:
+			pass
+		elif str(target) in str(all_users):
+			target_info_Query = "select * from userz where id = %s"
+			cursor.execute(target_info_Query, (target,))
+			target_info = cursor.fetchall()
+			for row in target_info:
+				update.message.reply_text(f"""
+*Name*: {row[1]}
+*Username*: {row[2]}
+*Balance*: {row[3]}
+*ID*: {row[0]}""", parse_mode="MARKDOWN")
+
+				return
+
+		else:
+			update.message.reply_text('Ошибка! Этого пользователя нет в нашей базе данных.')
+
+			return
+
+	except:
+		pass
+
+	user_info_Query = "select * from userz where id = %s"
+
+	cursor.execute(user_info_Query, (usrid,))
+	info = cursor.fetchall()
+	for row in info:
+		update.message.reply_text(f"""
+*Name*: {row[1]}
+*Username*: {row[2]}
+*Balance*: {row[3]}
+*ID*: {row[0]}""", parse_mode="MARKDOWN")
+
+
+def help(update, context):
+    """Send a message when the command /help is issued."""
+    update.message.reply_text('Help!')
+    
+    
+# def echo(update, context):
+#     """Send a message when the command /help is issued."""
+#     update.message.reply_text('''Искусственный интеллект мне пока что не приделали, поэтому давай общаться понятным языком ;)\nДоступные комманды:
+
+# /coinflip - создать дуэль (1х1)
+# /roulette - *в разработке...*    	
+# /info - информация по твоему профилю
+# /promo - система промокодов
+# /help - помощь и другая информация''', parse_mode='MARKDOWN')
+
+
+def getPromo(update, context):
+	ids = update.message.from_user.id
+	cursor.execute('SELECT reffs FROM userz where id = %s', (ids,))
+	reffs = cursor.fetchone()
+	cursor.execute('SELECT refferrer FROM userz where id = %s', (ids,))
+	ref = cursor.fetchone()
+	update.message.reply_text(f'Твой промокод: {ids}\nИсп. промокод: {ref[0]}\nКол-во реффералов: {reffs[0]}\n\nЧтобы человек активировал твой промокод, ему/ей нужно написать боту:')
+	update.message.reply_text(f"/start {ids}")
+
+@run_async  
+def getId(update, context):
+    ids = update.message.chat.id
+    context.bot.deleteMessage(chat_id=update.message.chat.id, message_id=update.message.message_id)
+    context.bot.sendMessage(chat_id=update.message.chat.id, text=f'*ID* группы: {ids}\nКопировать без знака "-"!', parse_mode='MARKDOWN')
+
+
+@run_async
+def coinflip(update, context):
+	context.user_data['game'] = 'coinflip'
+	inv_user_id = update.message.from_user.id
+	user_balance = "select balance from userz where id = %s"
+	cursor.execute(user_balance, (inv_user_id,))
+	balance = cursor.fetchone()
+	update.message.reply_text(f'`Coinflip` 🌕\n\nВведи сумму ставки.\nТвой баланс: *{balance[0]}* монет\n\n(*min*: 100, *max*: 100000)\nОтмена - /cancel', parse_mode='MARKDOWN')
+
+	return TOTAL
+
+
+@run_async
+def roulette(update, context):
+	context.user_data['game'] = 'roulette'
+	inv_user_id = update.message.from_user.id
+	user_balance = "select balance from userz where id = %s"
+	cursor.execute(user_balance, (inv_user_id,))
+	balance = cursor.fetchone()
+	update.message.reply_text(f'`Roulette` 🎰\n\nВведи сумму ставки.\nТвой баланс: *{balance[0]}* монет\n\n(*min*: 100, *max*: 100000)\nОтмена - /cancel', parse_mode='MARKDOWN')
+
+	return TOTAL
+
+
+@run_async
+def Total(update, context):
+	game = context.user_data['game']
+	invoker = update.message.from_user.full_name
+	inv_user = update.message.from_user.username
+	inv_user_id = update.message.from_user.id
+	user_balance = "select balance from userz where id = %s"
+	cursor.execute(user_balance, (inv_user_id,))
+	balance = cursor.fetchone()
+	total = update.message.text
+	try:
+		summ = int(total)
+	except:
+		update.message.reply_text('Жаль, но мы не принимаем ничего, кроме монет.\nДа, натурой тоже не принимаем :(\n\nВведи *целое* число.\nОтмена - /cancel', parse_mode='MARKDOWN')
+
+		return TOTAL
+
+	if summ < 100:
+		update.message.reply_text('Так не пойдёт, возвращайся в другой раз.')
+
+		return ConversationHandler.END
+	elif summ > 100000:
+		update.message.reply_text('Превышен лимит, может как-нибудь в другой раз ;)')
+
+		return ConversationHandler.END
+	elif summ > int(balance[0]):
+		update.message.reply_text('Недостаточно монет.')
+
+		return ConversationHandler.END
+	elif (summ >= 100) and (summ <= 100000) and game == 'coinflip':
+		keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'coinflip {inv_user_id} {summ}')],
+					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
+		reply_markup = InlineKeyboardMarkup(keyboard)
+		context.bot.send_message(chat_id=channel_username, text=f'`Coinflip` 🌕\n\n*Создатель*: {invoker} (@{inv_user})\n*Ставка*: {summ} монет', parse_mode='MARKDOWN', reply_markup=reply_markup)
+		update.message.reply_text('Дуэль создана, ожидай противника.')
+		
+		return ConversationHandler.END
+	elif (summ >= 100) and (summ <= 100000) and game == 'roulette':
+		keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette {inv_user_id} {summ}')],
+					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
+		reply_markup = InlineKeyboardMarkup(keyboard)
+		context.bot.send_message(chat_id=channel_username, text=f'`Roulette` 🎰\n\n*Создатель*: {invoker} (@{inv_user})\n*Ставка*: {summ} монет', parse_mode='MARKDOWN', reply_markup=reply_markup)
+		update.message.reply_text('Игра создана, ожидай противника.')
+		context.user_data['participants'] = 1
+		
+		return ConversationHandler.END
+	else:
+		update.message.reply_text('_Error 404_. Как ты вообще это сделялъ? :/\nСкинь скрин сюда: @daaetoya и получи вознаграждение *1000* монет.', parse_mode='MARKDOWN')
+
+		return ConversationHandler.END
+
+
+@run_async
+def button(update, context):
+	cursor.execute('SELECT id FROM userz')
+	all_users = cursor.fetchall()
+	keyboard = [[InlineKeyboardButton('Создать свою игру', url=bot_link)]]
+	reply_markup = InlineKeyboardMarkup(keyboard)
+	query = update.callback_query
+	betinfo = query.data.split()
+	cursor.execute('SELECT username FROM userz WHERE id = %s', (betinfo[1],))
+	participant1 = cursor.fetchone()
+	cursor.execute('SELECT username FROM userz WHERE id = %s', (query.from_user.id,))
+	participant2 = cursor.fetchone()
+	betsumm = betinfo[2]
+	total = int(betsumm)*1.9
+	participants = context.user_data['participants']
+
+	if str(query.from_user.id) not in str(all_users):
+		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nРегистрация: {bot_username}', show_alert=True, parse_mode='MARKDOWN')
+
+		return
+	elif 'coinflip' in query.data:
+		cf_participants = [participant1[0], participant2[0]]
+		winner = random.choice(cf_participants)
+		query.edit_message_text(f'`Coinflip`\n\n@{participant1[0]} *vs* @{participant2[0]}\n\n*Победитель*: @{winner}!\n*Выигрыш*: `{int(total)}` монет!', parse_mode='MARKDOWN', reply_markup=reply_markup)
+	elif 'roulette' in query.data:
+		if participants < 9:
+			participants += 1
+			query.edit_message_text(f'*Участников*: {participants}/10', parse_mode='MARKDOWN')
+		elif participants == 9:
+			query.edit_message_text('Участники собраны, начинаем!')
+		else:
+			query.edit_message_text('Ошибка! Игра сброшена.')
+	else:
+		query.edit_message_text('Error')
+	
+
+@run_async
+def anon(update, context):
+    userid = update.message.from_user.id
+    member1 = context.bot.get_chat_member(channel_username, userid)
+    if member1.status in memberslist:
+    	update.message.reply_text(
+        	'''Наконец что-то интересненькое ;)
+
+Для начала, отправь мне *ID* чата, куда хочешь написать.
+*Как получить ID?* Просто отправь в чат комманду /id.
+_Не волнуйся, бот быстренько удалит твоё сообщение, никто не спалит._
+
+*P.S.* Ты же вкурсе, чтобы сообщение отправилось, я должен присутствовать в этом чате? Конечно, вкурсе.
+
+/cancel - чтобы отменить.''',
+        	parse_mode='MARKDOWN')
+    	context.user_data['user'] = update.message.from_user.full_name
+
+    	return ID
+    else:
+        update.message.reply_text(f'Ненене, так не пойдёт.\nДля начала подпишись на: {channel_username}')
+	
+        return ConversationHandler.END
+
+
+@run_async
+def anonId(update, context):
+    context.user_data['groupid'] = update.message.text
+    update.message.reply_text('Отлично, теперь напиши сообщение для отправки.')
+
+    return MESSAGE
+
+
+@run_async
+def anonMessage(update, context):
+    groupid = context.user_data['groupid']
+    user = context.user_data['user']
+    message = update.message.text
+    try:
+        context.bot.sendMessage(chat_id=f'-{groupid}', text=f'*Какой-то анон написал(-а):*\n{message}', parse_mode='MARKDOWN')
+        context.bot.sendMessage(chat_id=-1001184148918, text=f'*{user} написал(-а):*\n{message}', parse_mode='MARKDOWN')
+
+        return ConversationHandler.END
+    except:
+        update.message.reply_text(f'Что-то пошло не так :(\nТы точно удалил(-а) знак "-" перед числами?')
+
+        return ConversationHandler.END
+
+
+@run_async
+def cancel(update, context):
+    update.message.reply_text('Эх! В этот раз ничего интересного:(')
+
+    return ConversationHandler.END
+
 
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
-def start(update, context):
-    name = update.message.from_user.full_name
-    update.message.reply_text(
-        f'Привет, {name}!')
-    nick = update.message.from_user.username
-    userid = update.message.from_user.id
-    context.user_data['usrid'] = userid
-    context.user_data['username'] = nick
-    context.user_data['name'] = name
-    update.message.reply_text('''Воспользуйся меню ниже для взаимодействия с ботом.
-    
-Не знаешь с чего начать? Возможности бота описаны в разделе "О боте".''', reply_markup=markup)
-    cursor.execute("SELECT id FROM users WHERE id=%s", (userid,))
-    result = "%s" % cursor.fetchone()
-    if result == "None":
-        cursor.execute("INSERT INTO users (nickname, namesurname, id, totalspent) VALUES (%s, %s, %s, 0)", (nick, name, userid))
-        conn.commit()
-    else:
-        pass
-
-    return CHOOSING
-
-
-@run_async  
-def about_bot(update, context):
-    update.message.reply_text("""*Возможности бота*
-    
-- Запись, считывание и хранение информации в базах данных.
-- Массовая рассылка сообщений пользователям.
-- Функция обратной связи. (Для тех, кто не хочет палить свой аккаунт tg. Пересылает сообщения пользователей в личку или на указанный канал.)
-- *Форматирование* _текста_ `разными` [способами](http://www.example.com/).
-    
-Доступные команды:
-/start - запустить/перезагрузить бота
-/photo - бот пришлёт фото
-/doc - бот пришлёт документ
-/stats - статистика бота
-
-Также, при заказе я учту и реализую все ваши пожелания.""", parse_mode='MARKDOWN')
-
-    return CHOOSING
-
-
-@run_async  
-def about_author(update, context):
-    update.message.reply_text("""*Привет!* Меня зовут Данил.
-Студент (но это не точно), пока ещё не миллиардер, начинающий разработчик (учу `python`) и front-end (`js/react`) девелопер.
-
-Несколько работ из моего портфолио:
-- https://poli-trade.com.ua - собран на Tilda.ws.
-- https://mjm-corp.ee или https://mjmcorp.esy.es - написан вручную с нуля, без помощи каких-либо конструкторов.
-- https://active-sp.ru (калькулятор, презентация, рекламные макеты и др.) - собран на WP.
-
-Также, ссылка на мой сайт:
-https://nevermore.red - собран на Tilda.ws, вскоре будет заново переписан по технологии [Single Page Application](http://www.codenet.ru/webmast/js/spa/), на основе Bootstrap 4 + React.js.
-
-Есть вопросы и/или предложения? Пиши мне: @daaetoya""",  parse_mode='MARKDOWN', disable_web_page_preview=True)
-
-    return CHOOSING
-
-
-@run_async  
-def contacts(update, context):
-    update.message.reply_text("""Telegram: @daaetoya
-Instagram: [daniel.nvmr](https://instagram.com/daniel.nvmr)""", parse_mode="MARKDOWN", disable_web_page_preview=True)
-
-    return CHOOSING
-  
-
-@run_async  
-def echo(update, context):
-    doc = update.message.document
-    update.message.reply_text(doc.file_id)
-    
-    return CHOOSING
- 
-
-@run_async  
-def order(update, context):
-    update.message.reply_text("Проконсультироваться и заказать бота можно у @daaetoya ;)")
-
-    return CHOOSING
-  
-
-@run_async  
-def photo(update, context):
-    avatar = 'https://images.pexels.com/photos/207962/pexels-photo-207962.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260'
-    context.bot.send_photo(update.message.chat_id, photo=avatar)
-
-    return CHOOSING
-
-@run_async  
-def doc(update, context):
-    doc = 'BQADAgAD3AMAApBwiEjvdRoQ7cnNDgI'
-    context.bot.send_document(update.message.chat_id, document=doc)
-    
-    return CHOOSING
-
-
-def custom_choice(update, context):
-    reply_keyboardz = [['Назад']]
-    state = ReplyKeyboardMarkup(reply_keyboardz, one_time_keyboard=True, resize_keyboard=True)
-    keyboard = [[InlineKeyboardButton("Базовый (1000р)", callback_data="1"),
-                 InlineKeyboardButton("Стандарт (2500р)", callback_data="2")],
-                [InlineKeyboardButton("Про (5000р)", callback_data="3"),
-                 InlineKeyboardButton("Презентация (Бесплатно)", callback_data="4")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text('''Супер 😎''', reply_markup=state)
-    update.message.reply_text('Выбери тариф 👇', reply_markup=reply_markup)
-
-    return TYPING_REPLY
-
-
-def received_information(update, context):
-    query = update.callback_query
-    context.user_data['choice'] = query.data
-    # text = update.message.text
-    keyboard = [[InlineKeyboardButton("Перейти к оплате", callback_data="Оплата")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    try:
-        cursor.execute(
-            "SELECT tariff, price, patrons FROM betsdb WHERE id=%s", (query.data,))
-
-        context.bot.edit_message_text(text='''*Инструкция*
-        
-Оплата работает в тестовом режиме, не вводите данные настоящих карт!
-
-Чтобы провести тестовую оплату используйте данные ниже:
-*Карта*: 4242 4242 4242 4242
-*Действительна до*: любая дата, но не раньше сегодняшнего дня
-*CVV*: любое трёхзначное число
-
-👇''', chat_id=query.message.chat_id, message_id=query.message.message_id, parse_mode='MARKDOWN')
-
-        query.answer('Отличный выбор 😎')
-
-        update.effective_message.reply_text('''*Тариф:* %s
-*Цена:* %s рублей
-*Уже купили:* %s человек''' % cursor.fetchone(), parse_mode='MARKDOWN', reply_markup=reply_markup)
-    except:
-        update.effective_message.reply_text("*Ошибка!* Что-то пошло не так..", parse_mode='MARKDOWN')
-
-        return TYPING_REPLY
-
-    return PAYMENT
-
-
-def button(update, context):
-    IDS = context.user_data['choice']
-    usrid = context.user_data['usrid']
-    chat_id = update.effective_message.chat_id
-    try:
-      cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
-      tariff = "%s" % cursor.fetchone()
-      title = tariff
-      description = "Бот для оплат 💳"
-      # select a payload just for you to recognize its the donation from your bot
-      payload = "Custom-Payload"
-      # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
-      provider_token = os.environ['provider_token']
-      start_parameter = f"{usrid}"
-      currency = "RUB"
-      # price in dollars
-      cursor.execute("SELECT price FROM betsdb WHERE id=%s", (IDS,))
-      pricez = "%s" % cursor.fetchone()
-      price = int(pricez)
-      # price * 100 so as to include 2 d.p.
-      prices = [LabeledPrice(tariff, price * 100)]
-
-      # optionally pass need_name=True, need_phone_number=True,
-      # need_email=True, need_shipping_address=True, is_flexible=True
-      context.bot.sendInvoice(chat_id, title, description, payload,
-                          provider_token, start_parameter, currency, prices, photo_url='https://images.pexels.com/photos/207962/pexels-photo-207962.jpeg')
-
-      return CHOOSING
-    except:
-      update.effective_message.reply_text('''Бесплатные услуги оплачивать не нужно.
-
-*Ваш код*''')
-      
-      return CHOOSING
-      
-
-
-# after (optional) shipping, it's the pre-checkout
-def precheckout_callback(update, context):
-    query = update.pre_checkout_query
-    # check the payload, is this from your bot?
-    if query.invoice_payload != 'Custom-Payload':
-        # answer False pre_checkout_query
-        query.answer(ok=False, error_message="Something went wrong...")
-    else:
-        query.answer(ok=True)
-
-
-# finally, after contacting to the payment provider...
-def successful_payment_callback(update, context):
-    IDS = context.user_data['choice']
-    usrid = context.user_data['usrid']
-    name = context.user_data['name']
-    date = today.strftime("%d-%m-%Y %H:%M UTC")
-    cursor.execute("SELECT tariff FROM betsdb WHERE id=%s", (IDS,))
-    tariff = "%s" % cursor.fetchone()
-    # do something after successful receive of payment?
-    update.effective_message.reply_text('''Благодарим за проведение тестовой оплаты!
-Посмотреть как выглядят заказы: @orderspaymentstg''', reply_markup=markup)
-    cursor.execute("UPDATE betsdb SET patrons = patrons+1 WHERE id=%s", (IDS,))
-    cursor.execute("SELECT price FROM betsdb WHERE id=%s", (IDS,))
-    product_price = "%s" % cursor.fetchone()
-    tsprice = int(product_price)
-    cursor.execute("SELECT totalspent FROM users WHERE id=%s", (usrid,))
-    ts = "%s" % cursor.fetchone()
-    ts = int(ts) + int(tsprice)
-    cursor.execute("UPDATE users SET totalspent = %s WHERE id=%s", (str(ts), usrid))
-    conn.commit()
-    context.bot.send_message(
-        text=f'''Пользователь [{name}](tg://user?id={usrid}) оплатил *{tsprice}* рублей.
-*Тариф*: {tariff}.
-*Дата*: {date}''', chat_id='@orderspaymentstg', parse_mode='MARKDOWN')
-
-
-def get_back(update, context):
-    update.message.reply_text("Главное меню 👾", reply_markup=markup)
-
-    return CHOOSING
-
-
-def stats(update, context):
-    userid = context.user_data['usrid']
-    cursor.execute("SELECT COUNT(*) FROM users")
-    max_users = "%s" % cursor.fetchone()
-    cursor.execute("SELECT SUM(totalspent) FROM users")
-    max_earnings = "%s" % cursor.fetchone()
-    context.bot.send_message(text=f"""Кол-во пользователей: {max_users}
-Всего заработано: {max_earnings} рублей""", chat_id=userid)
-
-    return CHOOSING
-
-
 def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
+    # TOKEN='972573533:AAEcygddWIIEjK7YzEu3PIy5vdlPRUDCASs'
+    # REQUEST_KWARGS={
+    # 'proxy_url': 'socks5h://188.226.141.211:1080',}
+    # updater = Updater(TOKEN, request_kwargs=REQUEST_KWARGS, use_context=True)
     updater = Updater(os.environ['token'], use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
+    # on different commands - answer in Telegram
+    dp.add_handler(CommandHandler("start", start))
+    # dp.add_handler(MessageHandler(Filters.text, echo))
+    dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("promo", getPromo))
+    dp.add_handler(CommandHandler("id", getId))
+    dp.add_handler(CommandHandler("info", getInfo))
+    dp.add_handler(CommandHandler("reg", registration))
+    dp.add_handler(CallbackQueryHandler(button))
+
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', start)],
-        allow_reentry=True,
+        entry_points=[CommandHandler("anon", anon),
+        			  CommandHandler("coinflip", coinflip),
+        			  CommandHandler("roulette", roulette)],
 
-        states={
-            CHOOSING: [MessageHandler(Filters.regex('^О боте 👾$'), about_bot),
-                       MessageHandler(Filters.regex('^О авторе 👨🏻‍💻$'), about_author),
-                       MessageHandler(Filters.regex('^Пример 💶$'), custom_choice),
-                       MessageHandler(Filters.regex('^Контакты 📲$'), contacts),
-                       MessageHandler(Filters.regex('^Статистика 📊$'), stats),
-                       MessageHandler(Filters.regex('^Хочу такого бота 🚀$'), order),
-                       CommandHandler('stats', stats),
-                       CommandHandler('photo', photo),
-                       CommandHandler('doc', doc),
-                       MessageHandler(Filters.document, echo)],
-
-            PAYMENT:    [CallbackQueryHandler(button)],
-
-            TYPING_REPLY: [CallbackQueryHandler(received_information)],
+    states={
+           	ID: [MessageHandler(Filters.text, anonId)],
+           	MESSAGE: [MessageHandler(Filters.text, anonMessage)],
+           	TOTAL: [MessageHandler(Filters.text, Total)]
         },
 
-        fallbacks=[MessageHandler(Filters.regex('^Назад$'), get_back)]
+        fallbacks=[CommandHandler('cancel', cancel)]
     )
-
-    # Pre-checkout handler to final check
-    dp.add_handler(PreCheckoutQueryHandler(precheckout_callback))
-
-    # Success! Notify your user!
-    dp.add_handler(MessageHandler(Filters.successful_payment, successful_payment_callback))
 
     dp.add_handler(conv_handler)
 
@@ -345,7 +419,7 @@ def main():
     # Start the Bot
     updater.start_polling()
 
-    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # Block until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
