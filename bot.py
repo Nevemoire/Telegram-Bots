@@ -267,9 +267,7 @@ def Total(update, context):
 		reply_markup = InlineKeyboardMarkup(keyboard)
 		context.bot.send_message(chat_id=channel_username, text=f'`Roulette` 🎰\n\n*Создатель*: {invoker} (@{inv_user})\n*Ставка*: {summ} монет\n\n*Участников*: 1/10', parse_mode='MARKDOWN', reply_markup=reply_markup)
 		update.message.reply_text('Игра создана, ожидай противников.')
-		context.chat_data['roulette_bet'] = summ
-		context.chat_data['roulette_id'] = inv_user_id
-		context.chat_data['participants'] = 1
+		context.user_data['participants'] = 1
 		
 		return ConversationHandler.END
 	else:
@@ -292,11 +290,6 @@ def button(update, context):
 	participant2 = cursor.fetchone()
 	betsumm = betinfo[2]
 	total = int(betsumm)*1.9
-	inv_user_id = context.chat_data['roulette_id']
-	summ = context.chat_data['roulette_bet']
-	keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette {inv_user_id} {summ}')],
-					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
-	reply_markup = InlineKeyboardMarkup(keyboard)
 
 	if str(query.from_user.id) not in str(all_users):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nРегистрация: {bot_username}', show_alert=True, parse_mode='MARKDOWN')
@@ -310,7 +303,7 @@ def button(update, context):
 		participants = context.chat_data['participants']
 		if participants < 9:
 			participants += 1
-			query.edit_message_text(f'*Участников*: {participants}/10', parse_mode='MARKDOWN', reply_markup=reply_markup)
+			query.edit_message_text(f'*Участников*: {participants}/10', parse_mode='MARKDOWN')
 		elif participants == 9:
 			query.edit_message_text('Участники собраны, начинаем!')
 		else:
