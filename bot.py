@@ -290,6 +290,9 @@ def button(update, context):
 	participant2 = cursor.fetchone()
 	betsumm = betinfo[2]
 	total = int(betsumm)*1.9
+	keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette {inv_user_id} {summ}')],
+					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
+	reply_markup = InlineKeyboardMarkup(keyboard)
 
 	if str(query.from_user.id) not in str(all_users):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nРегистрация: {bot_username}', show_alert=True, parse_mode='MARKDOWN')
@@ -303,7 +306,7 @@ def button(update, context):
 		participants = context.user_data['participants']
 		if participants < 9:
 			participants += 1
-			query.edit_message_text(f'*Участников*: {participants}/10', parse_mode='MARKDOWN')
+			query.edit_message_text(f'*Участников*: {participants}/10', parse_mode='MARKDOWN', reply_markup=reply_markup)
 		elif participants == 9:
 			query.edit_message_text('Участники собраны, начинаем!')
 		else:
