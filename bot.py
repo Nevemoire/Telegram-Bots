@@ -267,9 +267,9 @@ def Total(update, context):
 		reply_markup = InlineKeyboardMarkup(keyboard)
 		context.bot.send_message(chat_id=channel_username, text=f'`Roulette` 🎰\n\n*Создатель*: {invoker} (@{inv_user})\n*Ставка*: {summ} монет\n\n*Участников*: 1/10', parse_mode='MARKDOWN', reply_markup=reply_markup)
 		update.message.reply_text('Игра создана, ожидай противников.')
-		context.user_data['roulette_bet'] = summ
-		context.user_data['roulette_id'] = inv_user_id
-		context.user_data['participants'] = 1
+		context.chat_data['roulette_bet'] = summ
+		context.chat_data['roulette_id'] = inv_user_id
+		context.chat_data['participants'] = 1
 		
 		return ConversationHandler.END
 	else:
@@ -292,8 +292,8 @@ def button(update, context):
 	participant2 = cursor.fetchone()
 	betsumm = betinfo[2]
 	total = int(betsumm)*1.9
-	inv_user_id = context.user_data['roulette_id']
-	summ = context.user_data['roulette_bet']
+	inv_user_id = context.chat_data['roulette_id']
+	summ = context.chat_data['roulette_bet']
 	keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette {inv_user_id} {summ}')],
 					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
@@ -307,7 +307,7 @@ def button(update, context):
 		winner = random.choice(cf_participants)
 		query.edit_message_text(f'`Coinflip`\n\n@{participant1[0]} *vs* @{participant2[0]}\n\n*Победитель*: @{winner}!\n*Выигрыш*: `{int(total)}` монет!', parse_mode='MARKDOWN', reply_markup=reply_markup)
 	elif 'roulette' in query.data:
-		participants = context.user_data['participants']
+		participants = context.chat_data['participants']
 		if participants < 9:
 			participants += 1
 			query.edit_message_text(f'*Участников*: {participants}/10', parse_mode='MARKDOWN', reply_markup=reply_markup)
