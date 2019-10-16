@@ -265,8 +265,10 @@ def Total(update, context):
 		keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette {inv_user_id} {summ}')],
 					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 		reply_markup = InlineKeyboardMarkup(keyboard)
-		context.bot.send_message(chat_id=channel_username, text=f'`Roulette` 🎰\n\n*Создатель*: {invoker} (@{inv_user})\n*Ставка*: {summ} монет', parse_mode='MARKDOWN', reply_markup=reply_markup)
-		update.message.reply_text('Игра создана, ожидай противника.')
+		context.bot.send_message(chat_id=channel_username, text=f'`Roulette` 🎰\n\n*Создатель*: {invoker} (@{inv_user})\n*Ставка*: {summ} монет\n\n*Участников*: 1/10', parse_mode='MARKDOWN', reply_markup=reply_markup)
+		update.message.reply_text('Игра создана, ожидай противников.')
+		context.user_data['roulette_bet'] = summ
+		context.user_data['roulette_id'] = inv_user_id
 		context.user_data['participants'] = 1
 		
 		return ConversationHandler.END
@@ -290,6 +292,8 @@ def button(update, context):
 	participant2 = cursor.fetchone()
 	betsumm = betinfo[2]
 	total = int(betsumm)*1.9
+	inv_user_id = context.user_data['roulette_id']
+	summ = context.user_data['roulette_bet']
 	keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette {inv_user_id} {summ}')],
 					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
