@@ -20,7 +20,6 @@ bot.
 import logging
 import random
 import os
-import actions
 from telegram.ext.dispatcher import run_async
 import psycopg2
 
