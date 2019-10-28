@@ -279,7 +279,7 @@ def dice_start(update, context):
 					 InlineKeyboardButton('5x', callback_data=f'5x {inv_user_id} {summ} dice'),
 					 InlineKeyboardButton('10x', callback_data=f'10x {inv_user_id} {summ} dice'),
 					 InlineKeyboardButton('50x', callback_data=f'50x {inv_user_id} {summ} dice')],
-					[InlineKeyboardButton('Правила игры🎲', callback_data=f'rules_dice {inv_user_id} {summ}'),
+					[InlineKeyboardButton('Правила игры 🎲', callback_data=f'rules_dice {inv_user_id} {summ}'),
 					 InlineKeyboardButton('Диапазоны 🎲', callback_data=f'int_dice {inv_user_id} {summ}')]]
 		koefs = InlineKeyboardMarkup(keyboard)
 		context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Теперь выбери коэффициент умножения 👇', reply_markup=koefs)
@@ -441,7 +441,7 @@ x50 - от 98 до 100.''', show_alert=True)
 				cursor.execute('UPDATE dstatstest SET total10x = total10x + %s', (dice_win,))
 				cursor.execute('UPDATE dstatstest SET games10x = games10x + 1')
 				conn.commit()
-				context.bot.send_message(chat_id='@rylcoinmarket' text=f'{query.from_user.fullname} словил(-а) <code>Джекпот</code>!\n\n<b>Коэффициент</b>: <code>10X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
+				context.bot.send_message(chat_id='@rylcoinmarket' text=f'🏆 {query.from_user.fullname} словил(-а) <code>Джекпот</code>! 🏆\n\n<b>Коэффициент</b>: <code>10X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
 			elif '50x' in query.data and number >= 98:
 				query.answer('✅')
 				dice_win = int(betsumm)*50
@@ -450,7 +450,7 @@ x50 - от 98 до 100.''', show_alert=True)
 				cursor.execute('UPDATE dstatstest SET total50x = total50x + %s', (dice_win,))
 				cursor.execute('UPDATE dstatstest SET games50x = games50x + 1')
 				conn.commit()
-				context.bot.send_message(chat_id='@rylcoinmarket' text=f'{query.from_user.fullname} сорвал(-а) <b>Куш</b>!\n\n<b>Коэффициент</b>: <code>50X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
+				context.bot.send_message(chat_id='@rylcoinmarket' text=f'👸 {query.from_user.fullname} сорвал(-а) <b>Куш</b>! 👸\n\n<b>Коэффициент</b>: <code>50X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
 			else:
 				query.answer('❌')
 				query.edit_message_text(f'<b>Проигрыш!</b> В следующий раз повезёт :(\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Ставка</b>: <code>{betsumm}</code> монет', parse_mode='HTML')
