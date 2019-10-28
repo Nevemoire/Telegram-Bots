@@ -438,7 +438,7 @@ x50 - от 98 до 100.''', show_alert=True)
 				dice_win = int(betsumm)*10
 				query.edit_message_text(f'*Победа!*\n*Коэффициент*: `{multiplier[0]}`\n*Число*: `{number}`\n*Выигрыш*: `{dice_win}` монет!', parse_mode='MARKDOWN')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
-				cursor.execute('UPDATE dstatstest total10x = total10x + %s', (dice_win,))
+				cursor.execute('UPDATE dstatstest SET total10x = total10x + %s', (dice_win,))
 				cursor.execute('UPDATE dstatstest SET games10x = games10x + 1')
 				conn.commit()
 			elif '50x' in query.data and number >= 98:
@@ -446,7 +446,7 @@ x50 - от 98 до 100.''', show_alert=True)
 				dice_win = int(betsumm)*50
 				query.edit_message_text(f'*Победа!*\n*Коэффициент*: `{multiplier[0]}`\n*Число*: `{number}`\n*Выигрыш*: `{dice_win}` монет!', parse_mode='MARKDOWN')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
-				cursor.execute('UPDATE dstatstest total50x = total50x + %s', (dice_win,))
+				cursor.execute('UPDATE dstatstest SET total50x = total50x + %s', (dice_win,))
 				cursor.execute('UPDATE dstatstest SET games50x = games50x + 1')
 				conn.commit()
 			else:
