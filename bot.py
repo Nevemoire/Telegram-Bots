@@ -68,11 +68,11 @@ def start(update, context):
 		update.message.reply_text('''Приветствуем тебя в нашем клубе!
 
 Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
-		update.message.reply_text('''*Ты у нас впервые?*
+		update.message.reply_text('''<b>Ты у нас впервые?</b>
 Чтобы иметь возможность играть у нас, поля _Name_ и _Username_ не должны быть пустыми.
 Исправь ситуацию и напиши мне /reg :)
 
-Продолжая использовать бота ты автоматически [соглашаешься](https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2) с нашими условиями и подтверждаешь что тебе есть 18 лет..''', parse_mode='MARKDOWN')
+Продолжая использовать бота ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.''', parse_mode='HTML')
 	else:
 		update.message.reply_text('''Приветствуем тебя в нашем клубе!
 
@@ -80,7 +80,7 @@ def start(update, context):
 		registration_Query = "INSERT INTO userz (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
 		cursor.execute(registration_Query, (ids, fullname, username,))
 		conn.commit()
-		update.message.reply_text('*Ты у нас впервые?*\nТвой профиль успешно создан, для справки введи /info ;)\n\nПродолжая использовать бота ты автоматически [соглашаешься](https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2) с нашими условиями и подтверждаешь что тебе есть 18 лет.', parse_mode='MARKDOWN')
+		update.message.reply_text('<b>Ты у нас впервые?</b>\nТвой профиль успешно создан, для справки введи /info ;)\n\nПродолжая использовать бота ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.', parse_mode='HTML')
 	try:
 		user_says = context.args[0]
 		invoker = update.message.from_user.id
@@ -106,8 +106,8 @@ def start(update, context):
 
 @run_async
 def deposit(update, context):
-	update.message.reply_text('Чтобы пополнить баланс, отправь любую сумму пользователю `Nevermore` через сайт mdk.is.\n*Обязательно* прикрепи свой `ID` (число ниже) к донату, иначе сумма будет считаться пожертвованием.', disable_web_page_preview=True, parse_mode='MARKDOWN')
-	update.message.reply_text(f'`{update.message.from_user.id}`', parse_mode='MARKDOWN')
+	update.message.reply_text('Чтобы пополнить баланс, отправь любую сумму пользователю <code>Nevermore</code> через сайт mdk.is.\n<b>Обязательно</b> прикрепи свой <code>ID</code> (число ниже) к донату, иначе сумма будет считаться пожертвованием.', disable_web_page_preview=True, parse_mode='HTML')
+	update.message.reply_text(f'<code>{update.message.from_user.id}</code>', parse_mode='HTML')
 
 
 @run_async
@@ -127,9 +127,9 @@ def registration(update, context):
 	balance = cursor.fetchone()
 	error = "None"	
 	if error not in str(balance):
-		update.message.reply_text('*Ошибка!* Регистрироваться можно только один раз!', parse_mode='MARKDOWN')
+		update.message.reply_text('<b>Ошибка!</b> Регистрироваться можно только один раз!', parse_mode='HTML')
 	elif (error in str(fullname) or error in str(username)):
-		update.message.reply_text('*Ошибка!* _Name_ или _Username_ имеют пустое значение.', parse_mode='MARKDOWN')
+		update.message.reply_text('<b>Ошибка!</b> <code>Name</code> или <code>Username</code> имеют пустое значение.', parse_mode='HTML')
 	else:
 		registration_Query = "INSERT INTO userz (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
 		cursor.execute(registration_Query, (ids, fullname, username,))
@@ -177,7 +177,7 @@ def getInfo(update, context):
 @run_async
 def tos(update, context):
     """Send a message when the command /help is issued."""
-    update.message.reply_text('[Пользовательское соглашение](https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2) *Royal Casino*', parse_mode='MARKDOWN')
+    update.message.reply_text('<a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">Пользовательское соглашение</a> <b>Royal Casino</b>', parse_mode='HTML')
 
 
 @run_async
@@ -197,7 +197,7 @@ def coinflip(update, context):
 	user_balance = "select balance from userz where id = %s"
 	cursor.execute(user_balance, (inv_user_id,))
 	balance = cursor.fetchone()
-	context.user_data['message'] = update.message.reply_text(f'`Coinflip` 🌕\n\nВведи сумму ставки.\nТвой баланс: *{balance[0]}* монет\n\n(*min*: 100, *max*: 100000)\nОтмена - /cancel', parse_mode='MARKDOWN')
+	context.user_data['message'] = update.message.reply_text(f'<code>Coinflip</code> 🌕\n\nВведи сумму ставки.\nТвой баланс: <b>{balance[0]}</b> монет\n\n(<b>min</b>: <code>100</code>, <b>max</b>: <code>100000</code>)\nОтмена - /cancel', parse_mode='HTML')
 	context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
 
 	return TOTAL
@@ -230,7 +230,7 @@ def dice(update, context):
 		cursor.execute(user_balance, (inv_user_id,))
 		balance = cursor.fetchone()
 		# update.message.reply_text(f'`Dice` 🎲\n\nВведи сумму ставки.\nТвой баланс: *{balance[0]}* монет\n\n(*min*: 100, *max*: 100000)\nОтмена - /cancel', parse_mode='MARKDOWN')
-		context.user_data['message'] = update.message.reply_text(f'`Dice` 🎲\n\nВведи сумму ставки.\nТвой баланс: *{balance[0]}* монет\n\n(*min*: 100, *max*: 100000)\nОтмена - /cancel', parse_mode='MARKDOWN')
+		context.user_data['message'] = update.message.reply_text(f'<code>Dice</code> 🎲\n\nВведи сумму ставки.\nТвой баланс: <b>{balance[0]}</b> монет\n\n(<b>min</b>: <code>100</code>, <b>max</b>: <code>100000</code>)\nОтмена - /cancel', parse_mode='HTML')
 		context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
 
 		return DICE
@@ -254,7 +254,7 @@ def dice_start(update, context):
 		summ = int(total)
 	except:
 		try:
-			context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Жаль, но мы не принимаем ничего, кроме монет.\nДа, натурой тоже не принимаем :(\n\nСоздать игру заново - /dice', parse_mode='MARKDOWN')
+			context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Жаль, но мы не принимаем ничего, кроме монет.\nДа, натурой тоже не принимаем :(\n\nСоздать игру заново - /dice')
 
 			return ConversationHandler.END
 		except:
@@ -288,7 +288,7 @@ def dice_start(update, context):
 
 		return ConversationHandler.END
 	else:
-		context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='_Error 404_. Как ты вообще это сделялъ? :/\nСкинь скрин сюда: @daaetoya и получи вознаграждение *1000* монет.', parse_mode='MARKDOWN')
+		context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='<code>Error 404</code>. Как ты вообще это сделялъ? :/\nСкинь скрин сюда: @daaetoya и получи вознаграждение <b>1000</b> монет.', parse_mode='HTML')
 
 		return ConversationHandler.END
 	
@@ -309,7 +309,7 @@ def Total(update, context):
 	try:
 		summ = int(total)
 	except:
-		context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Жаль, но мы не принимаем ничего, кроме монет.\nДа, натурой тоже не принимаем :(\n\nВведи *целое* число.\nОтмена - /cancel', parse_mode='MARKDOWN')
+		context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Жаль, но мы не принимаем ничего, кроме монет.\nДа, натурой тоже не принимаем :(\n\nВведи <b>целое</b> число.\nОтмена - /cancel', parse_mode='HTML')
 
 		return TOTAL
 
@@ -330,7 +330,7 @@ def Total(update, context):
 			keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'coinflip {inv_user_id} {summ}')],
 						[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 			reply_markup = InlineKeyboardMarkup(keyboard)
-			context.bot.send_message(chat_id=channel_username, text=f'`Coinflip` 🌕\n\n*Создатель*: {invoker} (@{inv_user})\n*Ставка*: {summ} монет', parse_mode='MARKDOWN', reply_markup=reply_markup)
+			context.bot.send_message(chat_id=channel_username, text=f'<code>Coinflip</code> 🌕\n\n<b>Создатель</b>: {invoker} (@{inv_user})\n<b>Ставка</b>: {summ} монет', parse_mode='HTML', reply_markup=reply_markup)
 			context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text=f'Дуэль успешно создана.\nНе забудь вступить в канал, где мы публикуем все игры: {channel_username}')
 			cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (summ, inv_user_id,))
 			conn.commit()
@@ -344,7 +344,7 @@ def Total(update, context):
 		keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette {inv_user_id} {summ}')],
 					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 		reply_markup = InlineKeyboardMarkup(keyboard)
-		context.bot.send_message(chat_id=channel_username, text=f'`Roulette` 🎰\n\n*Создатель*: {invoker} (@{inv_user})\n*Ставка*: {summ} монет', parse_mode='MARKDOWN', reply_markup=reply_markup)
+		context.bot.send_message(chat_id=channel_username, text=f'<code>Roulette</code> 🎰\n\n<b>Создатель</b>: {invoker} (@{inv_user})\n<b>Ставка</b>: {summ} монет', parse_mode='HTML', reply_markup=reply_markup)
 		context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра создана, ожидай противника.')
 		context.user_data['participants'] = 1
 		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (summ, inv_user_id,))
@@ -352,7 +352,7 @@ def Total(update, context):
 		
 		return ConversationHandler.END
 	else:
-		context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='_Error 404_. Как ты вообще это сделялъ? :/\nСкинь скрин сюда: @daaetoya и получи вознаграждение *1000* монет.', parse_mode='MARKDOWN')
+		context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='<code>Error 404</code>. Как ты вообще это сделялъ? :/\nСкинь скрин сюда: @daaetoya и получи вознаграждение <b>1000</b> монет.', parse_mode='HTML')
 
 		return ConversationHandler.END
 
@@ -389,7 +389,7 @@ def button(update, context):
 		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (betsumm, query.from_user.id,))
 		cf_participants = [participant1[0], participant2[0]]
 		winner = random.choice(cf_participants)
-		query.edit_message_text(f'`Coinflip` 🌕\n\n@{participant1[0]} *vs* @{participant2[0]}\n\n*Победитель*: @{winner}!\n*Выигрыш*: `{int(total)}` монет!', parse_mode='MARKDOWN', reply_markup=reply_markup)
+		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}!\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
 		cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (total, winner,))
 		conn.commit()
 	elif 'roulette' in query.data:
@@ -412,7 +412,7 @@ x50 - от 98 до 100.''', show_alert=True)
 			elif '2x' in query.data and number >= 55:
 				query.answer('✅')
 				dice_win = int(betsumm)*2
-				query.edit_message_text(f'*Победа!*\n*Коэффициент*: `{multiplier[0]}`\n*Число*: `{number}`\n*Выигрыш*: `{dice_win}` монет!', parse_mode='MARKDOWN')
+				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstatstest SET total2x = total2x + %s', (dice_win,))
 				cursor.execute('UPDATE dstatstest SET games2x = games2x + 1')
@@ -420,7 +420,7 @@ x50 - от 98 до 100.''', show_alert=True)
 			elif '3x' in query.data and number >= 70:
 				query.answer('✅')
 				dice_win = int(betsumm)*3
-				query.edit_message_text(f'*Победа!*\n*Коэффициент*: `{multiplier[0]}`\n*Число*: `{number}`\n*Выигрыш*: `{dice_win}` монет!', parse_mode='MARKDOWN')
+				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstatstest SET total3x = total3x + %s', (dice_win,))
 				cursor.execute('UPDATE dstatstest SET games3x = games3x + 1')
@@ -428,7 +428,7 @@ x50 - от 98 до 100.''', show_alert=True)
 			elif '5x' in query.data and number >= 82:
 				query.answer('✅')
 				dice_win = int(betsumm)*5
-				query.edit_message_text(f'*Победа!*\n*Коэффициент*: `{multiplier[0]}`\n*Число*: `{number}`\n*Выигрыш*: `{dice_win}` монет!', parse_mode='MARKDOWN')
+				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstatstest SET total5x = total5x + %s', (dice_win,))
 				cursor.execute('UPDATE dstatstest SET games5x = games5x + 1')
@@ -436,22 +436,24 @@ x50 - от 98 до 100.''', show_alert=True)
 			elif '10x' in query.data and number >= 91:
 				query.answer('✅')
 				dice_win = int(betsumm)*10
-				query.edit_message_text(f'*Победа!*\n*Коэффициент*: `{multiplier[0]}`\n*Число*: `{number}`\n*Выигрыш*: `{dice_win}` монет!', parse_mode='MARKDOWN')
+				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstatstest SET total10x = total10x + %s', (dice_win,))
 				cursor.execute('UPDATE dstatstest SET games10x = games10x + 1')
 				conn.commit()
+				context.bot.send_message(chat_id='@rylcoinmarket' text=f'{query.from_user.fullname} словил(-а) <code>Джекпот</code>!\n\n<b>Коэффициент</b>: <code>10X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
 			elif '50x' in query.data and number >= 98:
 				query.answer('✅')
 				dice_win = int(betsumm)*50
-				query.edit_message_text(f'*Победа!*\n*Коэффициент*: `{multiplier[0]}`\n*Число*: `{number}`\n*Выигрыш*: `{dice_win}` монет!', parse_mode='MARKDOWN')
+				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstatstest SET total50x = total50x + %s', (dice_win,))
 				cursor.execute('UPDATE dstatstest SET games50x = games50x + 1')
 				conn.commit()
+				context.bot.send_message(chat_id='@rylcoinmarket' text=f'{query.from_user.fullname} сорвал(-а) <b>Куш</b>!\n\n<b>Коэффициент</b>: <code>50X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
 			else:
 				query.answer('❌')
-				query.edit_message_text(f'*Проигрыш!* В следующий раз повезёт :(\n*Коэффициент*: `{multiplier[0]}`\n*Число*: `{number}`\n*Ставка*: `{betsumm}` монет', parse_mode='MARKDOWN')
+				query.edit_message_text(f'<b>Проигрыш!</b> В следующий раз повезёт :(\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Ставка</b>: <code>{betsumm}</code> монет', parse_mode='HTML')
 				lostgame = f'lost{multiplier[0]}'
 				game = f'games{multiplier[0]}'
 				tstring = f'{lostgame} = {lostgame} - {betsumm}'
@@ -469,7 +471,7 @@ def dstats(update, context):
 	cursor.execute('SELECT * FROM dstatstest')
 	results = cursor.fetchall()
 	for stats in results:
-		update.message.reply_text(f'Статистика по играм:\n2x: {stats[0]} *{stats[5]}* (`{stats[10]}`)\n3x: {stats[1]} *{stats[6]}* (`{stats[11]}`)\n5x: {stats[2]} *{stats[7]}* (`{stats[12]}`)\n10x: {stats[3]} *{stats[8]}* (`{stats[13]}`)\n50x: {stats[4]} *{stats[9]}* (`{stats[14]}`)', parse_mode='MARKDOWN')
+		update.message.reply_text(f'Статистика по играм:\n2x: {stats[0]} <b>{stats[5]}</b> (<code>{stats[10]}</code>)\n3x: {stats[1]} <b>{stats[6]}</b> (<code>{stats[11]}</code>)\n5x: {stats[2]} <b>{stats[7]}</b> (<code>{stats[12]}</code>)\n10x: {stats[3]} <b>{stats[8]}</b> (<code>{stats[13]}</code>)\n50x: {stats[4]} <b>{stats[9]}</b> (<code>{stats[14]}</code>)', parse_mode='HTML')
 	
 
 @run_async
@@ -477,7 +479,7 @@ def anon(update, context):
     userid = update.message.from_user.id
     member1 = context.bot.get_chat_member(channel_username, userid)
     if member1.status in memberslist:
-    	context.user_data['message'] = update.message.reply_text('Наконец что-то интересненькое ;)\n\nНапиши сюда сообщение для отправки. *Стоимость*: `100` монет.\n/cancel - чтобы отменить.',parse_mode='MARKDOWN')
+    	context.user_data['message'] = update.message.reply_text('Наконец что-то интересненькое ;)\n\nНапиши сюда сообщение для отправки. <b>Стоимость</b>: <code>100</code> монет.\n/cancel - чтобы отменить.', parse_mode='HTML')
     	context.user_data['user'] = update.message.from_user.full_name
 
     	return MESSAGE
@@ -492,8 +494,8 @@ def anonMessage(update, context):
     user = context.user_data['user']
     message = update.message.text
     try:
-        context.bot.sendMessage(chat_id=-1001441511504, text=f'*Какой-то анон написал(-а):*\n{message}', parse_mode='MARKDOWN')
-        context.bot.sendMessage(chat_id=391206263, text=f'*{user} написал(-а):*\n{message}', parse_mode='MARKDOWN')
+        context.bot.sendMessage(chat_id=-1001441511504, text=f'<b>Какой-то анон написал(-а)</b>:\n{message}', parse_mode='HTML')
+        context.bot.sendMessage(chat_id=391206263, text=f'<b>{user} написал(-а)</b>:\n{message}', parse_mode='HTML')
 
         return ConversationHandler.END
     except:
@@ -525,7 +527,7 @@ def echo(update, context):
 			try:
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (args[2], args[1],))
 				conn.commit()
-				context.bot.send_message(chat_id='@rylcoinmarket', text=f'`[Deposit]`\nПользователь @{args[1]} внёс {args[2]} монет на свой счёт.', parse_mode='MARKDOWN')
+				context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Deposit]</code>\nПользователь @{args[1]} внёс {args[2]} монет на свой счёт.', parse_mode='HTML')
 			except:
 				update.message.reply_text('Error add')
 		elif '!remove' in update.message.text:
@@ -533,7 +535,7 @@ def echo(update, context):
 				try:
 					cursor.execute('UPDATE userz SET balance = balance - %s WHERE username = %s', (args[2], args[1],))
 					conn.commit()
-					context.bot.send_message(chat_id='@rylcoinmarket', text=f'`[Withdraw]`\nПользователь @{args[1]} вывел {args[2]} монет.', parse_mode='MARKDOWN')
+					context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Withdraw]</code>\nПользователь @{args[1]} вывел {args[2]} монет.', parse_mode='HTML')
 				except:
 					update.message.reply_text('Error remove')
 			else:
