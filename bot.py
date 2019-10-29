@@ -379,6 +379,7 @@ def button(update, context):
 	betssumm = int(betsumm)
 	total = int(betsumm)*1.9
 	number = random.randint(0, 1000)
+	state = context.user_data['participants']
 
 	if str(query.from_user.id) not in str(all_users):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
@@ -386,9 +387,9 @@ def button(update, context):
 		query.answer('Нельзя участвовать в своей же игре.', show_alert=True)
 	elif ('coinflip' in query.data) and (int(participant2[1]) < int(betsumm)):
 		query.answer('Недостаточно монет.\nЧтобы пополнить баланс напиши боту /deposit', show_alert=True)
-	elif ('coinflip' in query.data) and (context.user_data['participants'] = 1):
+	elif ('coinflip' in query.data) and (state = 1):
 		query.answer('Не успел :(', show_alert=True)
-	elif ('coinflip' in query.data) and (context.user_data['participants'] = 0):
+	elif ('coinflip' in query.data) and (state = 0):
 		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (betsumm, query.from_user.id,))
 		cf_participants = [participant1[0], participant2[0]]
 		winner = random.choice(cf_participants)
