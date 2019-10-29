@@ -512,9 +512,9 @@ def anon(update, context):
 	
             return ConversationHandler.END
     else:
-	update.message.reply_text('Сперва зарегистрируйся (/reg)')
+        update.message.reply_text('Сперва зарегистрируйся (/reg)')
 	
-	return ConversationHandler.END
+        return ConversationHandler.END
 
 
 @run_async
