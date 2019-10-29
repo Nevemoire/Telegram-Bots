@@ -358,7 +358,6 @@ def Total(update, context):
 		return ConversationHandler.END
 
 
-@run_async
 def button(update, context):
 	try:
 		cursor.execute('SELECT id FROM userz')
@@ -379,7 +378,6 @@ def button(update, context):
 	betssumm = int(betsumm)
 	total = int(betsumm)*1.9
 	number = random.randint(0, 1000)
-	state = context.user_data['participants']
 
 	if str(query.from_user.id) not in str(all_users):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
@@ -387,9 +385,7 @@ def button(update, context):
 		query.answer('Нельзя участвовать в своей же игре.', show_alert=True)
 	elif ('coinflip' in query.data) and (int(participant2[1]) < int(betsumm)):
 		query.answer('Недостаточно монет.\nЧтобы пополнить баланс напиши боту /deposit', show_alert=True)
-	elif ('coinflip' in query.data) and (state == 1):
-		query.answer('Не успел :(', show_alert=True)
-	elif ('coinflip' in query.data) and (state == 0):
+	elif 'coinflip' in query.data
 		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (betsumm, query.from_user.id,))
 		cf_participants = [participant1[0], participant2[0]]
 		winner = random.choice(cf_participants)
@@ -405,14 +401,13 @@ def button(update, context):
 				pass
 		else:
 			try:
-				context.bot.send_message(chat_id=391206263, text='Ошибка в Coinflipe.')
+				context.bot.send_message(chat_id=391206263, text='Ошибка в Coinflip.')
 				pass
 			except:
 				pass
 		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}!\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
 		cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (total, winner,))
 		conn.commit()
-		context.user_data['participants'] = 1
 	elif 'roulette' in query.data:
 		query.edit_message_text('Игра в разработке...')
 	elif 'dice' in query.data:
