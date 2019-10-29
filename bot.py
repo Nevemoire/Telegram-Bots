@@ -391,12 +391,12 @@ def button(update, context):
 		winner = random.choice(cf_participants)
 		if winner == participant1[0]:
 			try:
-				context.bot.send_message(chat_id=betinfo[1], text='<b>Поздравляем</b>, ты победил(-а) в <code>Coinflip</code>! ✅', parse_mode='HTML')
+				context.bot.send_message(chat_id=betinfo[1], text='<b>Поздравляем</b>, ты победил(-а) в <code>Coinflip</code>! ✔️', parse_mode='HTML')
 			except:
 				pass
 		elif winner != participant1[0]:
 			try:
-				context.bot.send_message(chat_id=betinfo[1], text='В этот раз ты потерпел(-а) поражение в <code>Coinflip</code>! :( ❌', parse_mode='HTML')
+				context.bot.send_message(chat_id=betinfo[1], text='В этот раз ты потерпел(-а) поражение в <code>Coinflip</code>! :( ✖️', parse_mode='HTML')
 			except:
 				pass
 		else:
