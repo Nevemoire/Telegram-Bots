@@ -141,39 +141,12 @@ def registration(update, context):
 
 @run_async
 def getInfo(update, context):
-	try:
-		usrid = update.message.from_user.id
-		cursor.execute('SELECT id FROM userz')
-		all_users = cursor.fetchall()
-		try:
-			target = update.message.reply_to_message.from_user.id
-			if '/info' in update.message.reply_to_message.text:
-				pass
-			elif str(target) in str(all_users):
-				target_info_Query = "select * from userz where id = %s"
-				cursor.execute(target_info_Query, (target,))
-				target_info = cursor.fetchall()
-				for row in target_info:
-					update.message.reply_text(f'Name: {row[1]}\nUsername: {row[2]}\nBalance: {row[3]}\nID: {row[0]}')
+	user_info_Query = "select * from userz where id = %s"
 
-					return
-
-			else:
-				update.message.reply_text('Ошибка! Этого пользователя нет в нашей базе данных.')
-
-				return
-
-		except:
-			pass
-
-		user_info_Query = "select * from userz where id = %s"
-
-		cursor.execute(user_info_Query, (usrid,))
-		info = cursor.fetchall()
-		for row in info:
-			update.message.reply_text(f'Name: {row[1]}\nUsername: {row[2]}\nBalance: {row[3]}\nID: {row[0]}')
-	except:
-		update.message.reply_text('Произошла ошибка. Попробуй чуть позже.')
+	cursor.execute(user_info_Query, (usrid,))
+	info = cursor.fetchall()
+	for row in info:
+		update.message.reply_text(f'Name: {row[1]}\nUsername: {row[2]}\nBalance: {row[3]}\nID: {row[0]}')
 
 
 @run_async
