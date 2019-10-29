@@ -385,7 +385,7 @@ def button(update, context):
 		query.answer('Нельзя участвовать в своей же игре.', show_alert=True)
 	elif ('coinflip' in query.data) and (int(participant2[1]) < int(betsumm)):
 		query.answer('Недостаточно монет.\nЧтобы пополнить баланс напиши боту /deposit', show_alert=True)
-	elif 'coinflip' in query.data
+	elif 'coinflip' in query.data:
 		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (betsumm, query.from_user.id,))
 		cf_participants = [participant1[0], participant2[0]]
 		winner = random.choice(cf_participants)
