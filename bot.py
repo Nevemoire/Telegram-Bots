@@ -61,7 +61,7 @@ def start(update, context):
 	fullname = update.message.from_user.full_name
 	usern = update.message.from_user.username
 	username = usern.lower()
-	cursor.execute('select "balance" from userz where id = %s', (ids,))
+	cursor.execute('select `balance` from `userz` where `id` = %s', (ids,))
 	balance = cursor.fetchone()
 	error = "None"	
 	if error not in str(balance):
@@ -79,7 +79,7 @@ def start(update, context):
 		update.message.reply_text('''Приветствуем тебя в нашем клубе!
 
 Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
-		registration_Query = "INSERT INTO userz (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
+		registration_Query = "INSERT INTO `userz` (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
 		cursor.execute(registration_Query, (ids, fullname, username,))
 		conn.commit()
 		update.message.reply_text('<b>Ты у нас впервые?</b>\nТвой профиль успешно создан, для справки введи /info ;)\n\nПродолжая использовать бота ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.', parse_mode='HTML')
@@ -87,7 +87,7 @@ def start(update, context):
 		user_says = context.args[0]
 		invoker = update.message.from_user.id
 		error = 'None'
-		cursor.execute('SELECT refferrer FROM userz WHERE id = %s', (invoker,))
+		cursor.execute('SELECT `refferrer` FROM `userz` WHERE `id` = %s', (invoker,))
 		promo_used = cursor.fetchone()
 		cursor.execute('SELECT id FROM userz')
 		totalb = cursor.fetchall()
@@ -98,8 +98,8 @@ def start(update, context):
 		elif error not in str(promo_used):
 			update.message.reply_text('Упси, промокод можно использовать только 1 раз.')
 		else:
-			cursor.execute('UPDATE userz SET reffs = reffs + 1, balance = balance + 20 WHERE id = %s', (user_says,))
-			cursor.execute('UPDATE userz SET balance = balance + 100, refferrer = %s WHERE id = %s', (user_says, invoker,))
+			cursor.execute('UPDATE `userz` SET `reffs` = `reffs` + 1, `balance` = `balance` + 20 WHERE `id` = %s', (user_says,))
+			cursor.execute('UPDATE `userz` SET `balance` = `balance` + 100, `refferrer` = %s WHERE `id` = %s', (user_says, invoker,))
 			update.message.reply_text('Промокод принят. (+100 монет тебе и +20 владельцу промокода)')
 			conn.commit()
 	except:
@@ -124,7 +124,7 @@ def registration(update, context):
 	usern = update.message.from_user.username
 	username = usern.lower()
 	# balance_Query = 
-	id_Query = 'select "balance" from userz where id = %s'
+	id_Query = 'select `balance` from `userz` where `id` = %s'
 	cursor.execute(id_Query, (ids,))
 	balance = cursor.fetchone()
 	error = "None"	
@@ -133,7 +133,7 @@ def registration(update, context):
 	elif (error in str(fullname) or error in str(username)):
 		update.message.reply_text('<b>Ошибка!</b> <code>Name</code> или <code>Username</code> имеют пустое значение.', parse_mode='HTML')
 	else:
-		registration_Query = "INSERT INTO userz (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
+		registration_Query = "INSERT INTO `userz` (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
 		cursor.execute(registration_Query, (ids, fullname, username,))
 		conn.commit()
 		update.message.reply_text('Регистрация пройдена успешно.')
@@ -143,14 +143,14 @@ def registration(update, context):
 def getInfo(update, context):
 	try:
 		usrid = update.message.from_user.id
-		cursor.execute('SELECT id FROM userz')
+		cursor.execute('SELECT `id` FROM `userz`')
 		all_users = cursor.fetchall()
 		try:
 			target = update.message.reply_to_message.from_user.id
 			if '/info' in update.message.reply_to_message.text:
 				pass
 			elif str(target) in str(all_users):
-				target_info_Query = "select * from userz where id = %s"
+				target_info_Query = "select * from `userz` where `id` = %s"
 				cursor.execute(target_info_Query, (target,))
 				target_info = cursor.fetchall()
 				for row in target_info:
@@ -166,7 +166,7 @@ def getInfo(update, context):
 		except:
 			pass
 
-		user_info_Query = "select * from userz where id = %s"
+		user_info_Query = "select * from `userz` where `id` = %s"
 
 		cursor.execute(user_info_Query, (usrid,))
 		info = cursor.fetchall()
@@ -185,9 +185,9 @@ def tos(update, context):
 @run_async
 def getPromo(update, context):
 	ids = update.message.from_user.id
-	cursor.execute('SELECT reffs FROM userz where id = %s', (ids,))
+	cursor.execute('SELECT `reffs` FROM `userz` where `id` = %s', (ids,))
 	reffs = cursor.fetchone()
-	cursor.execute('SELECT refferrer FROM userz where id = %s', (ids,))
+	cursor.execute('SELECT `refferrer` FROM `userz` where `id` = %s', (ids,))
 	ref = cursor.fetchone()
 	update.message.reply_text(f'Исп. промокод: {ref[0]}\nКол-во реффералов: {reffs[0]}\n\nСсылка для приглашения:\nhttps://t.me/RoyalCasinoBot?start={ids}')
 
@@ -196,7 +196,7 @@ def getPromo(update, context):
 def coinflip(update, context):
 	context.user_data['game'] = 'coinflip'
 	inv_user_id = update.message.from_user.id
-	user_balance = "select balance from userz where id = %s"
+	user_balance = "select `balance` from `userz` where `id` = %s"
 	cursor.execute(user_balance, (inv_user_id,))
 	balance = cursor.fetchone()
 	context.user_data['message'] = update.message.reply_text(f'<code>Coinflip</code> 🌕\n\nВведи сумму ставки.\nТвой баланс: <b>{balance[0]}</b> монет\n\n(<b>min</b>: <code>100</code>, <b>max</b>: <code>100000</code>)\nОтмена - /cancel', parse_mode='HTML')
@@ -228,7 +228,7 @@ def dice(update, context):
 	try:
 		context.user_data['game'] = 'dice'
 		inv_user_id = update.message.from_user.id
-		user_balance = "select balance from userz where id = %s"
+		user_balance = "select `balance` from `userz` where `id` = %s"
 		cursor.execute(user_balance, (inv_user_id,))
 		balance = cursor.fetchone()
 		# update.message.reply_text(f'`Dice` 🎲\n\nВведи сумму ставки.\nТвой баланс: *{balance[0]}* монет\n\n(*min*: 100, *max*: 100000)\nОтмена - /cancel', parse_mode='MARKDOWN')
@@ -249,7 +249,7 @@ def dice_start(update, context):
 	message = context.user_data['message']
 	total = update.message.text
 	inv_user_id = update.message.from_user.id
-	user_balance = "select balance from userz where id = %s"
+	user_balance = "select `balance` from `userz` where `id` = %s"
 	cursor.execute(user_balance, (inv_user_id,))
 	balance = cursor.fetchone()
 	try:
@@ -285,7 +285,7 @@ def dice_start(update, context):
 					 InlineKeyboardButton('Диапазоны 🎲', callback_data=f'int_dice {inv_user_id} {summ}')]]
 		koefs = InlineKeyboardMarkup(keyboard)
 		context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Теперь выбери коэффициент умножения 👇', reply_markup=koefs)
-		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (summ, inv_user_id,))
+		cursor.execute('UPDATE `userz` SET `balance` = `balance` - %s WHERE `id` = %s', (summ, inv_user_id,))
 		conn.commit()
 
 		return ConversationHandler.END
@@ -304,7 +304,7 @@ def Total(update, context):
 	invoker = update.message.from_user.full_name
 	inv_user = update.message.from_user.username
 	inv_user_id = update.message.from_user.id
-	user_balance = "select balance from userz where id = %s"
+	user_balance = "select `balance` from `userz` where `id` = %s"
 	cursor.execute(user_balance, (inv_user_id,))
 	balance = cursor.fetchone()
 	total = update.message.text
@@ -334,7 +334,7 @@ def Total(update, context):
 			reply_markup = InlineKeyboardMarkup(keyboard)
 			context.bot.send_message(chat_id=channel_username, text=f'<code>Coinflip</code> 🌕\n\n<b>Создатель</b>: {invoker} (@{inv_user})\n<b>Ставка</b>: {summ} монет', parse_mode='HTML', reply_markup=reply_markup)
 			context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text=f'Дуэль успешно создана.\nНе забудь вступить в канал, где мы публикуем все игры: {channel_username}')
-			cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (summ, inv_user_id,))
+			cursor.execute('UPDATE `userz` SET `balance` = `balance` - %s WHERE `id` = %s', (summ, inv_user_id,))
 			conn.commit()
 			context.user_data['participants'] = 0
 			
@@ -350,7 +350,7 @@ def Total(update, context):
 		context.bot.send_message(chat_id=channel_username, text=f'<code>Roulette</code> 🎰\n\n<b>Создатель</b>: {invoker} (@{inv_user})\n<b>Ставка</b>: {summ} монет', parse_mode='HTML', reply_markup=reply_markup)
 		context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра создана, ожидай противника.')
 		context.user_data['participants'] = 1
-		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (summ, inv_user_id,))
+		cursor.execute('UPDATE `userz` SET `balance` = `balance` - %s WHERE `id` = %s', (summ, inv_user_id,))
 		conn.commit()
 		
 		return ConversationHandler.END
@@ -362,7 +362,7 @@ def Total(update, context):
 
 def button(update, context):
 	try:
-		cursor.execute('SELECT id FROM userz')
+		cursor.execute('SELECT `id` FROM `userz`')
 		all_users = cursor.fetchall()
 	except:
 		query.answer('Ошибка! Повтори через несколько секунд.', show_alert=True)
@@ -372,9 +372,9 @@ def button(update, context):
 	reply_markup = InlineKeyboardMarkup(keyboard)
 	query = update.callback_query
 	betinfo = query.data.split()
-	cursor.execute('SELECT username FROM userz WHERE id = %s', (betinfo[1],))
+	cursor.execute('SELECT `username` FROM `userz` WHERE `id` = %s', (betinfo[1],))
 	participant1 = cursor.fetchone()
-	cursor.execute('SELECT username, balance FROM userz WHERE id = %s', (query.from_user.id,))
+	cursor.execute('SELECT `username`, `balance` FROM `userz` WHERE `id` = %s', (query.from_user.id,))
 	participant2 = cursor.fetchone()
 	betsumm = betinfo[2]
 	betssumm = int(betsumm)
@@ -388,7 +388,7 @@ def button(update, context):
 	elif ('coinflip' in query.data) and (int(participant2[1]) < int(betsumm)):
 		query.answer('Недостаточно монет.\nЧтобы пополнить баланс напиши боту /deposit', show_alert=True)
 	elif 'coinflip' in query.data:
-		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (betsumm, query.from_user.id,))
+		cursor.execute('UPDATE `userz` SET `balance` = `balance` - %s WHERE `id` = %s', (betsumm, query.from_user.id,))
 		cf_participants = [participant1[0], participant2[0]]
 		winner = random.choice(cf_participants)
 		if int(total) >= 9500:
@@ -413,7 +413,7 @@ def button(update, context):
 			except:
 				pass
 		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}!\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
-		cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (total, winner,))
+		cursor.execute('UPDATE `userz` SET `balance` = `balance` + %s WHERE `username` = %s', (total, winner,))
 		conn.commit()
 	elif 'roulette' in query.data:
 		query.edit_message_text('Игра в разработке...')
@@ -436,42 +436,42 @@ x50 - от 983 до 1000.''', show_alert=True)
 				query.answer('✅')
 				dice_win = int(betsumm)*2
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
-				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
-				cursor.execute('UPDATE dstatstest SET total2x = total2x + %s', (dice_win,))
-				cursor.execute('UPDATE dstatstest SET games2x = games2x + 1')
+				cursor.execute('UPDATE `userz` SET `balance` = `balance` + %s WHERE `id` = %s', (dice_win, query.from_user.id,))
+				cursor.execute('UPDATE `dstatstest` SET `total2x` = `total2x` + %s', (dice_win,))
+				cursor.execute('UPDATE `dstatstest` SET `games2x` = `games2x` + 1')
 				conn.commit()
 			elif '3x' in query.data and number >= 716:
 				query.answer('✅')
 				dice_win = int(betsumm)*3
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
-				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
-				cursor.execute('UPDATE dstatstest SET total3x = total3x + %s', (dice_win,))
-				cursor.execute('UPDATE dstatstest SET games3x = games3x + 1')
+				cursor.execute('UPDATE `userz` SET `balance` = `balance` + %s WHERE `id` = %s', (dice_win, query.from_user.id,))
+				cursor.execute('UPDATE `dstatstest` SET `total3x` = `total3x` + %s', (dice_win,))
+				cursor.execute('UPDATE `dstatstest` SET `games3x` = `games3x` + 1')
 				conn.commit()
 			elif '5x' in query.data and number >= 830:
 				query.answer('✅')
 				dice_win = int(betsumm)*5
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
-				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
-				cursor.execute('UPDATE dstatstest SET total5x = total5x + %s', (dice_win,))
-				cursor.execute('UPDATE dstatstest SET games5x = games5x + 1')
+				cursor.execute('UPDATE `userz` SET `balance` = `balance` + %s WHERE `id` = %s', (dice_win, query.from_user.id,))
+				cursor.execute('UPDATE `dstatstest` SET `total5x` = `total5x` + %s', (dice_win,))
+				cursor.execute('UPDATE `dstatstest` SET `games5x` = `games5x` + 1')
 				conn.commit()
 			elif '10x' in query.data and number >= 915:
 				query.answer('✅')
 				dice_win = int(betsumm)*10
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
-				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
-				cursor.execute('UPDATE dstatstest SET total10x = total10x + %s', (dice_win,))
-				cursor.execute('UPDATE dstatstest SET games10x = games10x + 1')
+				cursor.execute('UPDATE `userz` SET `balance` = `balance` + %s WHERE `id` = %s', (dice_win, query.from_user.id,))
+				cursor.execute('UPDATE `dstatstest` SET `total10x` = `total10x` + %s', (dice_win,))
+				cursor.execute('UPDATE `dstatstest` SET `games10x` = `games10x` + 1')
 				conn.commit()
 				context.bot.send_message(chat_id='@rylcoinmarket', text=f'🏆 {query.from_user.full_name} словил(-а) <code>Джекпот</code>! 🏆\n\n<b>Коэффициент</b>: <code>10X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
 			elif '50x' in query.data and number >= 983:
 				query.answer('✅')
 				dice_win = int(betsumm)*50
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
-				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
-				cursor.execute('UPDATE dstatstest SET total50x = total50x + %s', (dice_win,))
-				cursor.execute('UPDATE dstatstest SET games50x = games50x + 1')
+				cursor.execute('UPDATE `userz` SET `balance` = `balance` + %s WHERE `id` = %s', (dice_win, query.from_user.id,))
+				cursor.execute('UPDATE `dstatstest` SET `total50x` = `total50x` + %s', (dice_win,))
+				cursor.execute('UPDATE `dstatstest` SET `games50x` = `games50x` + 1')
 				conn.commit()
 				context.bot.send_message(chat_id='@rylcoinmarket', text=f'👸 {query.from_user.full_name} сорвал(-а) <b>Куш</b>! 👸\n\n<b>Коэффициент</b>: <code>50X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
 			else:
@@ -480,9 +480,9 @@ x50 - от 983 до 1000.''', show_alert=True)
 				lostgame = f'lost{multiplier[0]}'
 				game = f'games{multiplier[0]}'
 				tstring = f'{lostgame} = {lostgame} - {betsumm}'
-				cursor.execute(f'UPDATE dstatstest SET {tstring}')
+				cursor.execute(f'UPDATE `dstatstest` SET {tstring}')
 				string = f'{game} = {game} + 1'
-				cursor.execute(f'UPDATE dstatstest SET {string}')
+				cursor.execute(f'UPDATE `dstatstest` SET {string}')
 				conn.commit()
 		else:
 			query.answer('Ты не можешь участвовать в этой игре! Чтобы создать свою, напиши: /dice', show_alert=True)
@@ -499,7 +499,7 @@ def dstats(update, context):
 
 @run_async
 def anon(update, context):
-    cursor.execute('SELECT id FROM userz')
+    cursor.execute('SELECT `id` FROM `userz`')
     all_users = cursor.fetchall()
     userid = update.message.from_user.id
     if str(userid) in str(all_users):
@@ -523,10 +523,10 @@ def anon(update, context):
 def anonMessage(update, context):
     user = context.user_data['user']
     message = update.message.text
-    cursor.execute('SELECT balance FROM userz WHERE id = %s', (update.message.from_user.id,))
+    cursor.execute('SELECT `balance` FROM `userz` WHERE `id` = %s', (update.message.from_user.id,))
     balance = cursor.fetchone()
     if int(balance[0]) >= 100:
-        cursor.execute('UPDATE userz SET balance = balance - 100 WHERE id = %s', (update.message.from_user.id,))
+        cursor.execute('UPDATE `userz` SET `balance` = `balance` - 100 WHERE `id` = %s', (update.message.from_user.id,))
         conn.commit()
         context.bot.sendMessage(chat_id=-1001441511504, text=f'<b>Какой-то анон написал(-а)</b>:\n{message}', parse_mode='HTML')
         context.bot.sendMessage(chat_id=391206263, text=f'<b>{user} написал(-а)</b>:\n{message}', parse_mode='HTML')
@@ -551,15 +551,15 @@ def echo(update, context):
 	if ('!add' in update.message.text) or ('!remove' in update.message.text):
 		message = update.message.text
 		args = message.split()
-		cursor.execute('SELECT balance FROM userz WHERE username = %s', (args[1],))
+		cursor.execute('SELECT `balance` FROM `userz` WHERE `username` = %s', (args[1],))
 		balance = cursor.fetchone()
-		cursor.execute('SELECT username FROM userz')
+		cursor.execute('SELECT `username` FROM `userz`')
 		all_users = cursor.fetchall()
 		if args[1] not in str(all_users):
 			update.message.reply_text('Такого пользователя не существует.')
 		elif '!add' in update.message.text:
 			try:
-				cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (args[2], args[1],))
+				cursor.execute('UPDATE `userz` SET `balance` = `balance` + %s WHERE `username` = %s', (args[2], args[1],))
 				conn.commit()
 				context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Deposit]</code>\nПользователь @{args[1]} внёс {args[2]} монет на свой счёт.', parse_mode='HTML')
 			except:
@@ -567,7 +567,7 @@ def echo(update, context):
 		elif '!remove' in update.message.text:
 			if balance[0] >= int(args[2]):
 				try:
-					cursor.execute('UPDATE userz SET balance = balance - %s WHERE username = %s', (args[2], args[1],))
+					cursor.execute('UPDATE `userz` SET `balance` = `balance` - %s WHERE `username` = %s', (args[2], args[1],))
 					conn.commit()
 					context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Withdraw]</code>\nПользователь @{args[1]} вывел {args[2]} монет.', parse_mode='HTML')
 				except:
@@ -577,7 +577,7 @@ def echo(update, context):
 		else:
 			pass
 	elif ('!drefresh' in update.message.text):
-		cursor.execute('UPDATE dstatstest SET games2x = 0, games3x = 0, games5x = 0, games10x = 0, games50x = 0, total2x = 0, total3x = 0, total5x = 0, total10x = 0, total50x = 0, lost2x = 0, lost3x = 0, lost5x = 0, lost10x = 0, lost50x = 0')
+		cursor.execute('UPDATE `dstatstest` SET `games2x` = 0, `games3x` = 0, `games5x` = 0, `games10x` = 0, `games50x` = 0, `total2x` = 0, `total3x` = 0, `total5x` = 0, `total10x` = 0, `total50x` = 0, `lost2x` = 0, `lost3x` = 0, `lost5x` = 0, `lost10x` = 0, `lost50x` = 0')
 		conn.commit()
 	else:
 		pass
