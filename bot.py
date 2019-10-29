@@ -141,6 +141,7 @@ def registration(update, context):
 
 @run_async
 def getInfo(update, context):
+	usrid = update.message.from_user.id
 	query = "SELECT * FROM userz WHERE id = %s"
 
 	cursor.execute(query, usrid)
