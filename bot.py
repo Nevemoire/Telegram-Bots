@@ -524,8 +524,8 @@ def anonMessage(update, context):
     cursor.execute('SELECT balance FROM userz WHERE id = %s', (update.message.from_user.id,))
     balance = cursor.fetchone()
     if int(balance[0]) >= 100:
-	cursor.execute('UPDATE userz SET balance = balance - 100 WHERE id = %s', (update.message.from_user.id,))
-	conn.commit()
+        cursor.execute('UPDATE userz SET balance = balance - 100 WHERE id = %s', (update.message.from_user.id,))
+        conn.commit()
         context.bot.sendMessage(chat_id=-1001441511504, text=f'<b>Какой-то анон написал(-а)</b>:\n{message}', parse_mode='HTML')
         context.bot.sendMessage(chat_id=391206263, text=f'<b>{user} написал(-а)</b>:\n{message}', parse_mode='HTML')
 
