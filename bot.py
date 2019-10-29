@@ -144,11 +144,13 @@ def getInfo(update, context):
 	usrid = update.message.from_user.id
 	query = "SELECT * FROM userz WHERE id = %s"
 	args = usrid
+	with conn:
 
-	cursor.execute(query, args)
-	info = cursor.fetchall()
-	for row in info:
-		update.message.reply_text(f'Name: {row[1]}\nUsername: {row[2]}\nBalance: {row[3]}\nID: {row[0]}')
+		cur=conn.cursor()
+		cur.execute(query, args)
+		info = cur.fetchall()
+		for row in info:
+			update.message.reply_text(f'Name: {row[1]}\nUsername: {row[2]}\nBalance: {row[3]}\nID: {row[0]}')
 
 
 @run_async
