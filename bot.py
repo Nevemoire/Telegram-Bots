@@ -541,7 +541,7 @@ def cancel(update, context):
 
 
 def echo(update, context):
-	if ('!add' in update.message.text) or ('!remove' in update.message.text) or ('!drefresh' in update.message.text):
+	if ('!add' in update.message.text) or ('!remove' in update.message.text):
 		message = update.message.text
 		args = message.split()
 		cursor.execute('SELECT balance FROM userz WHERE username = %s', (args[1],))
@@ -567,11 +567,11 @@ def echo(update, context):
 					update.message.reply_text('Error remove')
 			else:
 				update.message.reply_text('Недостаточно монет.')
-		elif '!drefresh' in update.message.text:
-			cursor.execute('UPDATE dstatstest SET 2x = 0, 3x = 0, 5x = 0, 10x = 0, 50x = 0, games2x = 0, games3x = 0, games5x = 0, games10x = 0, games50x = 0, total2x = 0, total3x = 0, total5x = 0, total10x = 0, total50x = 0')
-			conn.commit()
 		else:
 			pass
+	elif ('!drefresh' in update.message.text):
+		cursor.execute('UPDATE dstatstest SET 2x = 0, 3x = 0, 5x = 0, 10x = 0, 50x = 0, games2x = 0, games3x = 0, games5x = 0, games10x = 0, games50x = 0, total2x = 0, total3x = 0, total5x = 0, total10x = 0, total50x = 0')
+		conn.commit()
 	else:
 		pass
 
