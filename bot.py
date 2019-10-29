@@ -587,7 +587,7 @@ def main():
     # Post version 12 this will no longer be necessary
     # TOKEN='683044036:AAGM___X_lK52LDR1SmiTCOvcjdHRh2cYkY'
     # updater = Updater('683044036:AAGM___X_lK52LDR1SmiTCOvcjdHRh2cYkY', use_context=True)
-    updater = Updater(os.environ['token'], use_context=True)
+    updater = Updater(os.environ['token'], request_kwargs={'read_timeout': 20, 'connect_timeout': 20}, use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
