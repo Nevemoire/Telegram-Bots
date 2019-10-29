@@ -334,6 +334,7 @@ def Total(update, context):
 			context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text=f'Дуэль успешно создана.\nНе забудь вступить в канал, где мы публикуем все игры: {channel_username}')
 			cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (summ, inv_user_id,))
 			conn.commit()
+			context.user_data['participants'] = 0
 			
 			return ConversationHandler.END
 		except:
@@ -377,7 +378,7 @@ def button(update, context):
 	betsumm = betinfo[2]
 	betssumm = int(betsumm)
 	total = int(betsumm)*1.9
-	number = random.randint(0, 100)
+	number = random.randint(0, 1000)
 
 	if str(query.from_user.id) not in str(all_users):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
@@ -385,13 +386,32 @@ def button(update, context):
 		query.answer('Нельзя участвовать в своей же игре.', show_alert=True)
 	elif ('coinflip' in query.data) and (int(participant2[1]) < int(betsumm)):
 		query.answer('Недостаточно монет.\nЧтобы пополнить баланс напиши боту /deposit', show_alert=True)
-	elif 'coinflip' in query.data:
+	elif ('coinflip' in query.data) and (context.user_data['participants'] = 1):
+		query.answer('Не успел :(', show_alert=True)
+	elif ('coinflip' in query.data) and (context.user_data['participants'] = 0):
 		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (betsumm, query.from_user.id,))
 		cf_participants = [participant1[0], participant2[0]]
 		winner = random.choice(cf_participants)
+		if winner == participant1[0]:
+			try:
+				context.bot.send_message(chat_id=betinfo[1], text='<b>Поздравляем</b>, ты победил(-а) в <code>Coinflip</code>! ✅', parse_mode='HTML')
+			except:
+				pass
+		elif winner != participant1[0]:
+			try:
+				context.bot.send_message(chat_id=betinfo[1], text='В этот раз ты потерпел(-а) поражение в <code>Coinflip</code>! :( ❌', parse_mode='HTML')
+			except:
+				pass
+		else:
+			try:
+				context.bot.send_message(chat_id=391206263, text='Ошибка в Coinflipe.')
+				pass
+			except:
+				pass
 		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}!\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
 		cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (total, winner,))
 		conn.commit()
+		context.user_data['participants'] = 1
 	elif 'roulette' in query.data:
 		query.edit_message_text('Игра в разработке...')
 	elif 'dice' in query.data:
@@ -404,12 +424,12 @@ def button(update, context):
 3. Если число попадает в диапазон коэффициента (включительно), вы выиграли.''', show_alert=True)
 			elif 'int_dice' in query.data:
 				query.answer(f'''Диапазоны выигрышей Dice\n\n
-x2 - от 55 до 100,
-x3 - от 70 до 100,
-x5 - от 82 до 100,
-x10 - от 91 до 100,
-x50 - от 98 до 100.''', show_alert=True)
-			elif '2x' in query.data and number >= 55:
+x2 - от 575 до 1000,
+x3 - от 716 до 1000,
+x5 - от 830 до 1000,
+x10 - от 915 до 1000,
+x50 - от 983 до 1000.''', show_alert=True)
+			elif '2x' in query.data and number >= 575:
 				query.answer('✅')
 				dice_win = int(betsumm)*2
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
@@ -417,7 +437,7 @@ x50 - от 98 до 100.''', show_alert=True)
 				cursor.execute('UPDATE dstatstest SET total2x = total2x + %s', (dice_win,))
 				cursor.execute('UPDATE dstatstest SET games2x = games2x + 1')
 				conn.commit()
-			elif '3x' in query.data and number >= 70:
+			elif '3x' in query.data and number >= 716:
 				query.answer('✅')
 				dice_win = int(betsumm)*3
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
@@ -425,7 +445,7 @@ x50 - от 98 до 100.''', show_alert=True)
 				cursor.execute('UPDATE dstatstest SET total3x = total3x + %s', (dice_win,))
 				cursor.execute('UPDATE dstatstest SET games3x = games3x + 1')
 				conn.commit()
-			elif '5x' in query.data and number >= 82:
+			elif '5x' in query.data and number >= 830:
 				query.answer('✅')
 				dice_win = int(betsumm)*5
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
@@ -433,7 +453,7 @@ x50 - от 98 до 100.''', show_alert=True)
 				cursor.execute('UPDATE dstatstest SET total5x = total5x + %s', (dice_win,))
 				cursor.execute('UPDATE dstatstest SET games5x = games5x + 1')
 				conn.commit()
-			elif '10x' in query.data and number >= 91:
+			elif '10x' in query.data and number >= 915:
 				query.answer('✅')
 				dice_win = int(betsumm)*10
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
@@ -442,7 +462,7 @@ x50 - от 98 до 100.''', show_alert=True)
 				cursor.execute('UPDATE dstatstest SET games10x = games10x + 1')
 				conn.commit()
 				context.bot.send_message(chat_id='@rylcoinmarket', text=f'🏆 {query.from_user.full_name} словил(-а) <code>Джекпот</code>! 🏆\n\n<b>Коэффициент</b>: <code>10X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
-			elif '50x' in query.data and number >= 98:
+			elif '50x' in query.data and number >= 983:
 				query.answer('✅')
 				dice_win = int(betsumm)*50
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
@@ -476,30 +496,41 @@ def dstats(update, context):
 
 @run_async
 def anon(update, context):
+    cursor.execute('SELECT id FROM userz')
+    all_users = cursor.fetchall()
     userid = update.message.from_user.id
-    member1 = context.bot.get_chat_member(channel_username, userid)
-    if member1.status in memberslist:
-    	context.user_data['message'] = update.message.reply_text('Наконец что-то интересненькое ;)\n\nНапиши сюда сообщение для отправки. <b>Стоимость</b>: <code>100</code> монет.\n/cancel - чтобы отменить.', parse_mode='HTML')
-    	context.user_data['user'] = update.message.from_user.full_name
+    if str(userid) in str(all_users):
+        member1 = context.bot.get_chat_member(channel_username, userid)
+        if member1.status in memberslist:
+    	    context.user_data['message'] = update.message.reply_text('Наконец что-то интересненькое ;)\n\nНапиши сюда сообщение для отправки. <b>Стоимость</b>: <code>100</code> монет.\n/cancel - чтобы отменить.', parse_mode='HTML')
+    	    context.user_data['user'] = update.message.from_user.full_name
 
-    	return MESSAGE
-    else:
-        update.message.reply_text(f'Ненене, так не пойдёт.\nДля начала подпишись на: {channel_username}')
+    	    return MESSAGE
+        else:
+            update.message.reply_text(f'Ненене, так не пойдёт.\nДля начала подпишись на: {channel_username}')
 	
-        return ConversationHandler.END
+            return ConversationHandler.END
+    else:
+	update.message.reply_text('Сперва зарегистрируйся (/reg)')
+	
+	return ConversationHandler.END
 
 
 @run_async
 def anonMessage(update, context):
     user = context.user_data['user']
     message = update.message.text
-    try:
+    cursor.execute('SELECT balance FROM userz WHERE id = %s', (update.message.from_user.id,))
+    balance = cursor.fetchone()
+    if int(balance[0]) >= 100:
+	cursor.execute('UPDATE userz SET balance = balance - 100 WHERE id = %s', (update.message.from_user.id,))
+	conn.commit()
         context.bot.sendMessage(chat_id=-1001441511504, text=f'<b>Какой-то анон написал(-а)</b>:\n{message}', parse_mode='HTML')
         context.bot.sendMessage(chat_id=391206263, text=f'<b>{user} написал(-а)</b>:\n{message}', parse_mode='HTML')
 
         return ConversationHandler.END
-    except:
-        update.message.reply_text(f'Что-то пошло не так :(\nТы точно удалил(-а) знак "-" перед числами?')
+    else:
+        update.message.reply_text(f'Недостаточно монет, возвращайся в другой раз.')
 
         return ConversationHandler.END
 
