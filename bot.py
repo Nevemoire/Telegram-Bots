@@ -389,14 +389,19 @@ def button(update, context):
 		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (betsumm, query.from_user.id,))
 		cf_participants = [participant1[0], participant2[0]]
 		winner = random.choice(cf_participants)
-		if winner == participant1[0]:
+		if int(total) >= 9500:
 			try:
-				context.bot.send_message(chat_id=betinfo[1], text='<b>Поздравляем</b>, ты победил(-а) в <code>Coinflip</code>! ✔️', parse_mode='HTML')
+				context.bot.send_message(chat_id=-1001441511504, text=f'<b>Поздравляем</b> {winner}, он(-а) срывает <b>Куш</b> в <code>Coinflip</code>! 👸\n<b>Выигрыш</b>: <code>{int(total)}</code>', parse_mode='HTML')
 			except:
 				pass
-		elif winner != participant1[0]:
+		if int(total) >= 5700:
 			try:
-				context.bot.send_message(chat_id=betinfo[1], text='В этот раз ты потерпел(-а) поражение в <code>Coinflip</code>! :( ✖️', parse_mode='HTML')
+				context.bot.send_message(chat_id=-1001441511504, text=f'<b>Поздравляем</b> {winner}, он(-а) выигрывает <b>Джекпот</b> в <code>Coinflip</code>! 🏆\n<b>Выигрыш</b>: <code>{int(total)}</code>', parse_mode='HTML')
+			except:
+				pass
+		elif int(total) >= 1900:
+			try:
+				context.bot.send_message(chat_id=-1001441511504, text=f'<b>Поздравляем</b> {winner} с победой в <code>Coinflip</code>! ✔️\n<b>Выигрыш</b>: <code>{int(total)}</code>', parse_mode='HTML')
 			except:
 				pass
 		else:
