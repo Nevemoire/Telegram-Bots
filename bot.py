@@ -570,7 +570,7 @@ def echo(update, context):
 		else:
 			pass
 	elif ('!drefresh' in update.message.text):
-		cursor.execute('UPDATE dstatstest SET 2x = 0, 3x = 0, 5x = 0, 10x = 0, 50x = 0, games2x = 0, games3x = 0, games5x = 0, games10x = 0, games50x = 0, total2x = 0, total3x = 0, total5x = 0, total10x = 0, total50x = 0')
+		cursor.execute('UPDATE dstatstest SET games2x = 0, games3x = 0, games5x = 0, games10x = 0, games50x = 0, total2x = 0, total3x = 0, total5x = 0, total10x = 0, total50x = 0, lost2x = 0, lost3x = 0, lost5x = 0, lost10x = 0, lost50x = 0')
 		conn.commit()
 	else:
 		pass
