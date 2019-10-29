@@ -21,7 +21,8 @@ import logging
 import random
 import os
 from telegram.ext.dispatcher import run_async
-import psycopg2
+import pymysql
+from pymysql.cursors import DictCursor
 
 
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
@@ -41,8 +42,9 @@ members = 'creator, administrator, member'
 memberslist = members.split(', ')
 
 
-conn = psycopg2.connect(dbname='d3p95g4d436dvm', user='gogkpkgabilgaj', 
-                        password='984caca9804921aaba645e063270277f0aca1cf316578740c29104822e91254c', host='ec2-54-228-252-67.eu-west-1.compute.amazonaws.com')
+conn = pymysql.connect(host='sql169.main-hosting.eu', user='u305710254_username', 
+                        password='adamya_ForEsT1', db='u305710254_royalcasino',
+                        charset='utf8mb4', cursorclass=DictCursor)
 cursor = conn.cursor()
 
 bot_link = 'telegram.me/royalcasinobot'
