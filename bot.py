@@ -21,8 +21,7 @@ import logging
 import random
 import os
 from telegram.ext.dispatcher import run_async
-import pymysql
-from pymysql.cursors import DictCursor
+import MySQLdb
 
 
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
@@ -42,9 +41,7 @@ members = 'creator, administrator, member'
 memberslist = members.split(', ')
 
 
-conn = pymysql.connect(host='sql169.main-hosting.eu', user='u305710254_username', 
-                        password='adamya_ForEsT1', db='u305710254_royalcasino',
-                        charset='utf8mb4', cursorclass=DictCursor)
+conn = MySQLdb.connect('sql169.main-hosting.eu', 'u305710254_username', 'adamya_ForEsT1', 'u305710254_royalcasino')
 cursor = conn.cursor()
 
 bot_link = 'telegram.me/royalcasinobot'
@@ -141,16 +138,12 @@ def registration(update, context):
 
 @run_async
 def getInfo(update, context):
-	usrid = update.message.from_user.id
-	query = "SELECT * FROM userz WHERE id = %s"
-	args = usrid
-	with conn:
+	user_info_Query = "select * from userz where id = %s"
 
-		cur=conn.cursor()
-		cur.execute(query, args)
-		info = cur.fetchall()
-		for row in info:
-			update.message.reply_text(f'Name: {row[1]}\nUsername: {row[2]}\nBalance: {row[3]}\nID: {row[0]}')
+	cursor.execute(user_info_Query, (usrid,))
+	info = cursor.fetchall()
+	for row in info:
+		update.message.reply_text(f'Name: {row[1]}\nUsername: {row[2]}\nBalance: {row[3]}\nID: {row[0]}')
 
 
 @run_async
