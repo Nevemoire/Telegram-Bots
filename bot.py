@@ -143,7 +143,7 @@ def registration(update, context):
 def getInfo(update, context):
 	usrid = update.message.from_user.id
 	query = "SELECT * FROM userz WHERE id = %s"
-	args = userid
+	args = usrid
 
 	cursor.execute(query, args)
 	info = cursor.fetchall()
