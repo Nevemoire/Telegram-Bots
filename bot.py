@@ -541,7 +541,7 @@ def cancel(update, context):
 
 
 def echo(update, context):
-	if ('!add' in update.message.text) or ('!remove' in update.message.text):
+	if ('!add' in update.message.text) or ('!remove' in update.message.text) or ('!drefresh' in update.message.text):
 		message = update.message.text
 		args = message.split()
 		cursor.execute('SELECT balance FROM userz WHERE username = %s', (args[1],))
