@@ -143,8 +143,9 @@ def registration(update, context):
 def getInfo(update, context):
 	usrid = update.message.from_user.id
 	query = "SELECT * FROM userz WHERE id = %s"
+	args = userid
 
-	cursor.execute(query, usrid)
+	cursor.execute(query, args)
 	info = cursor.fetchall()
 	for row in info:
 		update.message.reply_text(f'Name: {row[1]}\nUsername: {row[2]}\nBalance: {row[3]}\nID: {row[0]}')
