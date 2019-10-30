@@ -372,11 +372,6 @@ def button(update, context):
 				context.bot.send_message(chat_id=-1001441511504, text=f'<b>Поздравляем</b> @{winner}, он(-а) выигрывает <b>Джекпот</b> в <code>Coinflip</code>! 🏆\n<b>Выигрыш</b>: <code>{int(total)}</code>', parse_mode='HTML')
 			except:
 				pass
-		elif int(total) >= 1900:
-			try:
-				context.bot.send_message(chat_id=-1001441511504, text=f'<b>Поздравляем</b> @{winner} с победой в <code>Coinflip</code>! ✔️\n<b>Выигрыш</b>: <code>{int(total)}</code>', parse_mode='HTML')
-			except:
-				pass
 		else:
 			try:
 				context.bot.send_message(chat_id=391206263, text='Ошибка в Coinflip.')
