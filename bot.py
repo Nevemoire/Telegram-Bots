@@ -373,11 +373,7 @@ def button(update, context):
 			except:
 				pass
 		else:
-			try:
-				context.bot.send_message(chat_id=391206263, text='Ошибка в Coinflip.')
-				pass
-			except:
-				pass
+			pass
 		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}!\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
 		cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (total, winner,))
 		conn.commit()
