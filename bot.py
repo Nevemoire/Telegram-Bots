@@ -21,7 +21,7 @@ import logging
 import random
 import os
 from telegram.ext.dispatcher import run_async
-import MySQLdb
+import psycopg2
 
 
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
@@ -41,7 +41,7 @@ members = 'creator, administrator, member'
 memberslist = members.split(', ')
 
 
-conn = MySQLdb.connect('sql169.main-hosting.eu', 'u305710254_username', 'adamya_ForEsT1', 'u305710254_royalcasino')
+conn = psycopg2.connect(dbname = 'd19olitilh6q1s', user = 'oukggnzlpirgzh', password = 'a4e84b7de4257e36cecc14b60bb0ff570f7ce52d5d24b1c7eb275c96f403af36', host = 'ec2-79-125-23-20.eu-west-1.compute.amazonaws.com')
 cursor = conn.cursor()
 
 bot_link = 'telegram.me/royalcasinobot'
