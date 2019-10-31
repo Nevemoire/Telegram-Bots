@@ -138,11 +138,39 @@ def registration(update, context):
 
 @run_async
 def getInfo(update, context):
-	usrid = update.message.from_user.id
-	cursor.execute("select username, balance from userz where id = %s", (usrid,))
-	info = cursor.fetchall()
-	for row in info:
-		update.message.reply_text(f'@{row[0]}, 💰: <code>{row[1]}</code>', parse_mode="HTML")
+	try:
+		usrid = update.message.from_user.id
+		cursor.execute('SELECT id FROM userz')
+		all_users = cursor.fetchall()
+		try:
+			target = update.message.reply_to_message.from_user.id
+			if '/info' in update.message.reply_to_message.text:
+				pass
+			elif str(target) in str(all_users):
+				target_info_Query = "select * from userz where id = %s"
+				cursor.execute(target_info_Query, (target,))
+				target_info = cursor.fetchall()
+				for row in target_info:
+					update.message.reply_text(f'@{row[0]}, 💰: <code>{row[1]}</code>', parse_mode="HTML")
+
+					return
+
+			else:
+				update.message.reply_text('Ошибка! Этого пользователя нет в нашей базе данных.')
+
+				return
+
+		except:
+			pass
+
+		user_info_Query = "select * from userz where id = %s"
+
+		cursor.execute(user_info_Query, (usrid,))
+		info = cursor.fetchall()
+		for row in info:
+			update.message.reply_text(f'@{row[0]}, 💰: <code>{row[1]}</code>', parse_mode="HTML")
+	except:
+		update.message.reply_text('Произошла ошибка. Попробуй чуть позже.')
 
 
 @run_async
