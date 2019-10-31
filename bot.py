@@ -138,13 +138,11 @@ def registration(update, context):
 
 @run_async
 def getInfo(update, context):
-	user_info_Query = "select username, balance from userz where id = %s"
 	usrid = update.message.from_user.id
-
-	cursor.execute(user_info_Query, (usrid,))
+	cursor.execute("select username, balance from userz where id = %s", (usrid,))
 	info = cursor.fetchall()
 	for row in info:
-		update.message.reply_text(f'@{row[0]}, 💰: {row[1]}')
+		update.message.reply_text(f'@{row[0]}, 💰: <code>{row[1]}</code>', parse_mode="HTML")
 
 
 @run_async
