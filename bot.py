@@ -147,7 +147,7 @@ def getInfo(update, context):
 			if '/info' in update.message.reply_to_message.text:
 				pass
 			elif str(target) in str(all_users):
-				target_info_Query = "select * from userz where id = %s"
+				target_info_Query = "select username, balance from userz where id = %s"
 				cursor.execute(target_info_Query, (target,))
 				target_info = cursor.fetchall()
 				for row in target_info:
@@ -163,7 +163,7 @@ def getInfo(update, context):
 		except:
 			pass
 
-		user_info_Query = "select * from userz where id = %s"
+		user_info_Query = "select username, balance from userz where id = %s"
 
 		cursor.execute(user_info_Query, (usrid,))
 		info = cursor.fetchall()
