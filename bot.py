@@ -496,9 +496,9 @@ x50 - от 983 до 1000.''', show_alert=True)
 
 def dstats(update, context):
 	cursor.execute('SELECT games, total, lost FROM dstats')
-	info = cursor.fetchone()
+	info = cursor.fetchall()
 	cursor.execute('SELECT SUM(games), SUM(total), SUM(lost) FROM dstats')
-	results = cursor.fetchone()
+	results = cursor.fetchall()
 	for stats in info:
 # 		update.message.reply_text(f'''Статистика по играм:
 # 2x: {stats[0]} <b>{stats[5]}</b> (<code>{stats[10]}</code>)
@@ -506,6 +506,12 @@ def dstats(update, context):
 # 5x: {stats[2]} <b>{stats[7]}</b> (<code>{stats[12]}</code>)
 # 10x: {stats[3]} <b>{stats[8]}</b> (<code>{stats[13]}</code>)
 # 50x: {stats[4]} <b>{stats[9]}</b> (<code>{stats[14]}</code>)''', parse_mode='HTML')
+		update.message.reply_text(f'''Статистика по играм:
+2x: {stats[0, 0]} <b>{stats[0, 1]}</b> (<code>{stats[0, 2]}</code>)
+3x: {stats[1, 0]} <b>{stats[1, 1]}</b> (<code>{stats[1, 2]}</code>)
+5x: {stats[2, 0]} <b>{stats[2, 1]}</b> (<code>{stats[2, 2]}</code>)
+10x: {stats[3, 0]} <b>{stats[3, 1]}</b> (<code>{stats[3, 2]}</code>)
+50x: {stats[4, 0]} <b>{stats[4, 1]}</b> (<code>{stats[4, 2]}</code>)''', parse_mode='HTML')
 		update.message.reply_text(stats)
 	for res in results:
 		update.message.reply_text(f'Итог: {res[0]} <b>{res[1]}</b> (<code>{res[2]}</code>)', parse_mode='HTML')
