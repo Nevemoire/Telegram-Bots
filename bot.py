@@ -509,8 +509,8 @@ def dstats(update, context):
 # 50x: {stats[4]} <b>{stats[9]}</b> (<code>{stats[14]}</code>)''', parse_mode='HTML')
 		text += (f'{stats[0]}: {stats[1]} <b>{stats[2]}</b> (<code>{stats[3]}</code>)\n')
 	for res in results:
-		profit = int(res[2]) - int(res[1])
-		text += (f'\n<b>Итог</b>:\n{res[0]} игр\n<b>{res[1]}</b> выплачено\n<b>{res[2]}</b> всего поставлено\n<b>Профит</b>: <code>{profit}</code>')
+		profit = int(res[2])*(-1) - int(res[1])
+		text += (f'\n<b>Итог</b>:\n👾: {res[0]}\n🏦: <code>{profit}</code>')
 
 	update.message.reply_text(text, parse_mode='HTML')
 	
