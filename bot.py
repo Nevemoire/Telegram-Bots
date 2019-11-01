@@ -495,6 +495,7 @@ x50 - от 983 до 1000.''', show_alert=True)
 
 
 def dstats(update, context):
+	text = ''
 	cursor.execute('SELECT multiplier, games, total, lost FROM dstats')
 	info = cursor.fetchall()
 	cursor.execute('SELECT SUM(games), SUM(total), SUM(lost) FROM dstats')
@@ -506,7 +507,8 @@ def dstats(update, context):
 # 5x: {stats[2]} <b>{stats[7]}</b> (<code>{stats[12]}</code>)
 # 10x: {stats[3]} <b>{stats[8]}</b> (<code>{stats[13]}</code>)
 # 50x: {stats[4]} <b>{stats[9]}</b> (<code>{stats[14]}</code>)''', parse_mode='HTML')
-		update.message.reply_text(f'{stats[0]}: {stats[1]} <b>{stats[2]}</b> (<code>{stats[3]}</code>)', parse_mode='HTML')
+		text =+ (f'{stats[0]}: {stats[1]} <b>{stats[2]}</b> (<code>{stats[3]}</code>)\n', parse_mode='HTML')
+	update.message.reply_text(text)
 	for res in results:
 		update.message.reply_text(f'Итог: {res[0]} <b>{res[1]}</b> (<code>{res[2]}</code>)', parse_mode='HTML')
 	
