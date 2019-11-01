@@ -496,22 +496,18 @@ x50 - от 983 до 1000.''', show_alert=True)
 
 def dstats(update, context):
 	cursor.execute('SELECT games, total, lost FROM dstats')
+	info = cursor.fetchall()
+	cursor.execute('SELECT SUM(games), SUM(total), SUM(lost) FROM dstats')
 	results = cursor.fetchall()
-	cursor.execute('SELECT SUM(games) FROM dstats')
-	games = cursor.fetchone()
-	cursor.execute('SELECT SUM(total) FROM dstats')
-	total = cursor.fetchone()
-	cursor.execute('SELECT SUM(lost) FROM dstats')
-	lost = cursor.fetchone()
-	for stats in results:
+	for stats in info:
 		update.message.reply_text(f'''Статистика по играм:
 2x: {stats[0]} <b>{stats[5]}</b> (<code>{stats[10]}</code>)
 3x: {stats[1]} <b>{stats[6]}</b> (<code>{stats[11]}</code>)
 5x: {stats[2]} <b>{stats[7]}</b> (<code>{stats[12]}</code>)
 10x: {stats[3]} <b>{stats[8]}</b> (<code>{stats[13]}</code>)
-50x: {stats[4]} <b>{stats[9]}</b> (<code>{stats[14]}</code>)
-
-Итог: {games[0]} <b>{total[0]}</b> (<code>{lost[0]}</code>)''', parse_mode='HTML')
+50x: {stats[4]} <b>{stats[9]}</b> (<code>{stats[14]}</code>)''', parse_mode='HTML')
+	for res in results:
+		update.message.reply_text(f'Итог: {res[0]} <b>{res[1]}</b> (<code>{res[2]}</code>)', parse_mode='HTML')
 	
 
 @run_async
