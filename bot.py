@@ -485,8 +485,8 @@ x50 - от 983 до 1000.''', show_alert=True)
 			else:
 				query.answer('❌')
 				query.edit_message_text(f'<b>Проигрыш!</b> В следующий раз повезёт :(\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Ставка</b>: <code>{betsumm}</code> монет', parse_mode='HTML')
-				cursor.execute(f'UPDATE dstats SET lost = lost - {betsumm} WHERE multiplier = {multiplier[0]}')
-				cursor.execute(f'UPDATE dstats SET games = games + 1 WHERE multiplier = {multiplier[0]}')
+				cursor.execute(f'UPDATE dstats SET lost = lost - {betsumm} WHERE multiplier = %s', (multiplier[0],))
+				cursor.execute(f'UPDATE dstats SET games = games + 1 WHERE multiplier = %s', (multiplier[0],))
 				conn.commit()
 		else:
 			query.answer('Ты не можешь участвовать в этой игре! Чтобы создать свою, напиши: /dice', show_alert=True)
