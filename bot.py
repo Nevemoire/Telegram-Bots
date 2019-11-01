@@ -105,7 +105,7 @@ def start(update, context):
 
 @run_async
 def deposit(update, context):
-	if update.message.chat_id == -1001441511504:
+	if update.message.from_user.chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
 	else:
 		update.message.reply_text('Чтобы пополнить баланс, отправь любую сумму пользователю <code>Nevermore</code> через сайт mdk.is.\n<b>Обязательно</b> прикрепи свой <code>ID</code> (число ниже) к донату, иначе сумма будет считаться пожертвованием.', disable_web_page_preview=True, parse_mode='HTML')
@@ -114,7 +114,7 @@ def deposit(update, context):
 
 @run_async
 def withdraw(update, context):
-	if update.message.chat_id == -1001441511504:
+	if update.message.from_user.chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
 	else:
 		update.message.reply_text('Вывод будет доступен чуть позже.')
@@ -187,7 +187,7 @@ def tos(update, context):
 
 @run_async
 def getPromo(update, context):
-	if update.message.chat_id == -1001441511504:
+	if update.message.from_user.chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
 	else:
 		ids = update.message.from_user.id
@@ -200,7 +200,7 @@ def getPromo(update, context):
 
 @run_async
 def coinflip(update, context):
-	if update.message.chat_id == -1001441511504:
+	if update.message.from_user.chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
 
 		return ConversationHandler.END
@@ -236,7 +236,7 @@ def roulette(update, context):
 
 @run_async
 def dice(update, context):
-	if update.message.chat_id == -1001441511504:
+	if update.message.from_user.chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
 
 		return ConversationHandler.END
@@ -445,32 +445,32 @@ x50 - от 983 до 1000.''', show_alert=True)
 				dice_win = int(betsumm)*2
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
-				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = 2x', (dice_win,))
-				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = 2x')
+				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '2x',))
+				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('2x',))
 				conn.commit()
 			elif '3x' in query.data and number >= 716:
 				query.answer('✅')
 				dice_win = int(betsumm)*3
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
-				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = 3x', (dice_win,))
-				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = 3x')
+				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '3x',))
+				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('3x',))
 				conn.commit()
 			elif '5x' in query.data and number >= 830:
 				query.answer('✅')
 				dice_win = int(betsumm)*5
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
-				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = 5x', (dice_win,))
-				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = 5x')
+				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '5x',))
+				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('5x',))
 				conn.commit()
 			elif '10x' in query.data and number >= 915:
 				query.answer('✅')
 				dice_win = int(betsumm)*10
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
-				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = 10x', (dice_win,))
-				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = 10x')
+				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '10x',))
+				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('10x',))
 				conn.commit()
 				context.bot.send_message(chat_id='@rylcoinmarket', text=f'🏆 {query.from_user.full_name} словил(-а) <code>Джекпот</code>! 🏆\n\n<b>Коэффициент</b>: <code>10X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
 			elif '50x' in query.data and number >= 983:
@@ -478,8 +478,8 @@ x50 - от 983 до 1000.''', show_alert=True)
 				dice_win = int(betsumm)*50
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
-				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = 50x', (dice_win,))
-				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = 50x')
+				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '50x',))
+				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('50x',))
 				conn.commit()
 				context.bot.send_message(chat_id='@rylcoinmarket', text=f'👸 {query.from_user.full_name} сорвал(-а) <b>Куш</b>! 👸\n\n<b>Коэффициент</b>: <code>50X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
 			else:
@@ -500,19 +500,20 @@ def dstats(update, context):
 	cursor.execute('SELECT SUM(games), SUM(total), SUM(lost) FROM dstats')
 	results = cursor.fetchall()
 	for stats in info:
-		update.message.reply_text(f'''Статистика по играм:
-2x: {stats[0]} <b>{stats[5]}</b> (<code>{stats[10]}</code>)
-3x: {stats[1]} <b>{stats[6]}</b> (<code>{stats[11]}</code>)
-5x: {stats[2]} <b>{stats[7]}</b> (<code>{stats[12]}</code>)
-10x: {stats[3]} <b>{stats[8]}</b> (<code>{stats[13]}</code>)
-50x: {stats[4]} <b>{stats[9]}</b> (<code>{stats[14]}</code>)''', parse_mode='HTML')
+# 		update.message.reply_text(f'''Статистика по играм:
+# 2x: {stats[0]} <b>{stats[5]}</b> (<code>{stats[10]}</code>)
+# 3x: {stats[1]} <b>{stats[6]}</b> (<code>{stats[11]}</code>)
+# 5x: {stats[2]} <b>{stats[7]}</b> (<code>{stats[12]}</code>)
+# 10x: {stats[3]} <b>{stats[8]}</b> (<code>{stats[13]}</code>)
+# 50x: {stats[4]} <b>{stats[9]}</b> (<code>{stats[14]}</code>)''', parse_mode='HTML')
+		update.message.reply_text(stats)
 	for res in results:
 		update.message.reply_text(f'Итог: {res[0]} <b>{res[1]}</b> (<code>{res[2]}</code>)', parse_mode='HTML')
 	
 
 @run_async
 def anon(update, context):
-	if update.message.chat_id == -1001441511504:
+	if update.message.from_user.chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
 
 		return ConversationHandler.END
