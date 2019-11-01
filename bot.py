@@ -511,7 +511,7 @@ def dstats(update, context):
 10x: {stats[3]} <b>{stats[8]}</b> (<code>{stats[13]}</code>)
 50x: {stats[4]} <b>{stats[9]}</b> (<code>{stats[14]}</code>)
 
-Итог: {games[0]} <b>{total[0]}</b> (<code>{lost[0]}}</code>)''', parse_mode='HTML')
+Итог: {games[0]} <b>{total[0]}</b> (<code>{lost[0]}</code>)''', parse_mode='HTML')
 	
 
 @run_async
