@@ -496,9 +496,9 @@ x50 - от 983 до 1000.''', show_alert=True)
 
 def dstats(update, context):
 	cursor.execute('SELECT games, total, lost FROM dstats')
-	info = cursor.fetchall()
+	info = cursor.fetchone()
 	cursor.execute('SELECT SUM(games), SUM(total), SUM(lost) FROM dstats')
-	results = cursor.fetchall()
+	results = cursor.fetchone()
 	for stats in info:
 # 		update.message.reply_text(f'''Статистика по играм:
 # 2x: {stats[0]} <b>{stats[5]}</b> (<code>{stats[10]}</code>)
