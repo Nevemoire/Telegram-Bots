@@ -496,7 +496,7 @@ x50 - от 983 до 1000.''', show_alert=True)
 
 def dstats(update, context):
 	text = ''
-	cursor.execute('SELECT multiplier, games, total, lost FROM dstats ORDER BY len(multiplier), multiplier')
+	cursor.execute('SELECT multiplier, games, total, lost FROM dstats ORDER BY length(multiplier), multiplier')
 	info = cursor.fetchall()
 	cursor.execute('SELECT SUM(games), SUM(total), SUM(lost) FROM dstats')
 	results = cursor.fetchall()
