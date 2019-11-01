@@ -105,7 +105,7 @@ def start(update, context):
 
 @run_async
 def deposit(update, context):
-	if update.message.from_user.chat_id == -1001441511504:
+	if update.message..chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
 	else:
 		update.message.reply_text('Чтобы пополнить баланс, отправь любую сумму пользователю <code>Nevermore</code> через сайт mdk.is.\n<b>Обязательно</b> прикрепи свой <code>ID</code> (число ниже) к донату, иначе сумма будет считаться пожертвованием.', disable_web_page_preview=True, parse_mode='HTML')
@@ -114,7 +114,7 @@ def deposit(update, context):
 
 @run_async
 def withdraw(update, context):
-	if update.message.from_user.chat_id == -1001441511504:
+	if update.message..chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
 	else:
 		update.message.reply_text('Вывод будет доступен чуть позже.')
@@ -187,7 +187,7 @@ def tos(update, context):
 
 @run_async
 def getPromo(update, context):
-	if update.message.from_user.chat_id == -1001441511504:
+	if update.message..chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
 	else:
 		ids = update.message.from_user.id
@@ -200,7 +200,7 @@ def getPromo(update, context):
 
 @run_async
 def coinflip(update, context):
-	if update.message.from_user.chat_id == -1001441511504:
+	if update.message..chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
 
 		return ConversationHandler.END
@@ -236,7 +236,7 @@ def roulette(update, context):
 
 @run_async
 def dice(update, context):
-	if update.message.from_user.chat_id == -1001441511504:
+	if update.message..chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
 
 		return ConversationHandler.END
@@ -513,7 +513,7 @@ def dstats(update, context):
 
 @run_async
 def anon(update, context):
-	if update.message.from_user.chat_id == -1001441511504:
+	if update.message..chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
 
 		return ConversationHandler.END
