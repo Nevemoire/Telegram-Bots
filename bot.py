@@ -507,10 +507,10 @@ def dstats(update, context):
 # 5x: {stats[2]} <b>{stats[7]}</b> (<code>{stats[12]}</code>)
 # 10x: {stats[3]} <b>{stats[8]}</b> (<code>{stats[13]}</code>)
 # 50x: {stats[4]} <b>{stats[9]}</b> (<code>{stats[14]}</code>)''', parse_mode='HTML')
-		text =+ (f'{stats[0]}: {stats[1]} <b>{stats[2]}</b> (<code>{stats[3]}</code>)\n', parse_mode='HTML')
-	update.message.reply_text(text)
+		text += (f'{stats[0]}: {stats[1]} <b>{stats[2]}</b> (<code>{stats[3]}</code>)\n')
 	for res in results:
-		update.message.reply_text(f'Итог: {res[0]} <b>{res[1]}</b> (<code>{res[2]}</code>)', parse_mode='HTML')
+		text += (f'Итог: {res[0]} <b>{res[1]}</b> (<code>{res[2]}</code>)')
+	update.message.reply_text(text, parse_mode='HTML')
 	
 
 @run_async
