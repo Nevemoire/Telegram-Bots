@@ -377,7 +377,6 @@ def Total(update, context):
 		return ConversationHandler.END
 
 
-@run_async
 def button(update, context):
 	try:
 		cursor.execute('SELECT id FROM userz')
