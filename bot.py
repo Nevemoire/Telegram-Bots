@@ -350,7 +350,7 @@ def Total(update, context):
 		return ConversationHandler.END
 	elif (summ >= 100) and (summ <= 100000) and game == 'coinflip':
 		try:
-			keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'coinflip {inv_user_id} {summ}')],
+			keyboard = [[[InlineKeyboardButton('Играть 🤠', callback_data=f'coinflip {inv_user_id} {summ}')], [InlineKeyboardButton('Отменить ❌', callback_data=f'decline {inv_user_id} {summ}')]],
 						[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 			reply_markup = InlineKeyboardMarkup(keyboard)
 			context.bot.send_message(chat_id=channel_username, text=f'<code>Coinflip</code> 🌕\n\n<b>Создатель</b>: {invoker} (@{inv_user})\n<b>Ставка</b>: {summ} монет', parse_mode='HTML', reply_markup=reply_markup)
@@ -404,6 +404,12 @@ def button(update, context):
 
 	if str(query.from_user.id) not in str(all_users):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
+	elif ('decline' in query.data) and (betinfo[1] in str(query.from_user.id)):
+		cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (betsumm, query.from_user.id,))
+		conn.commit()
+		query.edit_message_text('Игра отменена.')
+	elif ('decline' in query.data) and (betinfo[1] not in str(query.from_user.id)):
+		query.answer('Только создатель игры может её отменить.', show_alert=True)
 	elif ('coinflip' in query.data) and (betinfo[1] in str(query.from_user.id)):
 		query.answer('Нельзя участвовать в своей же игре.', show_alert=True)
 	elif ('coinflip' in query.data) and ('1' in str(participant1[1])):
