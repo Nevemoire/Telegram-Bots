@@ -390,7 +390,7 @@ def button(update, context):
 	reply_markup = InlineKeyboardMarkup(keyboard)
 	query = update.callback_query
 	betinfo = query.data.split()
-	cursor.execute('SELECT username FROM userz WHERE id = %s', (betinfo[1],))
+	cursor.execute('SELECT username, busy FROM userz WHERE id = %s', (betinfo[1],))
 	participant1 = cursor.fetchone()
 	cursor.execute('SELECT username, balance, busy FROM userz WHERE id = %s', (query.from_user.id,))
 	participant2 = cursor.fetchone()
@@ -403,13 +403,13 @@ def button(update, context):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
 	elif ('coinflip' in query.data) and (betinfo[1] in str(query.from_user.id)):
 		query.answer('Нельзя участвовать в своей же игре.', show_alert=True)
-	elif '1' in str(participant2[2]):
-		query.answer('Слишком быстро! Подожди немного.', show_alert=True)
-		cursor.execute('UPDATE userz SET busy = 0 WHERE id = %s', (query.from_user.id,))
+	elif '1' in str(participant1[1]):
+		query.answer('Поздно. Другой пользователь уже вступил в игру.', show_alert=True)
 	elif ('coinflip' in query.data) and (int(participant2[1]) < int(betsumm)):
 		query.answer('Недостаточно монет.\nЧтобы пополнить баланс напиши боту /deposit', show_alert=True)
 	elif 'coinflip' in query.data:
-		cursor.execute('UPDATE userz SET balance = balance - %s, busy = 1 WHERE id = %s', (betsumm, query.from_user.id,))
+		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (betsumm, query.from_user.id,))
+		cursor.execute('UPDATE userz SET busy = 1 WHERE id = %s', (participant1[0],))
 		cf_participants = [participant1[0], participant2[0]]
 		winner = random.choice(cf_participants)
 		cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (total, winner,))
