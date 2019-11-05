@@ -244,11 +244,14 @@ def dice(update, context):
 		try:
 			context.user_data['game'] = 'dice'
 			inv_user_id = update.message.from_user.id
+			keyboard = [[InlineKeyboardButton('Правила игры 🎲', callback_data=f'rules_dice {inv_user_id} 100'),
+			InlineKeyboardButton('Диапазоны 🎲', callback_data=f'int_dice {inv_user_id} 100')]]
+			reply_markup = InlineKeyboardMarkup(keyboard)
 			user_balance = "select balance from userz where id = %s"
 			cursor.execute(user_balance, (inv_user_id,))
 			balance = cursor.fetchone()
 			# update.message.reply_text(f'Dice 🎲\n\nВведи сумму ставки.\nТвой баланс: *{balance[0]}* монет\n\n(*min*: 100, *max*: 100000)\nОтмена - /cancel', parse_mode='MARKDOWN')
-			context.user_data['message'] = update.message.reply_text(f'<code>Dice</code> 🎲\n\nВведи сумму ставки.\nТвой баланс: <b>{balance[0]}</b> монет\n\n(<b>min</b>: <code>100</code>, <b>max</b>: <code>100000</code>)\nОтмена - /cancel', parse_mode='HTML')
+			context.user_data['message'] = update.message.reply_text(f'<code>Dice</code> 🎲\n\nВведи сумму ставки.\nТвой баланс: <b>{balance[0]}</b> монет\n\n(<b>min</b>: <code>100</code>, <b>max</b>: <code>100000</code>)\nОтмена - /cancel', reply_markup=reply_markup, parse_mode='HTML')
 			context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
 
 			return DICE
@@ -296,9 +299,7 @@ def dice_start(update, context):
 					 InlineKeyboardButton('3x', callback_data=f'3x {inv_user_id} {summ} dice'),
 					 InlineKeyboardButton('5x', callback_data=f'5x {inv_user_id} {summ} dice'),
 					 InlineKeyboardButton('10x', callback_data=f'10x {inv_user_id} {summ} dice'),
-					 InlineKeyboardButton('50x', callback_data=f'50x {inv_user_id} {summ} dice')],
-					[InlineKeyboardButton('Правила игры 🎲', callback_data=f'rules_dice {inv_user_id} {summ}'),
-					 InlineKeyboardButton('Диапазоны 🎲', callback_data=f'int_dice {inv_user_id} {summ}')]]
+					 InlineKeyboardButton('50x', callback_data=f'50x {inv_user_id} {summ} dice')]]
 		koefs = InlineKeyboardMarkup(keyboard)
 		context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Теперь выбери коэффициент умножения 👇', reply_markup=koefs)
 		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (summ, inv_user_id,))
@@ -431,16 +432,16 @@ def button(update, context):
 			if 'rules_dice' in query.data:
 				query.answer(f'''Правила игры Dice\n\n
 1. Игрок указывает ставку и множитель игры.
-2. Бот рандомит случайное число от 0 до 100.
+2. Бот рандомит случайное число от 0 до 1000.
 3. Если число попадает в диапазон коэффициента (включительно), вы выиграли.''', show_alert=True)
 			elif 'int_dice' in query.data:
 				query.answer(f'''Диапазоны выигрышей Dice\n\n
-x2 - от 575 до 1000,
-x3 - от 716 до 1000,
-x5 - от 830 до 1000,
-x10 - от 915 до 1000,
-x50 - от 983 до 1000.''', show_alert=True)
-			elif '2x' in query.data and number >= 575:
+1. x2 - от 600 до 1000.
+2. x3 - от 734 до 1000.
+3. x5 - от 840 до 1000.
+4. x10 - от 920 до 1000.
+5. x50 - от 984 до 1000.''', show_alert=True)
+			elif '2x' in query.data and number >= 600:
 				query.answer('✅')
 				dice_win = int(betsumm)*2
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
@@ -448,7 +449,7 @@ x50 - от 983 до 1000.''', show_alert=True)
 				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '2x',))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('2x',))
 				conn.commit()
-			elif '3x' in query.data and number >= 716:
+			elif '3x' in query.data and number >= 734:
 				query.answer('✅')
 				dice_win = int(betsumm)*3
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
@@ -456,7 +457,7 @@ x50 - от 983 до 1000.''', show_alert=True)
 				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '3x',))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('3x',))
 				conn.commit()
-			elif '5x' in query.data and number >= 830:
+			elif '5x' in query.data and number >= 840:
 				query.answer('✅')
 				dice_win = int(betsumm)*5
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
@@ -464,7 +465,7 @@ x50 - от 983 до 1000.''', show_alert=True)
 				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '5x',))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('5x',))
 				conn.commit()
-			elif '10x' in query.data and number >= 915:
+			elif '10x' in query.data and number >= 920:
 				query.answer('✅')
 				dice_win = int(betsumm)*10
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
@@ -473,7 +474,7 @@ x50 - от 983 до 1000.''', show_alert=True)
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('10x',))
 				conn.commit()
 				context.bot.send_message(chat_id='@rylcoinmarket', text=f'🏆 {query.from_user.full_name} словил(-а) <code>Джекпот</code>! 🏆\n\n<b>Коэффициент</b>: <code>10X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
-			elif '50x' in query.data and number >= 983:
+			elif '50x' in query.data and number >= 984:
 				query.answer('✅')
 				dice_win = int(betsumm)*50
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
