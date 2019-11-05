@@ -392,7 +392,7 @@ def button(update, context):
 	betinfo = query.data.split()
 	cursor.execute('SELECT username FROM userz WHERE id = %s', (betinfo[1],))
 	participant1 = cursor.fetchone()
-	cursor.execute('SELECT username, balance FROM userz WHERE id = %s', (query.from_user.id,))
+	cursor.execute('SELECT username, balance, busy FROM userz WHERE id = %s', (query.from_user.id,))
 	participant2 = cursor.fetchone()
 	betsumm = betinfo[2]
 	betssumm = int(betsumm)
@@ -403,12 +403,17 @@ def button(update, context):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
 	elif ('coinflip' in query.data) and (betinfo[1] in str(query.from_user.id)):
 		query.answer('Нельзя участвовать в своей же игре.', show_alert=True)
+	elif participant2[2] == '1':
+		query.answer('Слишком быстро! Подожди немного.', show_alert=True)
+		cursor.execute('UPDATE userz SET busy = 0 WHERE id = %s', (query.from_user.id,))
 	elif ('coinflip' in query.data) and (int(participant2[1]) < int(betsumm)):
 		query.answer('Недостаточно монет.\nЧтобы пополнить баланс напиши боту /deposit', show_alert=True)
 	elif 'coinflip' in query.data:
-		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (betsumm, query.from_user.id,))
+		cursor.execute('UPDATE userz SET balance = balance - %s, busy = 1 WHERE id = %s', (betsumm, query.from_user.id,))
 		cf_participants = [participant1[0], participant2[0]]
 		winner = random.choice(cf_participants)
+		cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (total, winner,))
+		conn.commit()
 		if int(total) >= 9500:
 			try:
 				context.bot.send_message(chat_id=-1001441511504, text=f'<b>Поздравляем</b> @{winner}, он(-а) срывает <b>Куш</b> в <code>Coinflip</code>! 👸\n<b>Выигрыш</b>: <code>{int(total)}</code>', parse_mode='HTML')
@@ -422,8 +427,6 @@ def button(update, context):
 		else:
 			pass
 		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}!\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
-		cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (total, winner,))
-		conn.commit()
 	elif 'roulette' in query.data:
 		query.edit_message_text('Игра в разработке...')
 	elif 'dice' in query.data:
