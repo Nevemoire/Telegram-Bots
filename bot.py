@@ -405,7 +405,7 @@ def button(update, context):
 	if str(query.from_user.id) not in str(all_users):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
 	elif ('decline' in query.data) and (betinfo[1] in str(query.from_user.id)):
-		cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (betsumm, query.from_user.id,))
+		cursor.execute('UPDATE userz SET balance = balance + %s, busy = 0 WHERE id = %s', (betsumm, query.from_user.id,))
 		conn.commit()
 		query.edit_message_text('Игра отменена.')
 	elif ('decline' in query.data) and (betinfo[1] not in str(query.from_user.id)):
