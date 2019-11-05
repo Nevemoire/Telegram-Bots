@@ -406,7 +406,7 @@ def button(update, context):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
 	elif ('coinflip' in query.data) and (betinfo[1] in str(query.from_user.id)):
 		query.answer('Нельзя участвовать в своей же игре.', show_alert=True)
-	elif '1' in str(participant1[1]):
+	elif ('coinflip' in query.data) and ('1' in str(participant1[1])):
 		query.answer('Поздно. Другой пользователь уже вступил в игру.', show_alert=True)
 	elif ('coinflip' in query.data) and (int(participant2[1]) < int(betsumm)):
 		query.answer('Недостаточно монет.\nЧтобы пополнить баланс напиши боту /deposit', show_alert=True)
