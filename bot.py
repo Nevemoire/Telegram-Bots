@@ -350,7 +350,7 @@ def Total(update, context):
 		return ConversationHandler.END
 	elif (summ >= 100) and (summ <= 100000) and game == 'coinflip':
 		try:
-			keyboard = [[[InlineKeyboardButton('Играть 🤠', callback_data=f'coinflip {inv_user_id} {summ}')], [InlineKeyboardButton('Отменить ❌', callback_data=f'decline {inv_user_id} {summ}')]],
+			keyboard = [[InlineKeyboardButton('Играть 🤠', callback_data=f'coinflip {inv_user_id} {summ}'), InlineKeyboardButton('Отменить ❌', callback_data=f'decline {inv_user_id} {summ}')],
 						[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 			reply_markup = InlineKeyboardMarkup(keyboard)
 			context.bot.send_message(chat_id=channel_username, text=f'<code>Coinflip</code> 🌕\n\n<b>Создатель</b>: {invoker} (@{inv_user})\n<b>Ставка</b>: {summ} монет', parse_mode='HTML', reply_markup=reply_markup)
