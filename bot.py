@@ -205,15 +205,19 @@ def coinflip(update, context):
 
 		return ConversationHandler.END
 	else:
-		context.user_data['game'] = 'coinflip'
-		inv_user_id = update.message.from_user.id
-		user_balance = "select balance from userz where id = %s"
-		cursor.execute(user_balance, (inv_user_id,))
-		balance = cursor.fetchone()
-		context.user_data['message'] = update.message.reply_text(f'<code>Coinflip</code> 🌕\n\nВведи сумму ставки.\nТвой баланс: <b>{balance[0]}</b> монет\n\n(<b>min</b>: <code>100</code>, <b>max</b>: <code>100000</code>)\nОтмена - /cancel', parse_mode='HTML')
-		context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
+		cursor.execute("select balance, busy from userz where id = %s", (update.message.from_user.id,))
+		info = cursor.fetchone()
+		if '2' in str(info[1]):
+			context.user_data['message'] = update.message.reply_text('<b>Ошибка!</b> Нельзя создавать больше 1 игры одновременно.', parse_mode='HTML')
+			context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
+			
+			return ConversationHandler.END
+		else:
+			context.user_data['game'] = 'coinflip'
+			context.user_data['message'] = update.message.reply_text(f'<code>Coinflip</code> 🌕\n\nВведи сумму ставки.\nТвой баланс: <b>{info[0]}</b> монет\n\n(<b>min</b>: <code>100</code>, <b>max</b>: <code>100000</code>)\nОтмена - /cancel', parse_mode='HTML')
+			context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
 
-		return TOTAL
+			return TOTAL
 
 
 # @run_async
@@ -351,7 +355,7 @@ def Total(update, context):
 			reply_markup = InlineKeyboardMarkup(keyboard)
 			context.bot.send_message(chat_id=channel_username, text=f'<code>Coinflip</code> 🌕\n\n<b>Создатель</b>: {invoker} (@{inv_user})\n<b>Ставка</b>: {summ} монет', parse_mode='HTML', reply_markup=reply_markup)
 			context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text=f'Дуэль успешно создана.\nНе забудь вступить в канал, где мы публикуем все игры: {channel_username}')
-			cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (summ, inv_user_id,))
+			cursor.execute('UPDATE userz SET balance = balance - %s, busy = 2 WHERE id = %s', (summ, inv_user_id,))
 			conn.commit()
 			context.user_data['participants'] = 0
 			
