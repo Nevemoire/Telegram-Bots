@@ -403,7 +403,7 @@ def button(update, context):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
 	elif ('coinflip' in query.data) and (betinfo[1] in str(query.from_user.id)):
 		query.answer('Нельзя участвовать в своей же игре.', show_alert=True)
-	elif participant2[2] == '1':
+	elif '1' in participant2[2]:
 		query.answer('Слишком быстро! Подожди немного.', show_alert=True)
 		cursor.execute('UPDATE userz SET busy = 0 WHERE id = %s', (query.from_user.id,))
 	elif ('coinflip' in query.data) and (int(participant2[1]) < int(betsumm)):
