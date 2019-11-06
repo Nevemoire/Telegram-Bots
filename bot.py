@@ -386,8 +386,11 @@ def button(update, context):
 	reply_rlt = InlineKeyboardMarkup(keyboard_rlt)
 	query = update.callback_query
 	betinfo = query.data.split()
-	cursor.execute('SELECT username, busy FROM userz WHERE id = %s', (betinfo[1],))
-	participant1 = cursor.fetchone()
+	try:
+		cursor.execute('SELECT username, busy FROM userz WHERE id = %s', (betinfo[1],))
+		participant1 = cursor.fetchone()
+	except:
+		pass
 	cursor.execute('SELECT username, balance, busy FROM userz WHERE id = %s', (query.from_user.id,))
 	participant2 = cursor.fetchone()
 	betsumm = betinfo[2]
