@@ -389,10 +389,10 @@ def button(update, context):
 	try:
 		cursor.execute('SELECT username, busy FROM userz WHERE id = %s', (betinfo[1],))
 		participant1 = cursor.fetchone()
+		cursor.execute('SELECT username, balance, busy FROM userz WHERE id = %s', (query.from_user.id,))
+		participant2 = cursor.fetchone()
 	except:
 		pass
-	cursor.execute('SELECT username, balance, busy FROM userz WHERE id = %s', (query.from_user.id,))
-	participant2 = cursor.fetchone()
 	betsumm = betinfo[2]
 	betssumm = int(betsumm)
 	total = int(betsumm)*1.9
