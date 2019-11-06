@@ -59,7 +59,7 @@ def start(update, context):
 	error = "None"	
 	if error not in str(balance):
 		pass
-	elif (error in str(fullname) or error in str(username)):
+	elif (error in str(update.message.from_user.full_name) or error in str(update.message.from_user.username)):
 		update.message.reply_text('''Приветствуем тебя в нашем клубе!
 Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
 		update.message.reply_text('''<b>Ты у нас впервые?</b>
