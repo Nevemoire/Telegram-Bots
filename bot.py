@@ -236,7 +236,7 @@ def roulette(update, context):
 	keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette null 1000')],
 					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
-	context.bot.send_message(chat_id=channel_username, text=f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет<b>Участники</b>: пусто.', parse_mode='HTML', reply_markup=reply_markup)
+	context.bot.send_message(chat_id=channel_username, text=f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участники</b>: пусто.', parse_mode='HTML', reply_markup=reply_markup)
 
 
 @run_async
@@ -441,7 +441,7 @@ def button(update, context):
 				a.append(f'{query.from_user.id}, ')
 				for i in range(len(a)):
 					participants += a[i]
-				query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет<b>Участники</b>: {participants[:-1]}.', parse_mode='HTML', reply_markup=reply_rlt)
+				query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участники</b>: {participants[:-1]}.', parse_mode='HTML', reply_markup=reply_rlt)
 			else:
 				a.append(query.from_user.id)
 				winner = random.choice(a)
@@ -452,7 +452,7 @@ def button(update, context):
 		except NameError:
   			a = []
   			a.append(f'{query.from_user.id}, ')
-  			query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет<b>Участник</b>: {participants[:-1]}', parse_mode='HTML', reply_markup=reply_rlt)
+  			query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участник</b>: {participants[:-1]}', parse_mode='HTML', reply_markup=reply_rlt)
 		except:
   			query.edit_message_text('Ошибка! Игра отменена.')
 	elif 'dice' in query.data:
