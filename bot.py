@@ -233,7 +233,7 @@ def coinflip(update, context):
 # 	return TOTAL
 @run_async
 def roulette(update, context):
-	keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette 1000000 1000')],
+	keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette 1000')],
 					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
 	context.bot.send_message(chat_id=channel_username, text=f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участники</b>: пусто.', parse_mode='HTML', reply_markup=reply_markup)
@@ -249,8 +249,8 @@ def dice(update, context):
 		try:
 			context.user_data['game'] = 'dice'
 			inv_user_id = update.message.from_user.id
-			keyboard = [[InlineKeyboardButton('Правила игры 🎲', callback_data=f'rules_dice {inv_user_id} 100'),
-			InlineKeyboardButton('Диапазоны 🎲', callback_data=f'int_dice {inv_user_id} 100')]]
+			keyboard = [[InlineKeyboardButton('Правила игры 🎲', callback_data=f'rules_dice 100 {inv_user_id}'),
+			InlineKeyboardButton('Диапазоны 🎲', callback_data=f'int_dice 100 {inv_user_id}')]]
 			reply_markup = InlineKeyboardMarkup(keyboard)
 			user_balance = "select balance from userz where id = %s"
 			cursor.execute(user_balance, (inv_user_id,))
@@ -300,11 +300,11 @@ def dice_start(update, context):
 
 		return ConversationHandler.END
 	elif (summ >= 100) and (summ <= 100000) and game == 'dice':
-		keyboard = [[InlineKeyboardButton('2x', callback_data=f'2x {inv_user_id} {summ} dice'),
-					 InlineKeyboardButton('3x', callback_data=f'3x {inv_user_id} {summ} dice'),
-					 InlineKeyboardButton('5x', callback_data=f'5x {inv_user_id} {summ} dice'),
-					 InlineKeyboardButton('10x', callback_data=f'10x {inv_user_id} {summ} dice'),
-					 InlineKeyboardButton('50x', callback_data=f'50x {inv_user_id} {summ} dice')]]
+		keyboard = [[InlineKeyboardButton('2x', callback_data=f'2x {summ} {inv_user_id} dice'),
+					 InlineKeyboardButton('3x', callback_data=f'3x {summ} {inv_user_id} dice'),
+					 InlineKeyboardButton('5x', callback_data=f'5x {summ} {inv_user_id} dice'),
+					 InlineKeyboardButton('10x', callback_data=f'10x {summ} {inv_user_id} dice'),
+					 InlineKeyboardButton('50x', callback_data=f'50x {summ} {inv_user_id} dice')]]
 		koefs = InlineKeyboardMarkup(keyboard)
 		context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Теперь выбери коэффициент умножения 👇', reply_markup=koefs)
 		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (summ, inv_user_id,))
@@ -351,7 +351,7 @@ def Total(update, context):
 		return ConversationHandler.END
 	elif (summ >= 100) and (summ <= 100000) and game == 'coinflip':
 		try:
-			keyboard = [[InlineKeyboardButton('Играть 🤠', callback_data=f'coinflip {inv_user_id} {summ}'), InlineKeyboardButton('Отменить ❌', callback_data=f'decline {inv_user_id} {summ}')],
+			keyboard = [[InlineKeyboardButton('Играть 🤠', callback_data=f'coinflip {summ} {inv_user_id}'), InlineKeyboardButton('Отменить ❌', callback_data=f'decline {summ} {inv_user_id}')],
 						[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 			reply_markup = InlineKeyboardMarkup(keyboard)
 			context.bot.send_message(chat_id=channel_username, text=f'<code>Coinflip</code> 🌕\n\n<b>Создатель</b>: {invoker} (@{inv_user})\n<b>Ставка</b>: <code>{summ}</code> монет', parse_mode='HTML', reply_markup=reply_markup)
@@ -381,16 +381,19 @@ def button(update, context):
 		return
 	keyboard = [[InlineKeyboardButton('Создать свою игру', url=bot_link)]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
-	keyboard_rlt = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette {query.from_user.id} 1000')],
+	keyboard_rlt = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette 1000')],
 					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 	reply_rlt = InlineKeyboardMarkup(keyboard_rlt)
 	query = update.callback_query
 	betinfo = query.data.split()
-	cursor.execute('SELECT username, busy FROM userz WHERE id = %s', (betinfo[1],))
-	participant1 = cursor.fetchone()
-	cursor.execute('SELECT username, balance, busy FROM userz WHERE id = %s', (query.from_user.id,))
-	participant2 = cursor.fetchone()
-	betsumm = betinfo[2]
+	if 'roulette' not in query.data:
+		cursor.execute('SELECT username, busy FROM userz WHERE id = %s', (betinfo[2],))
+		participant1 = cursor.fetchone()
+		cursor.execute('SELECT username, balance, busy FROM userz WHERE id = %s', (query.from_user.id,))
+		participant2 = cursor.fetchone()
+	else:
+		pass
+	betsumm = betinfo[1]
 	betssumm = int(betsumm)
 	total = int(betsumm)*1.9
 	number = random.randint(0, 1000)
@@ -398,13 +401,36 @@ def button(update, context):
 
 	if str(query.from_user.id) not in str(all_users):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
-	elif ('decline' in query.data) and (betinfo[1] in str(query.from_user.id)):
+	elif 'roulette' in query.data:
+		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (betsumm, query.from_user.id,))
+		conn.commit()
+		try:
+			while len(a) < 5:
+				a.append(f'{query.from_user.username}, ')
+				for i in range(len(a)):
+					participants += a[i]
+				query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участники</b>: {participants[:-1]}.', parse_mode='HTML', reply_markup=reply_rlt)
+			else:
+				a.append(query.from_user.username)
+				winner = random.choice(a)
+				query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Участники</b>: {participants}\n<b>Победитель</b>: @{winner}!\n<b>Выигрыш</b>: <code>4500</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
+				cursor.execute('UPDATE userz SET balance = balance + 4500 WHERE id = %s', (winner,))
+				conn.commit()
+				roulette(context, bot)
+		except NameError:
+  			a = []
+  			a.append(f'{query.from_user.username}, ')
+  			participants = query.from_user.username
+  			query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участник</b>: {participants}', parse_mode='HTML', reply_markup=reply_rlt)
+		except:
+  			query.edit_message_text('Ошибка! Игра отменена.')
+	elif ('decline' in query.data) and (betinfo[2] in str(query.from_user.id)):
 		cursor.execute('UPDATE userz SET balance = balance + %s, busy = 0 WHERE id = %s', (betsumm, query.from_user.id,))
 		conn.commit()
 		query.edit_message_text('Игра отменена.')
-	elif ('decline' in query.data) and (betinfo[1] not in str(query.from_user.id)):
+	elif ('decline' in query.data) and (betinfo[2] not in str(query.from_user.id)):
 		query.answer('Только создатель игры может её отменить.', show_alert=True)
-	elif ('coinflip' in query.data) and (betinfo[1] in str(query.from_user.id)):
+	elif ('coinflip' in query.data) and (betinfo[2] in str(query.from_user.id)):
 		query.answer('Нельзя участвовать в своей же игре.', show_alert=True)
 	elif ('coinflip' in query.data) and ('1' in str(participant1[1])):
 		query.answer('Поздно. Другой пользователь уже вступил в игру.', show_alert=True)
@@ -430,29 +456,6 @@ def button(update, context):
 		else:
 			pass
 		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}!\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
-	elif 'roulette' in query.data:
-		cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (betsumm, query.from_user.id,))
-		conn.commit()
-		try:
-			while len(a) < 5:
-				a.append(f'{query.from_user.username}, ')
-				for i in range(len(a)):
-					participants += a[i]
-				query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участники</b>: {participants[:-1]}.', parse_mode='HTML', reply_markup=reply_rlt)
-			else:
-				a.append(query.from_user.username)
-				winner = random.choice(a)
-				query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Участники</b>: {participants}\n<b>Победитель</b>: @{winner}!\n<b>Выигрыш</b>: <code>4500</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
-				cursor.execute('UPDATE userz SET balance = balance + 4500 WHERE id = %s', (winner,))
-				conn.commit()
-				roulette(context, bot)
-		except NameError:
-  			a = []
-  			a.append(f'{query.from_user.username}, ')
-  			participants = query.from_user.username
-  			query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участник</b>: {participants}', parse_mode='HTML', reply_markup=reply_rlt)
-		except:
-  			query.edit_message_text('Ошибка! Игра отменена.')
 	elif 'dice' in query.data:
 		if str(query.from_user.id) in query.data:
 			multiplier = query.data.split()
