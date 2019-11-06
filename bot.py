@@ -48,6 +48,7 @@ bot_link = 'telegram.me/royalcasinobot'
 bot_username = '@royalcasinobot'
 channel_username = '@rylcasino'
 participants = ''
+a = []
 
 
 # Define a few command handlers. These usually take the two arguments bot and
@@ -387,7 +388,7 @@ def button(update, context):
 	reply_rlt = InlineKeyboardMarkup(keyboard_rlt)
 	query = update.callback_query
 	betinfo = query.data.split()
-	if 'roulette' not in query.data:
+	if ('coinflip' in query.data) or ('decline' in query.data) or ('dice' in query.data):
 		cursor.execute('SELECT username, busy FROM userz WHERE id = %s', (betinfo[2],))
 		participant1 = cursor.fetchone()
 		cursor.execute('SELECT username, balance, busy FROM userz WHERE id = %s', (query.from_user.id,))
@@ -419,9 +420,8 @@ def button(update, context):
 				a.clear()
 				roulette(context, bot)
 		except NameError:
-  			a = []
   			a.append(f'{query.from_user.username}, ')
-  			participants = query.from_user.username
+  			participants += query.from_user.username
   			query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участник</b>: {participants}', parse_mode='HTML', reply_markup=reply_rlt)
 		except:
   			query.edit_message_text('Ошибка! Игра отменена.')
