@@ -233,7 +233,7 @@ def coinflip(update, context):
 # 	return TOTAL
 @run_async
 def roulette(update, context):
-	keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette null 1000')],
+	keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette 391206263 1000')],
 					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
 	context.bot.send_message(chat_id=channel_username, text=f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участники</b>: пусто.', parse_mode='HTML', reply_markup=reply_markup)
@@ -381,18 +381,15 @@ def button(update, context):
 		return
 	keyboard = [[InlineKeyboardButton('Создать свою игру', url=bot_link)]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
-	keyboard_rlt = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette null 1000')],
+	keyboard_rlt = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette 391206263 1000')],
 					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 	reply_rlt = InlineKeyboardMarkup(keyboard_rlt)
 	query = update.callback_query
 	betinfo = query.data.split()
-	try:
-		cursor.execute('SELECT username, busy FROM userz WHERE id = %s', (betinfo[1],))
-		participant1 = cursor.fetchone()
-		cursor.execute('SELECT username, balance, busy FROM userz WHERE id = %s', (query.from_user.id,))
-		participant2 = cursor.fetchone()
-	except:
-		pass
+	cursor.execute('SELECT username, busy FROM userz WHERE id = %s', (betinfo[1],))
+	participant1 = cursor.fetchone()
+	cursor.execute('SELECT username, balance, busy FROM userz WHERE id = %s', (query.from_user.id,))
+	participant2 = cursor.fetchone()
 	betsumm = betinfo[2]
 	betssumm = int(betsumm)
 	total = int(betsumm)*1.9
