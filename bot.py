@@ -47,6 +47,7 @@ cursor = conn.cursor()
 bot_link = 'telegram.me/royalcasinobot'
 bot_username = '@royalcasinobot'
 channel_username = '@rylcasino'
+participants = ''
 
 
 # Define a few command handlers. These usually take the two arguments bot and
@@ -397,7 +398,6 @@ def button(update, context):
 	betssumm = int(betsumm)
 	total = int(betsumm)*1.9
 	number = random.randint(0, 1000)
-	participants = ''
 
 	if str(query.from_user.id) not in str(all_users):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
@@ -416,6 +416,7 @@ def button(update, context):
 				query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Участники</b>: {participants}\n<b>Победитель</b>: @{winner}!\n<b>Выигрыш</b>: <code>4500</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
 				cursor.execute('UPDATE userz SET balance = balance + 4500 WHERE id = %s', (winner,))
 				conn.commit()
+				a.clear()
 				roulette(context, bot)
 		except NameError:
   			a = []
