@@ -54,9 +54,6 @@ channel_username = '@rylcasino'
 def start(update, context):
 	"""Send a message when the command /start is issued."""
 	ids = update.message.from_user.id
-	fullname = update.message.from_user.full_name
-	usern = update.message.from_user.username
-	username = usern.lower()
 	cursor.execute('select balance from userz where id = %s', (ids,))
 	balance = cursor.fetchone()
 	error = "None"	
@@ -71,6 +68,9 @@ def start(update, context):
 Продолжая использовать бота ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.''', parse_mode='HTML')
 		update.message.reply_text('Также, подпишись на <b>основные каналы</b>, без них никуда:\n@rylcasino - Здесь публикуются все игры.\n@rylchat - Главный чат, где происходит всё самое интересное.', parse_mode='HTML')
 	else:
+		fullname = update.message.from_user.full_name
+		usern = update.message.from_user.username
+		username = usern.lower()
 		update.message.reply_text('''Приветствуем тебя в нашем клубе!
 Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
 		registration_Query = "INSERT INTO userz (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
