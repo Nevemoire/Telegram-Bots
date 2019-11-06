@@ -69,6 +69,7 @@ def start(update, context):
 Чтобы иметь возможность играть у нас, поля _Name_ и _Username_ не должны быть пустыми.
 Исправь ситуацию и напиши мне /reg :)
 Продолжая использовать бота ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.''', parse_mode='HTML')
+		update.message.reply_text('Также, подпишись на <b>основные каналы</b>, без них никуда:\n@rylcasino - Здесь публикуются все игры.\n@rylchat - Главный чат, где происходит всё самое интересное.', parse_mode='HTML')
 	else:
 		update.message.reply_text('''Приветствуем тебя в нашем клубе!
 Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
@@ -76,6 +77,7 @@ def start(update, context):
 		cursor.execute(registration_Query, (ids, fullname, username,))
 		conn.commit()
 		update.message.reply_text('<b>Ты у нас впервые?</b>\nТвой профиль успешно создан, для справки введи /info ;)\n\nПродолжая использовать бота ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.', parse_mode='HTML')
+		update.message.reply_text('Также, подпишись на <b>основные каналы</b>, без них никуда:\n@rylcasino - Здесь публикуются все игры.\n@rylchat - Главный чат, где происходит всё самое интересное.', parse_mode='HTML')
 	try:
 		user_says = context.args[0]
 		invoker = update.message.from_user.id
