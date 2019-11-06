@@ -233,7 +233,7 @@ def coinflip(update, context):
 # 	return TOTAL
 @run_async
 def roulette(update, context):
-	keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette 391206263 1000')],
+	keyboard = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette 1000000 1000')],
 					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
 	context.bot.send_message(chat_id=channel_username, text=f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участники</b>: пусто.', parse_mode='HTML', reply_markup=reply_markup)
@@ -381,7 +381,7 @@ def button(update, context):
 		return
 	keyboard = [[InlineKeyboardButton('Создать свою игру', url=bot_link)]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
-	keyboard_rlt = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette 391206263 1000')],
+	keyboard_rlt = [[InlineKeyboardButton('Присоединиться к игре 🤠', callback_data=f'roulette {query.from_user.id} 1000')],
 					[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 	reply_rlt = InlineKeyboardMarkup(keyboard_rlt)
 	query = update.callback_query
@@ -435,12 +435,12 @@ def button(update, context):
 		conn.commit()
 		try:
 			while len(a) < 5:
-				a.append(f'{query.from_user.id}, ')
+				a.append(f'{query.from_user.username}, ')
 				for i in range(len(a)):
 					participants += a[i]
 				query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участники</b>: {participants[:-1]}.', parse_mode='HTML', reply_markup=reply_rlt)
 			else:
-				a.append(query.from_user.id)
+				a.append(query.from_user.username)
 				winner = random.choice(a)
 				query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Участники</b>: {participants}\n<b>Победитель</b>: @{winner}!\n<b>Выигрыш</b>: <code>4500</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
 				cursor.execute('UPDATE userz SET balance = balance + 4500 WHERE id = %s', (winner,))
@@ -448,8 +448,9 @@ def button(update, context):
 				roulette(context, bot)
 		except NameError:
   			a = []
-  			a.append(f'{query.from_user.id}, ')
-  			query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участник</b>: {participants[:-1]}', parse_mode='HTML', reply_markup=reply_rlt)
+  			a.append(f'{query.from_user.username}, ')
+  			participants = query.from_user.username
+  			query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет\n<b>Участник</b>: {participants}', parse_mode='HTML', reply_markup=reply_rlt)
 		except:
   			query.edit_message_text('Ошибка! Игра отменена.')
 	elif 'dice' in query.data:
