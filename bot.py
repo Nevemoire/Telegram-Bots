@@ -437,7 +437,7 @@ def button(update, context):
 			while len(a) < 5:
 				a.append(f'{query.from_user.id}, ')
 				for i in range(len(a)):
-				participants += a[i]
+					participants += a[i]
 				query.edit_message_text(f'<code>Roulette</code> 🎰\n\n<b>Ставка</b>: <code>1000</code> монет<b>Участники</b>: {participants[:-1]}.', parse_mode='HTML', reply_markup=reply_rlt)
 			else:
 				a.append(query.from_user.id)
