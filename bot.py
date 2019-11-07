@@ -155,7 +155,7 @@ def getInfo(update, context):
 				cursor.execute(target_info_Query, (target,))
 				target_info = cursor.fetchall()
 				for row in target_info:
-					update.message.reply_text(f'@{row[0]}, 💰: <code>{row[1]}</code>, 💎: <code>{row[2]}</code>', parse_mode="HTML")
+					update.message.reply_text(f'@{row[0]}:\n💰: <code>{row[1]}</code>, 💎: <code>{row[2]}</code>', parse_mode="HTML")
 
 					return
 
@@ -167,12 +167,12 @@ def getInfo(update, context):
 		except:
 			pass
 
-		user_info_Query = "select username, balance from userz where id = %s"
+		user_info_Query = "select username, balance, spin from userz where id = %s"
 
 		cursor.execute(user_info_Query, (usrid,))
 		info = cursor.fetchall()
 		for row in info:
-			update.message.reply_text(f'@{row[0]}, 💰: <code>{row[1]}</code>', parse_mode="HTML")
+			update.message.reply_text(f'@{row[0]}:\n💰: <code>{row[1]}</code>, 💎: <code>{row[2]}</code>")
 	except:
 		update.message.reply_text('Произошла ошибка. Попробуй чуть позже.')
 
