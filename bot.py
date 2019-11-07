@@ -688,7 +688,7 @@ def main():
     # dp.add_handler(MessageHandler(Filters.text, echo))
     dp.add_handler(CommandHandler("tos", tos))
     dp.add_handler(CommandHandler("dstats", dstats))
-    dp.add_handler(CommandHandler("сstats", сstats))
+    dp.add_handler(CommandHandler("cstats", cstats))
     dp.add_handler(CommandHandler("deposit", deposit))
     dp.add_handler(CommandHandler("withdraw", withdraw))
     dp.add_handler(CommandHandler("promo", getPromo))
