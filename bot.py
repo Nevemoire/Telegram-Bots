@@ -172,7 +172,7 @@ def getInfo(update, context):
 		cursor.execute(user_info_Query, (usrid,))
 		info = cursor.fetchall()
 		for row in info:
-			update.message.reply_text(f'@{row[0]}:\n💰: <code>{row[1]}</code>, 💎: <code>{row[2]}</code>")
+			update.message.reply_text(f'@{row[0]}:\n💰: <code>{row[1]}</code>, 💎: <code>{row[2]}</code>')
 	except:
 		update.message.reply_text('Произошла ошибка. Попробуй чуть позже.')
 
