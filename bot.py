@@ -427,9 +427,9 @@ def button(update, context):
 	elif 'spin' in query.data:
 		cursor.execute('SELECT spin FROM userz WHERE id = %s', (query.from_user.id,))
 		spins = cursor.fetchone()
-		if int(spins) < 1:
+		if int(spins[0]) < 1:
 			update.message.text('Недостаточно 💎')
-		elif int(spins) >= 1:
+		elif int(spins[0]) >= 1:
 			cursor.execute('UPDATE userz SET spin = spin - 1 WHERE id = %s', (query.from_user.id,))
 			number = random.randint(0, 1000)
 			if number <= 500:
