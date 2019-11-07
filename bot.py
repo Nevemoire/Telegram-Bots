@@ -428,24 +428,22 @@ def button(update, context):
 		cursor.execute('SELECT spin FROM userz WHERE id = %s', (query.from_user.id,))
 		spins = cursor.fetchone()
 		if int(spins[0]) < 1:
-			update.message.text('Недостаточно 💎')
+			query.edit_message_text('Недостаточно 💎')
 		elif int(spins[0]) >= 1:
 			cursor.execute('UPDATE userz SET spin = spin - 1 WHERE id = %s', (query.from_user.id,))
 			number = random.randint(0, 1000)
 			if number <= 500:
-				update.message.reply_text('Эх, в этот раз не повезло.')
+				query.edit_message_text('Эх, в этот раз не повезло.')
 			elif (number > 500) and (number <=950):
-				update.message.reply_text('Поздравляем! Твой выигрыш: <code>100</code> монет 🎉', parse_mode='HTML')
+				query.edit_message_text('Поздравляем! Твой выигрыш: <code>100</code> монет 🎉', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + 100 WHERE id = %s', (query.from_user.id,))
 				conn.commit()
 			elif (number > 950) and (number <= 999):
-				update.message.reply_text('Сегодня точно <b>твой</b> день! Забирай свой выигрыш: <code>500</code> монет 🎉', parse_mode='HTML')
+				query.edit_message_text('Сегодня точно <b>твой</b> день! Забирай свой выигрыш: <code>500</code> монет 🎉', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %00 WHERE id = %s', (query.from_user.id,))
 				conn.commit()
 			elif number == 1000:
-				update.message.reply_text('Внимание! Внимание!')
-				update.message.text('Найден счастливчик дня!')
-				update.message.text('Сегодня ты срываешь <b>Куш</b> в <code>10000</code> монет! 😳', parse_mode='HTML')
+				query.edit_message_text('<b>Принимай поздравления!</b>\nТы срываешь <b>Куш</b> в <code>10000</code> монет! 😳', parse_mode='HTML')
 				context.bot.send_message(chat_id=-1001441511504, text=f'Внимание! Внимание!\nМы нашли <b>счастливчика</b> года!\nПоздравляем @{winner}, он(-а) выигрывает <b>Куш</b> в <code>10000</code> монет! 👸', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + 10000 WHERE id = %s', (query.from_user.id,))
 				conn.commit()
