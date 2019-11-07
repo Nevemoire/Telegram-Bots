@@ -416,6 +416,9 @@ def button(update, context):
 	participant1 = cursor.fetchone()
 	cursor.execute('SELECT username, balance, busy FROM userz WHERE id = %s', (query.from_user.id,))
 	participant2 = cursor.fetchone()
+	cursor.execute('SELECT bank FROM casino')
+	banktotal = cursor.fetchone()
+	bank = int(banktotal[0])*0.15
 	betsumm = betinfo[2]
 	betssumm = int(betsumm)
 	total = int(betsumm)*1.9
@@ -466,7 +469,7 @@ def button(update, context):
 		cf_participants = [participant1[0], participant2[0]]
 		winner = random.choice(cf_participants)
 		cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (total, winner,))
-		cursor.execute('UPDATE coinflip SET games = games + 1, taxes = taxes + %s, jackpot = jackpot + %s', (taxes, jackpot,))
+		cursor.execute('UPDATE casino SET games = games + 1, taxes = taxes + %s, jackpot = jackpot + %s', (taxes, jackpot,))
 		conn.commit()
 		if int(total) >= 9500:
 			try:
@@ -501,50 +504,96 @@ def button(update, context):
 			elif '2x' in query.data and number >= 600:
 				query.answer('✅')
 				dice_win = int(betsumm)*2
+				if int(dice_win) > int(bank):
+					dice_win = bank
+				elif int(dice_win) <= int(bank):
+					pass
+				else:
+					query.answer('Ошибка.', show_alert=True)
+
+					return
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '2x',))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('2x',))
+				cursor.execute(f'UPDATE casino SET bank = bank - {dice_win}')
 				conn.commit()
 			elif '3x' in query.data and number >= 734:
 				query.answer('✅')
 				dice_win = int(betsumm)*3
+				if int(dice_win) > int(bank):
+					dice_win = bank
+				elif int(dice_win) <= int(bank):
+					pass
+				else:
+					query.answer('Ошибка.', show_alert=True)
+
+					return
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '3x',))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('3x',))
+				cursor.execute(f'UPDATE casino SET bank = bank - {dice_win}')
 				conn.commit()
 			elif '5x' in query.data and number >= 840:
 				query.answer('✅')
 				dice_win = int(betsumm)*5
+				if int(dice_win) > int(bank):
+					dice_win = bank
+				elif int(dice_win) <= int(bank):
+					pass
+				else:
+					query.answer('Ошибка.', show_alert=True)
+
+					return
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '5x',))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('5x',))
+				cursor.execute(f'UPDATE casino SET bank = bank - {dice_win}')
 				conn.commit()
 			elif '10x' in query.data and number >= 920:
 				query.answer('✅')
 				dice_win = int(betsumm)*10
+				if int(dice_win) > int(bank):
+					dice_win = bank
+				elif int(dice_win) <= int(bank):
+					pass
+				else:
+					query.answer('Ошибка.', show_alert=True)
+
+					return
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '10x',))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('10x',))
+				cursor.execute(f'UPDATE casino SET bank = bank - {dice_win}')
 				conn.commit()
 				context.bot.send_message(chat_id='@rylcoinmarket', text=f'🏆 {query.from_user.full_name} словил(-а) <code>Джекпот</code>! 🏆\n\n<b>Коэффициент</b>: <code>10X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
 			elif '50x' in query.data and number >= 984:
 				query.answer('✅')
 				dice_win = int(betsumm)*50
+				if int(dice_win) > int(bank):
+					dice_win = bank
+				elif int(dice_win) <= int(bank):
+					pass
+				else:
+					query.answer('Ошибка.', show_alert=True)
+
+					return
 				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '50x',))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('50x',))
+				cursor.execute(f'UPDATE casino SET bank = bank - {dice_win}')
 				conn.commit()
 				context.bot.send_message(chat_id='@rylcoinmarket', text=f'👸 {query.from_user.full_name} сорвал(-а) <b>Куш</b>! 👸\n\n<b>Коэффициент</b>: <code>50X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
 			else:
 				query.answer('❌')
 				query.edit_message_text(f'<b>Проигрыш!</b> В следующий раз повезёт :(\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{number}</code>\n<b>Ставка</b>: <code>{betsumm}</code> монет', parse_mode='HTML')
 				cursor.execute(f'UPDATE dstats SET lost = lost - {betsumm} WHERE multiplier = %s', (multiplier[0],))
-				cursor.execute(f'UPDATE dstats SET games = games + 1 WHERE multiplier = %s', (multiplier[0],))
+				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', (multiplier[0],))
+				cursor.execute(f'UPDATE casino SET bank = bank + {betsumm}')
 				conn.commit()
 		else:
 			query.answer('Ты не можешь участвовать в этой игре! Чтобы создать свою, напиши: /dice', show_alert=True)
@@ -570,9 +619,16 @@ def dstats(update, context):
 
 @run_async
 def cstats(update, context):
-	cursor.execute('SELECT games, taxes, jackpot FROM coinflip')
+	cursor.execute('SELECT games, taxes, jackpot FROM casino')
 	info = cursor.fetchone()
 	update.message.reply_text(f'\n<b>Итог</b>:\n👾: {info[0]} игр\n🏦: <code>{info[1]}</code> монет собрано\n💎: {info[2]} монет к розыгрышу', parse_mode='HTML')
+
+
+@run_async
+def bankstats(update, context):
+	cursor.execute('SELECT bank FROM casino')
+	bank = cursor.fetchone()
+	update.message.reply_text(f'🏦: {bank[0]} монет')
 	
 
 @run_async
@@ -661,7 +717,7 @@ def echo(update, context):
 			pass
 	elif ('!refresh' in update.message.text):
 		cursor.execute('UPDATE dstats SET games = 0, total = 0, lost = 0')
-		cursor.execute('UPDATE coinflip SET games = 0, taxes = 0, jackpot = 0')
+		cursor.execute('UPDATE casino SET games = 0, taxes = 0, jackpot = 0')
 		conn.commit()
 	else:
 		pass
@@ -695,6 +751,7 @@ def main():
     dp.add_handler(CommandHandler("info", getInfo))
     dp.add_handler(CommandHandler("howto", howto))
     dp.add_handler(CommandHandler("reg", registration))
+    dp.add_handler(CommandHandler("bank", bankstats))
     dp.add_handler(CallbackQueryHandler(button))
 
     conv_handler = ConversationHandler(
