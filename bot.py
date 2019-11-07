@@ -151,11 +151,11 @@ def getInfo(update, context):
 			if '/info' in update.message.reply_to_message.text:
 				pass
 			elif str(target) in str(all_users):
-				target_info_Query = "select username, balance from userz where id = %s"
+				target_info_Query = "select username, balance, spin from userz where id = %s"
 				cursor.execute(target_info_Query, (target,))
 				target_info = cursor.fetchall()
 				for row in target_info:
-					update.message.reply_text(f'@{row[0]}, 💰: <code>{row[1]}</code>', parse_mode="HTML")
+					update.message.reply_text(f'@{row[0]}, 💰: <code>{row[1]}</code>, 💎: <code>{row[2]}</code>', parse_mode="HTML")
 
 					return
 
@@ -198,11 +198,18 @@ def getPromo(update, context):
 
 @run_async
 def freeSpin(update, context):
-	cursor.execute('SELECT spin FROM userz WHERE id = %s', (update.message.from_user.id,))
-	spins = cursor.fetchone()
-	keyboard = [[InlineKeyboardButton('Использовать 💎', callback_data=f'spin {update.message.from_user.id} {random.randint(0, 100)}'), InlineKeyboardButton('Отменить ❌', callback_data=f'decline {update.message.from_user.id} {random.randint(0, 100)}')]]
-	reply_markup = InlineKeyboardMarkup(keyboard)
-	update.message.reply_text(f'<code>Free Spin 💎</code>\n\nТвой баланс: <code>{spins[0]}</code> 💎\nТы можешь выиграть: <code>100</code> (45%), <code>500</code> (4.9%) и <code>10000</code> (0.1%) монет!', parse_mode='HTML' reply_markup=reply_markup)
+	if update.message.chat_id == -1001441511504:
+		update.message.reply_text('Недоступно в этом чате.')
+
+		return ConversationHandler.END
+	else:
+		cursor.execute('SELECT spin FROM userz WHERE id = %s', (update.message.from_user.id,))
+		spins = cursor.fetchone()
+		keyboard = [[InlineKeyboardButton('Использовать 💎', callback_data=f'spin {update.message.from_user.id} {random.randint(0, 100)}'), InlineKeyboardButton('Отменить ❌', callback_data=f'decline {update.message.from_user.id} {random.randint(0, 100)}')]]
+		reply_markup = InlineKeyboardMarkup(keyboard)
+		update.message.reply_text(f'<code>Free Spin 💎</code>\n\nТвой баланс: <code>{spins[0]}</code> 💎\nТы можешь выиграть: <code>100</code> (45%), <code>500</code> (4.9%) и <code>10000</code> (0.1%) монет!', parse_mode='HTML' reply_markup=reply_markup)
+		
+		return ConversationHandler.END
 
 
 @run_async
@@ -418,29 +425,29 @@ def button(update, context):
 	elif ('decline' in query.data) and (betinfo[1] not in str(query.from_user.id)):
 		query.answer('Только создатель игры может её отменить.', show_alert=True)
 	elif 'spin' in query.data:
-		cursor.execute('SELECT spin FROM userz WHERE id = %s', (update.message.from_user.id,))
+		cursor.execute('SELECT spin FROM userz WHERE id = %s', (query.from_user.id,))
 		spins = cursor.fetchone()
 		if int(spins) < 1:
 			update.message.text('Недостаточно 💎')
 		elif int(spins) >= 1:
-			cursor.execute('UPDATE userz SET spin = spin - 1 WHERE id = %s', (update.message.from_user.id,))
+			cursor.execute('UPDATE userz SET spin = spin - 1 WHERE id = %s', (query.from_user.id,))
 			number = random.randint(0, 1000)
 			if number <= 500:
 				update.message.reply_text('Эх, в этот раз не повезло.')
 			elif (number > 500) and (number <=950):
 				update.message.reply_text('Поздравляем! Твой выигрыш: <code>100</code> монет 🎉', parse_mode='HTML')
-				cursor.execute('UPDATE userz SET balance = balance + 100 WHERE id = %s', (update.message.from_user.id,))
+				cursor.execute('UPDATE userz SET balance = balance + 100 WHERE id = %s', (query.from_user.id,))
 				conn.commit()
 			elif (number > 950) and (number <= 999):
 				update.message.reply_text('Сегодня точно <b>твой</b> день! Забирай свой выигрыш: <code>500</code> монет 🎉', parse_mode='HTML')
-				cursor.execute('UPDATE userz SET balance = balance + %00 WHERE id = %s', (update.message.from_user.id,))
+				cursor.execute('UPDATE userz SET balance = balance + %00 WHERE id = %s', (query.from_user.id,))
 				conn.commit()
 			elif number == 1000:
 				update.message.reply_text('Внимание! Внимание!')
 				update.message.text('Найден счастливчик дня!')
 				update.message.text('Сегодня ты срываешь <b>Куш</b> в <code>10000</code> монет! 😳', parse_mode='HTML')
 				context.bot.send_message(chat_id=-1001441511504, text=f'Внимание! Внимание!\nМы нашли <b>счастливчика</b> года!\nПоздравляем @{winner}, он(-а) выигрывает <b>Куш</b> в <code>10000</code> монет! 👸', parse_mode='HTML')
-				cursor.execute('UPDATE userz SET balance = balance + 10000 WHERE id = %s', (update.message.from_user.id,))
+				cursor.execute('UPDATE userz SET balance = balance + 10000 WHERE id = %s', (query.from_user.id,))
 				conn.commit()
 	elif ('coinflip' in query.data) and (betinfo[1] in str(query.from_user.id)):
 		query.answer('Нельзя участвовать в своей же игре.', show_alert=True)
