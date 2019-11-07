@@ -687,40 +687,45 @@ def cancel(update, context):
 
 
 def echo(update, context):
-	if ('!add' in update.message.text) or ('!remove' in update.message.text):
-		message = update.message.text
-		args = message.split()
-		cursor.execute('SELECT balance FROM userz WHERE username = %s', (args[1],))
-		balance = cursor.fetchone()
-		cursor.execute('SELECT username FROM userz')
-		all_users = cursor.fetchall()
-		if args[1] not in str(all_users):
-			update.message.reply_text('Такого пользователя не существует.')
-		elif '!add' in update.message.text:
-			try:
-				cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (args[2], args[1],))
-				conn.commit()
-				context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Deposit]</code>\nПользователь @{args[1]} внёс {args[2]} монет на свой счёт.', parse_mode='HTML')
-			except:
-				update.message.reply_text('Error add')
-		elif '!remove' in update.message.text:
-			if balance[0] >= int(args[2]):
+	try:
+		if ('!add' in update.message.text) or ('!remove' in update.message.text):
+			message = update.message.text
+			args = message.split()
+			cursor.execute('SELECT balance FROM userz WHERE username = %s', (args[1],))
+			balance = cursor.fetchone()
+			cursor.execute('SELECT username FROM userz')
+			all_users = cursor.fetchall()
+			if args[1] not in str(all_users):
+				update.message.reply_text('Такого пользователя не существует.')
+			elif '!add' in update.message.text:
 				try:
-					cursor.execute('UPDATE userz SET balance = balance - %s WHERE username = %s', (args[2], args[1],))
+					cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (args[2], args[1],))
 					conn.commit()
-					context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Withdraw]</code>\nПользователь @{args[1]} вывел {args[2]} монет.', parse_mode='HTML')
+					context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Deposit]</code>\nПользователь @{args[1]} внёс {args[2]} монет на свой счёт.', parse_mode='HTML')
 				except:
-					update.message.reply_text('Error remove')
+					update.message.reply_text('Error add')
+			elif '!remove' in update.message.text:
+				if balance[0] >= int(args[2]):
+					try:
+						cursor.execute('UPDATE userz SET balance = balance - %s WHERE username = %s', (args[2], args[1],))
+						conn.commit()
+						context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Withdraw]</code>\nПользователь @{args[1]} вывел {args[2]} монет.', parse_mode='HTML')
+					except:
+						update.message.reply_text('Error remove')
+				else:
+					update.message.reply_text('Недостаточно монет.')
 			else:
-				update.message.reply_text('Недостаточно монет.')
+				pass
+		elif ('!refresh' in update.message.text):
+			cursor.execute('UPDATE dstats SET games = 0, total = 0, lost = 0')
+			cursor.execute('UPDATE casino SET games = 0, taxes = 0, jackpot = 0')
+			conn.commit()
 		else:
 			pass
-	elif ('!refresh' in update.message.text):
-		cursor.execute('UPDATE dstats SET games = 0, total = 0, lost = 0')
-		cursor.execute('UPDATE casino SET games = 0, taxes = 0, jackpot = 0')
-		conn.commit()
-	else:
-		pass
+	except AtributeError:
+		update.message.text('Ай-я-яй (AtributeError).')
+	except:
+		update.message.reply_text('Произошла ошибка (echo).')
 
 
 def error(update, context):
