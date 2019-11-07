@@ -155,7 +155,7 @@ def getInfo(update, context):
 				cursor.execute(target_info_Query, (target,))
 				target_info = cursor.fetchall()
 				for row in target_info:
-					update.message.reply_text(f'@{row[0]}:\n💰: <code>{row[1]}</code>, 💎: <code>{row[2]}</code>', parse_mode="HTML")
+					update.message.reply_text(f'@{row[0]}\n💰: <code>{row[1]}</code>\n💎: <code>{row[2]}</code>', parse_mode='HTML')
 
 					return
 
@@ -172,7 +172,7 @@ def getInfo(update, context):
 		cursor.execute(user_info_Query, (usrid,))
 		info = cursor.fetchall()
 		for row in info:
-			update.message.reply_text(f'@{row[0]}:\n💰: <code>{row[1]}</code>, 💎: <code>{row[2]}</code>')
+			update.message.reply_text(f'@{row[0]}\n💰: <code>{row[1]}</code>\n💎: <code>{row[2]}</code>', parse_mode='HTML')
 	except:
 		update.message.reply_text('Произошла ошибка. Попробуй чуть позже.')
 
