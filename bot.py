@@ -179,7 +179,7 @@ def getInfo(update, context):
 
 @run_async
 def howto(update, context):
-	update.message.reply_text('Не знаешь что и как работает? Держи <a href="https://telegra.ph/CHto-takoe-RYL-i-s-chem-ego-edyat-10-29">инструкцию</a>.')
+	update.message.reply_text('Не знаешь что и как работает? Держи <a href="https://telegra.ph/CHto-takoe-RYL-i-s-chem-ego-edyat-10-29">инструкцию</a>.', parse_mode='HTML')
 	
 	
 @run_async
