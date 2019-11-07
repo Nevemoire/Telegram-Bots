@@ -419,6 +419,8 @@ def button(update, context):
 	betsumm = betinfo[2]
 	betssumm = int(betsumm)
 	total = int(betsumm)*1.9
+	taxes = int(betsumm)*0.09
+	jackpot = int(betsumm)*0.01
 	number = random.randint(0, 1000)
 
 	if str(query.from_user.id) not in str(all_users):
@@ -464,6 +466,7 @@ def button(update, context):
 		cf_participants = [participant1[0], participant2[0]]
 		winner = random.choice(cf_participants)
 		cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (total, winner,))
+		cursor.execute('UPDATE coinflip SET games = games + 1, taxes = taxes + %s, jackpot = jackpot + %s', (taxes, jackpot,))
 		conn.commit()
 		if int(total) >= 9500:
 			try:
@@ -549,6 +552,7 @@ def button(update, context):
 		query.edit_message_text('Ошибка! Попробуй чуть позже.')
 
 
+@run_async
 def dstats(update, context):
 	text = ''
 	cursor.execute('SELECT multiplier, games, total, lost FROM dstats ORDER BY length(multiplier), multiplier')
@@ -562,6 +566,13 @@ def dstats(update, context):
 		text += (f'\n<b>Итог</b>:\n👾: {res[0]} игр\n🏦: <code>{profit}</code> монет')
 
 	update.message.reply_text(text, parse_mode='HTML')
+
+
+@run_async
+def cstats(update, context):
+	cursor.execute('SELECT games, taxes, jackpot FROM coinflip')
+	info = cursor.fetchone()
+	update.message.reply_text(f'\n<b>Итог</b>:\n👾: {info[0]} игр\n🏦: <code>{info[1]}</code> монет собрано\n💎: {info[2]} монет к розыгрышу', parse_mode='HTML')
 	
 
 @run_async
@@ -648,8 +659,9 @@ def echo(update, context):
 				update.message.reply_text('Недостаточно монет.')
 		else:
 			pass
-	elif ('!drefresh' in update.message.text):
+	elif ('!refresh' in update.message.text):
 		cursor.execute('UPDATE dstats SET games = 0, total = 0, lost = 0')
+		cursor.execute('UPDATE coinflip SET games = 0, taxes = 0, jackpot = 0')
 		conn.commit()
 	else:
 		pass
@@ -676,6 +688,7 @@ def main():
     # dp.add_handler(MessageHandler(Filters.text, echo))
     dp.add_handler(CommandHandler("tos", tos))
     dp.add_handler(CommandHandler("dstats", dstats))
+    dp.add_handler(CommandHandler("сstats", сstats))
     dp.add_handler(CommandHandler("deposit", deposit))
     dp.add_handler(CommandHandler("withdraw", withdraw))
     dp.add_handler(CommandHandler("promo", getPromo))
