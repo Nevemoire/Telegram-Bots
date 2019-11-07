@@ -207,7 +207,7 @@ def freeSpin(update, context):
 		spins = cursor.fetchone()
 		keyboard = [[InlineKeyboardButton('Использовать 💎', callback_data=f'spin {update.message.from_user.id} {random.randint(0, 100)}'), InlineKeyboardButton('Отменить ❌', callback_data=f'decline {update.message.from_user.id} {random.randint(0, 100)}')]]
 		reply_markup = InlineKeyboardMarkup(keyboard)
-		update.message.reply_text(f'<code>Free Spin 💎</code>\n\nТвой баланс: <code>{spins[0]}</code> 💎\nТы можешь выиграть: <code>100</code> (45%), <code>500</code> (4.9%) и <code>10000</code> (0.1%) монет!', parse_mode='HTML' reply_markup=reply_markup)
+		update.message.reply_text(f'<code>Free Spin 💎</code>\n\nТвой баланс: <code>{spins[0]}</code> 💎\nТы можешь выиграть: <code>100</code> (45%), <code>500</code> (4.9%) и <code>10000</code> (0.1%) монет!', parse_mode='HTML', reply_markup=reply_markup)
 		
 		return ConversationHandler.END
 
