@@ -197,6 +197,15 @@ def getPromo(update, context):
 
 
 @run_async
+def freeSpin(update, context):
+	cursor.execute('SELECT spin FROM userz WHERE id = %s', (update.message.from_user.id,))
+	spins = cursor.fetchone()
+	keyboard = [[InlineKeyboardButton('Использовать 💎', callback_data=f'spin {update.message.from_user.id} {random.randint(0, 100)}'), InlineKeyboardButton('Отменить ❌', callback_data=f'decline {update.message.from_user.id} {random.randint(0, 100)}')]]
+	reply_markup = InlineKeyboardMarkup(keyboard)
+	update.message.reply_text('<code>Free Spin 💎</code>\n\nТвой баланс: <code>{spins[0]}</code> 💎\nТы можешь выиграть: <code>100</code> (45%), <code>500</code> (4.9%) и <code>10000</code> (0.1%) монет!', reply_markup=reply_markup)
+
+
+@run_async
 def coinflip(update, context):
 	if update.message.chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
@@ -408,6 +417,31 @@ def button(update, context):
 		query.edit_message_text('Игра отменена.')
 	elif ('decline' in query.data) and (betinfo[1] not in str(query.from_user.id)):
 		query.answer('Только создатель игры может её отменить.', show_alert=True)
+	elif 'spin' in query.data:
+		cursor.execute('SELECT spin FROM userz WHERE id = %s', (update.message.from_user.id,))
+		spins = cursor.fetchone()
+		if int(spins) < 1:
+			update.message.text('Недостаточно 💎')
+		elif int(spins) >= 1:
+			cursor.execute('UPDATE userz SET spin = spin - 1 WHERE id = %s', (update.message.from_user.id,))
+			number = random.randint(0, 1000)
+			if number <= 500:
+				update.message.reply_text('Эх, в этот раз не повезло.')
+			elif (number > 500) and (number <=950):
+				update.message.reply_text('Поздравляем! Твой выигрыш: <code>100</code> монет 🎉', parse_mode='HTML')
+				cursor.execute('UPDATE userz SET balance = balance + 100 WHERE id = %s', (update.message.from_user.id,))
+				conn.commit()
+			elif (number > 950) and (number <= 999):
+				update.message.reply_text('Сегодня точно <b>твой</b> день! Забирай свой выигрыш: <code>500</code> монет 🎉', parse_mode='HTML')
+				cursor.execute('UPDATE userz SET balance = balance + %00 WHERE id = %s', (update.message.from_user.id,))
+				conn.commit()
+			elif number == 1000:
+				update.message.reply_text('Внимание! Внимание!')
+				update.message.text('Найден счастливчик дня!')
+				update.message.text('Сегодня ты срываешь <b>Куш</b> в <code>10000</code> монет! 😳', parse_mode='HTML')
+				context.bot.send_message(chat_id=-1001441511504, text=f'Внимание! Внимание!\nМы нашли <b>счастливчика</b> года!\nПоздравляем @{winner}, он(-а) выигрывает <b>Куш</b> в <code>10000</code> монет! 👸', parse_mode='HTML')
+				cursor.execute('UPDATE userz SET balance = balance + 10000 WHERE id = %s', (update.message.from_user.id,))
+				conn.commit()
 	elif ('coinflip' in query.data) and (betinfo[1] in str(query.from_user.id)):
 		query.answer('Нельзя участвовать в своей же игре.', show_alert=True)
 	elif ('coinflip' in query.data) and ('1' in str(participant1[1])):
@@ -512,12 +546,6 @@ def dstats(update, context):
 	cursor.execute('SELECT SUM(games), SUM(total), SUM(lost) FROM dstats')
 	results = cursor.fetchall()
 	for stats in info:
-# 		update.message.reply_text(f'''Статистика по играм:
-# 2x: {stats[0]} <b>{stats[5]}</b> (<code>{stats[10]}</code>)
-# 3x: {stats[1]} <b>{stats[6]}</b> (<code>{stats[11]}</code>)
-# 5x: {stats[2]} <b>{stats[7]}</b> (<code>{stats[12]}</code>)
-# 10x: {stats[3]} <b>{stats[8]}</b> (<code>{stats[13]}</code>)
-# 50x: {stats[4]} <b>{stats[9]}</b> (<code>{stats[14]}</code>)''', parse_mode='HTML')
 		text += (f'{stats[0]}: {stats[1]} <b>{stats[2]}</b> (<code>{stats[3]}</code>)\n')
 	for res in results:
 		profit = int(res[2])*(-1) - int(res[1])
@@ -649,7 +677,8 @@ def main():
         entry_points=[CommandHandler("anon", anon),
         			  CommandHandler("coinflip", coinflip),
         			  CommandHandler("roulette", roulette),
-        			  CommandHandler("dice", dice)],
+        			  CommandHandler("dice", dice),
+        			  CommandHandler("spin", freeSpin)],
 
     states={
            	MESSAGE: [MessageHandler(Filters.text, anonMessage)],
