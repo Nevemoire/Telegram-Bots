@@ -155,7 +155,7 @@ def getInfo(update, context):
 				cursor.execute(target_info_Query, (target,))
 				target_info = cursor.fetchall()
 				for row in target_info:
-					update.message.reply_text(f'@{row[0]}\n💰: <code>{row[1]}</code>\n💎: <code>{row[2]}</code>', parse_mode='HTML')
+					update.message.reply_text(f'👾: @{row[0]}\n💰: <code>{row[1]}</code>\n💎: <code>{row[2]}</code>', parse_mode='HTML')
 
 					return
 
@@ -172,15 +172,20 @@ def getInfo(update, context):
 		cursor.execute(user_info_Query, (usrid,))
 		info = cursor.fetchall()
 		for row in info:
-			update.message.reply_text(f'@{row[0]}\n💰: <code>{row[1]}</code>\n💎: <code>{row[2]}</code>', parse_mode='HTML')
+			update.message.reply_text(f'👾: @{row[0]}\n💰: <code>{row[1]}</code>\n💎: <code>{row[2]}</code>', parse_mode='HTML')
 	except:
 		update.message.reply_text('Произошла ошибка. Попробуй чуть позже.')
 
 
 @run_async
+def howto(update, context):
+	update.message.reply_text('Не знаешь что и как работает? Держи <a href="https://telegra.ph/CHto-takoe-RYL-i-s-chem-ego-edyat-10-29">инструкцию</a>.')
+	
+	
+@run_async
 def tos(update, context):
-    """Send a message when the command /help is issued."""
-    update.message.reply_text('<a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">Пользовательское соглашение</a> <b>Royal Casino</b>', parse_mode='HTML')
+	"""Send a message when the command /help is issued."""
+	update.message.reply_text('<a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">Пользовательское соглашение</a> <b>Royal Casino</b>', parse_mode='HTML')
 
 
 @run_async
@@ -675,6 +680,7 @@ def main():
     dp.add_handler(CommandHandler("withdraw", withdraw))
     dp.add_handler(CommandHandler("promo", getPromo))
     dp.add_handler(CommandHandler("info", getInfo))
+    dp.add_handler(CommandHandler("howto", howto))
     dp.add_handler(CommandHandler("reg", registration))
     dp.add_handler(CallbackQueryHandler(button))
 
