@@ -81,8 +81,8 @@ def start(update, context):
 		update.message.reply_text('<b>Ты у нас впервые?</b>\nТвой профиль успешно создан, для справки введи /info ;)\n\nПродолжая использовать бота, ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.', parse_mode='HTML')
 		update.message.reply_text('Также, подпишись на <b>основные каналы</b>, без них никуда:\n@rylcasino - Здесь публикуются все игры.\n@rylchat - Главный чат, где происходит всё самое интересное.', parse_mode='HTML')
 	try:
-		invoker = update.from_user.id
 		user_says = context.args[0]
+		invoker = update.message.from_user.id
 		error = 'None'
 		cursor.execute('SELECT refferrer FROM userz WHERE id = %s', (invoker,))
 		promo_used = cursor.fetchone()
@@ -109,7 +109,7 @@ def deposit(update, context):
 		update.message.reply_text('Недоступно в этом чате.')
 	else:
 		update.message.reply_text('Чтобы пополнить баланс, отправь любую сумму пользователю <code>Nevermore</code> через сайт mdk.is.\n<b>Обязательно</b> прикрепи свой <code>ID</code> (число ниже) к донату, иначе сумма будет считаться пожертвованием.', disable_web_page_preview=True, parse_mode='HTML')
-		update.message.reply_text(update.message.from_user.id)
+		update.message.text(f'<code>{update.message.from_user.id}</code>', parse_mode='HTML')
 
 
 @run_async
@@ -136,14 +136,13 @@ def withdraw(update, context):
 @run_async
 def withdrawNick(update, context):
 	total = update.message.text
-	message = context.user_data['message']
 	cursor.execute('SELECT balance FROM userz WHERE id = %s', (update.message.from_user.id,))
 	balance = cursor.fetchone()
 	try:
 		summ = int(total)
 	except:
 		try:
-			context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Жаль, но мы не принимаем ничего, кроме монет.\nДа, натурой тоже не принимаем :(')
+			context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Жаль, но мы не принимаем ничего, кроме монет.\nДа, натурой тоже не принимаем :(\n\nСоздать игру заново - /dice')
 
 			return ConversationHandler.END
 		except:
@@ -263,12 +262,15 @@ def tos(update, context):
 
 @run_async
 def getPromo(update, context):
-	ids = update.message.from_user.id
-	cursor.execute('SELECT reffs FROM userz where id = %s', (ids,))
-	reffs = cursor.fetchone()
-	cursor.execute('SELECT refferrer FROM userz where id = %s', (ids,))
-	ref = cursor.fetchone()
-	update.message.reply_text(f'Исп. промокод: {ref[0]}\nКол-во реффералов: {reffs[0]}\n\nСсылка для приглашения:\nhttps://t.me/RoyalCasinoBot?start={ids}')
+	if update.message.chat_id == -1001441511504:
+		update.message.reply_text('Недоступно в этом чате.')
+	else:
+		ids = update.message.from_user.id
+		cursor.execute('SELECT reffs FROM userz where id = %s', (ids,))
+		reffs = cursor.fetchone()
+		cursor.execute('SELECT refferrer FROM userz where id = %s', (ids,))
+		ref = cursor.fetchone()
+		update.message.reply_text(f'Исп. промокод: {ref[0]}\nКол-во реффералов: {reffs[0]}\n\nСсылка для приглашения:\nhttps://t.me/RoyalCasinoBot?start={ids}')
 
 
 @run_async
@@ -777,9 +779,9 @@ def echo(update, context):
 				update.message.reply_text('Такого пользователя не существует.')
 			elif '!add' in update.message.text:
 				try:
-					cursor.execute('SELECT gamesum, balance FROM userz WHERE username = %s', (args[1],))
+					cursor.execute('SELECT gamesum FROM userz WHERE username = %s', (args[1],))
 					gamesumm = cursor.fetchone()
-					if (int(gamesumm[0]) < 0) or (int(gamesumm[1]) == 0):
+					if int(gamesumm[0]) < 0:
 						cursor.execute('UPDATE userz SET gamesum = 0 WHERE username = %s', (args[1],))
 						conn.commit()
 					else:
@@ -807,8 +809,6 @@ def echo(update, context):
 			cursor.execute('UPDATE casino SET games = 0, taxes = 0, jackpot = 0')
 			conn.commit()
 		elif '!bank' in update.message.text:
-			message = update.message.text
-			args = message.split()
 			try:
 				cursor.execute('UPDATE casino SET bank = %s', (args[1],))
 				conn.commit()
@@ -816,8 +816,8 @@ def echo(update, context):
 				update.message.reply_text('Error bank')
 		else:
 			pass
-	except AttributeError as error:
-		update.message.text('Ай-я-яй (AttributeError).')
+	except AtributeError as error:
+		update.message.text('Ай-я-яй (AtributeError).')
 	except:
 		update.message.reply_text('Произошла ошибка (echo).')
 
