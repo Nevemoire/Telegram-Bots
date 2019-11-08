@@ -146,7 +146,7 @@ def withdrawNick(update, context):
 		summ = int(total)
 	except:
 		try:
-			context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Жаль, но мы не принимаем ничего, кроме монет.\nДа, натурой тоже не принимаем :(\n\nСоздать игру заново - /dice')
+			context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Жаль, но мы не принимаем ничего, кроме монет.\nДа, натурой тоже не принимаем :(')
 
 			return ConversationHandler.END
 		except:
