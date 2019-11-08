@@ -112,7 +112,7 @@ def deposit(update, context):
 		update.message.reply_text('Недоступно в этом чате.')
 	else:
 		update.message.reply_text('Чтобы пополнить баланс, отправь любую сумму пользователю <code>Nevermore</code> через сайт mdk.is.\n<b>Обязательно</b> прикрепи свой <code>ID</code> (число ниже) к донату, иначе сумма будет считаться пожертвованием.', disable_web_page_preview=True, parse_mode='HTML')
-		update.message.text(f'{update.message.from_user.id}')
+		update.message.text(update.message.from_user.id)
 
 
 @run_async
