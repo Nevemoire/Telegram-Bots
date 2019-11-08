@@ -234,7 +234,6 @@ def getInfo(update, context):
 				update.message.reply_text('Ошибка! Этого пользователя нет в нашей базе данных.')
 
 				return
-
 		except:
 			pass
 
