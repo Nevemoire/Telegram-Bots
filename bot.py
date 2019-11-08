@@ -82,9 +82,8 @@ def start(update, context):
 		update.message.reply_text('Также, подпишись на <b>основные каналы</b>, без них никуда:\n@rylcasino - Здесь публикуются все игры.\n@rylchat - Главный чат, где происходит всё самое интересное.', parse_mode='HTML')
 	try:
 		user_says = context.args[0]
-		invoker = update.message.from_user.id
 		error = 'None'
-		cursor.execute('SELECT refferrer FROM userz WHERE id = %s', (invoker,))
+		cursor.execute('SELECT refferrer FROM userz WHERE id = %s', (ids,))
 		promo_used = cursor.fetchone()
 		cursor.execute('SELECT id FROM userz')
 		totalb = cursor.fetchall()
