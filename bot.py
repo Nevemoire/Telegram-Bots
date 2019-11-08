@@ -813,7 +813,7 @@ def echo(update, context):
 			conn.commit()
 		elif '!bank' in update.message.text:
 			try:
-				cursor.execute('UPDATE coinflip SET bank = %s', (args[1],))
+				cursor.execute('UPDATE casino SET bank = %s', (args[1],))
 				conn.commit()
 			except:
 				update.message.reply_text('Error bank')
