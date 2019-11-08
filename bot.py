@@ -805,18 +805,18 @@ def echo(update, context):
 						update.message.reply_text('Error remove')
 				else:
 					update.message.reply_text('Недостаточно монет.')
-			elif '!bank' in update.message.text:
-				try:
-					cursor.execute('UPDATE coinflip SET bank = %s', (args[2],))
-					conn.commit()
-				except:
-					update.message.reply_text('Error bank')
 			else:
 				pass
 		elif ('!refresh' in update.message.text):
 			cursor.execute('UPDATE dstats SET games = 0, total = 0, lost = 0')
 			cursor.execute('UPDATE casino SET games = 0, taxes = 0, jackpot = 0')
 			conn.commit()
+		elif '!bank' in update.message.text:
+			try:
+				cursor.execute('UPDATE coinflip SET bank = %s', (args[1],))
+				conn.commit()
+			except:
+				update.message.reply_text('Error bank')
 		else:
 			pass
 	except AtributeError as error:
