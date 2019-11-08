@@ -583,7 +583,7 @@ def button(update, context):
 	elif 'dice' in query.data:
 		if str(query.from_user.id) in query.data:
 			multiplier = query.data.split()
-			cursor.execute(f'UPDATE userz SET gamesum = gamesum - {betsumm} WHERE id = %s', (query.from_user.id,)
+			cursor.execute(f'UPDATE userz SET gamesum = gamesum - {betsumm} WHERE id = %s', (query.from_user.id,))
 			if '2x' in query.data and number >= 600:
 				query.answer('✅')
 				dice_win = int(betsumm)*2
