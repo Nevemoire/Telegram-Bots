@@ -776,6 +776,7 @@ def main():
     dp.add_handler(CommandHandler("howto", howto))
     dp.add_handler(CommandHandler("reg", registration))
     dp.add_handler(CommandHandler("bank", bankstats))
+    dp.add_handler(CommandHandler("commands", commands))
     dp.add_handler(CallbackQueryHandler(button))
 
     conv_handler = ConversationHandler(
