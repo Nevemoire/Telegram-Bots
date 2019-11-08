@@ -108,8 +108,8 @@ def deposit(update, context):
 	if update.message.chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
 	else:
-		update.message.reply_text('Чтобы пополнить баланс, отправь любую сумму пользователю <code>Nevermore</code> через сайт mdk.is.\n<b>Обязательно</b> прикрепи свой <code>ID</code> (число ниже) к донату, иначе сумма будет считаться пожертвованием.', disable_web_page_preview=True, parse_mode='HTML')
-		update.message.text(f'<code>{update.message.from_user.id}</code>', parse_mode='HTML')
+		update.message.reply_text('Чтобы пополнить баланс, отправь любую сумму пользователю <code>Nevermore</code> через сайт mdk.is.\n<b>Обязательно</b> прикрепи свой <code>Username</code> (число ниже) к донату, иначе сумма будет считаться пожертвованием.', disable_web_page_preview=True, parse_mode='HTML')
+		update.message.reply_text(f'<code>{update.message.from_user.username}</code>', parse_mode='HTML')
 
 
 @run_async
