@@ -176,6 +176,8 @@ def withdrawFinal(update,context):
 	keyboard = [[InlineKeyboardButton('Готово ✅', callback_data=f'withdraw {update.message.from_user.id} {summ}')]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
 	context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Withdraw]</code>\n<b>{nickname}</b> (@{update.message.from_user.username}) подал запрос на вывод {summ} монет.', parse_mode='HTML', reply_markup=reply_markup)
+	
+	return ConversationHandler.END
 
 
 
@@ -581,7 +583,7 @@ def button(update, context):
 	elif 'dice' in query.data:
 		if str(query.from_user.id) in query.data:
 			multiplier = query.data.split()
-			cursor.execute(f'UPDATE userz SET gamesum = gamesum - {betsumm}')
+			cursor.execute(f'UPDATE userz SET gamesum = gamesum - {betsumm} WHERE id = %s', (query.from_user.id,)
 			if '2x' in query.data and number >= 600:
 				query.answer('✅')
 				dice_win = int(betsumm)*2
