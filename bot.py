@@ -173,7 +173,7 @@ def withdrawFinal(update,context):
 	context.bot.send_message(chat_id=391206263, text=f'@{update.message.from_user.username} - {nickname}')
 	cursor.execute('UPDATE userz SET balance = balance - %s WHERE id = %s', (summ, update.message.from_user.id,))
 	conn.commit()
-	keyboard = [[InlineKeyboardButton('Готово ✅', callback_data=f'withdraw {update.message.from_user.username} {summ}')]]
+	keyboard = [[InlineKeyboardButton('Готово ✅', callback_data=f'withdraw {update.message.from_user.id} {summ}')]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
 	context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Withdraw]</code>\n<b>{nickname}</b> (@{update.message.from_user.username}) подал запрос на вывод {summ} монет.', parse_mode='HTML', reply_markup=reply_markup)
 
@@ -506,7 +506,7 @@ def button(update, context):
 	if str(query.from_user.id) not in str(all_users):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
 	elif ('withdraw' in query.data) and (query.from_user.username in adminslist):
-		query.edit_message_text(f'{betinfo[1]} успешно вывел(-а) {betinfo[2]} монет! 🎉')
+		query.edit_message_text(f'@{query.from_user.username} успешно вывел(-а) {betinfo[2]} монет! 🎉')
 	elif ('withdraw' in query.data) and (query.from_user.username not in adminslist):
 		query.answer('Недостаточно прав.', show_alert=True)
 	elif ('decline' in query.data) and (betinfo[1] in str(query.from_user.id)):
