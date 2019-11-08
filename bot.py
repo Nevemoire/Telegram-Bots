@@ -771,8 +771,8 @@ def cancel(update, context):
 
 def echo(update, context):
 	try:
-		args = message.split()
 		if ('!add' in update.message.text) or ('!remove' in update.message.text):
+			args = message.split()
 			message = update.message.text
 			cursor.execute('SELECT balance FROM userz WHERE username = %s', (args[1],))
 			balance = cursor.fetchone()
@@ -812,6 +812,7 @@ def echo(update, context):
 			cursor.execute('UPDATE casino SET games = 0, taxes = 0, jackpot = 0')
 			conn.commit()
 		elif '!bank' in update.message.text:
+			args = message.split()
 			try:
 				cursor.execute('UPDATE casino SET bank = %s', (args[1],))
 				conn.commit()
