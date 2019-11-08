@@ -123,7 +123,7 @@ def withdraw(update, context):
 		cursor.execute('SELECT balance, gamesum FROM userz WHERE id = %s', (update.message.from_user.id,))
 		info = cursor.fetchone()
 		if int(info[1]) <= 0:
-			update.message.reply_text(f'<b>Баланс</b>: <code>{info[0]}</code> монет.\n\nНапиши сумму для вывода.\nОтмена - /cancel', parse_mode='HTML')
+			context.user_data['message'] = update.message.reply_text(f'<b>Баланс</b>: <code>{info[0]}</code> монет.\n\nНапиши сумму для вывода.\nОтмена - /cancel', parse_mode='HTML')
 
 			return WITHDRAWAL_NICK
 		elif int(info[1]) > 0:
@@ -157,7 +157,7 @@ def withdrawNick(update, context):
 		return ConversationHandler.END
 	elif summ <= int(balance[0]):
 		context.user_data['withdraw_summ'] = summ
-		update.message.reply_text('Отлично, теперь напиши свой ник в приложении MDK.\nОтмена - /cancel')
+		context.user_data['message'] = update.message.reply_text('Отлично, теперь напиши свой ник в приложении MDK.\nОтмена - /cancel')
 
 		return WITHDRAWAL
 	else:
