@@ -54,55 +54,52 @@ channel_username = '@rylcasino'
 # update. Error handlers also receive the raised TelegramError object in error.
 @run_async
 def start(update, context):
-	if update.message.chat_id == -1001441511504:
-		update.message.reply_text('Недоступно в этом чате.')
+	"""Send a message when the command /start is issued."""
+	cursor.execute('select balance from userz where id = %s', (update.message.from_user.id,))
+	balance = cursor.fetchone()
+	error = "None"	
+	if error not in str(balance):
+		pass
+	elif (error in str(update.message.from_user.full_name) or error in str(update.message.from_user.username)):
+		update.message.reply_text('''Приветствуем тебя в нашем клубе!
+Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
+		update.message.reply_text('''<b>Ты у нас впервые?</b>
+Чтобы иметь возможность играть у нас, поля _Name_ и _Username_ не должны быть пустыми.
+Исправь ситуацию и напиши мне /reg :)
+Продолжая использовать бота, ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.''', parse_mode='HTML')
+		update.message.reply_text('Также, подпишись на <b>основные каналы</b>, без них никуда:\n@rylcasino - Здесь публикуются все игры.\n@rylchat - Главный чат, где происходит всё самое интересное.', parse_mode='HTML')
 	else:
-		"""Send a message when the command /start is issued."""
-		cursor.execute('select balance from userz where id = %s', (update.message.from_user.id,))
-		balance = cursor.fetchone()
-		error = "None"	
-		if error not in str(balance):
-			pass
-		elif (error in str(update.message.from_user.full_name) or error in str(update.message.from_user.username)):
-			update.message.reply_text('''Приветствуем тебя в нашем клубе!
-	Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
-			update.message.reply_text('''<b>Ты у нас впервые?</b>
-	Чтобы иметь возможность играть у нас, поля _Name_ и _Username_ не должны быть пустыми.
-	Исправь ситуацию и напиши мне /reg :)
-	Продолжая использовать бота, ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.''', parse_mode='HTML')
-			update.message.reply_text('Также, подпишись на <b>основные каналы</b>, без них никуда:\n@rylcasino - Здесь публикуются все игры.\n@rylchat - Главный чат, где происходит всё самое интересное.', parse_mode='HTML')
+		fullname = update.message.from_user.full_name
+		usern = update.message.from_user.username
+		username = usern.lower()
+		update.message.reply_text('''Приветствуем тебя в нашем клубе!
+Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
+		registration_Query = "INSERT INTO userz (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
+		cursor.execute(registration_Query, (ids, fullname, username,))
+		conn.commit()
+		update.message.reply_text('<b>Ты у нас впервые?</b>\nТвой профиль успешно создан, для справки введи /info ;)\n\nПродолжая использовать бота, ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.', parse_mode='HTML')
+		update.message.reply_text('Также, подпишись на <b>основные каналы</b>, без них никуда:\n@rylcasino - Здесь публикуются все игры.\n@rylchat - Главный чат, где происходит всё самое интересное.', parse_mode='HTML')
+	try:
+		user_says = context.args[0]
+		invoker = update.message.from_user.id
+		error = 'None'
+		cursor.execute('SELECT refferrer FROM userz WHERE id = %s', (invoker,))
+		promo_used = cursor.fetchone()
+		cursor.execute('SELECT id FROM userz')
+		totalb = cursor.fetchall()
+		if user_says not in str(totalb):
+			update.message.reply_text('Такого промокода не существует.')
+		elif user_says in str(invoker):
+			update.message.reply_text('Свой промокод использовать нельзя!')
+		elif error not in str(promo_used):
+			update.message.reply_text('Упси, промокод можно использовать только 1 раз.')
 		else:
-			fullname = update.message.from_user.full_name
-			usern = update.message.from_user.username
-			username = usern.lower()
-			update.message.reply_text('''Приветствуем тебя в нашем клубе!
-	Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
-			registration_Query = "INSERT INTO userz (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
-			cursor.execute(registration_Query, (ids, fullname, username,))
+			cursor.execute('UPDATE userz SET reffs = reffs + 1, balance = balance + 20, spins = spins + 1 WHERE id = %s', (user_says,))
+			cursor.execute('UPDATE userz SET balance = balance + 100, refferrer = %s WHERE id = %s', (user_says, invoker,))
+			update.message.reply_text('Промокод принят. (+100 монет тебе и +20 владельцу промокода)')
 			conn.commit()
-			update.message.reply_text('<b>Ты у нас впервые?</b>\nТвой профиль успешно создан, для справки введи /info ;)\n\nПродолжая использовать бота, ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.', parse_mode='HTML')
-			update.message.reply_text('Также, подпишись на <b>основные каналы</b>, без них никуда:\n@rylcasino - Здесь публикуются все игры.\n@rylchat - Главный чат, где происходит всё самое интересное.', parse_mode='HTML')
-		try:
-			user_says = context.args[0]
-			invoker = update.message.from_user.id
-			error = 'None'
-			cursor.execute('SELECT refferrer FROM userz WHERE id = %s', (invoker,))
-			promo_used = cursor.fetchone()
-			cursor.execute('SELECT id FROM userz')
-			totalb = cursor.fetchall()
-			if user_says not in str(totalb):
-				update.message.reply_text('Такого промокода не существует.')
-			elif user_says in str(invoker):
-				update.message.reply_text('Свой промокод использовать нельзя!')
-			elif error not in str(promo_used):
-				update.message.reply_text('Упси, промокод можно использовать только 1 раз.')
-			else:
-				cursor.execute('UPDATE userz SET reffs = reffs + 1, balance = balance + 20, spins = spins + 1 WHERE id = %s', (user_says,))
-				cursor.execute('UPDATE userz SET balance = balance + 100, refferrer = %s WHERE id = %s', (user_says, invoker,))
-				update.message.reply_text('Промокод принят. (+100 монет тебе и +20 владельцу промокода)')
-				conn.commit()
-		except:
-			pass
+	except:
+		pass
 
 
 @run_async
