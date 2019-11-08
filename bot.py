@@ -173,7 +173,7 @@ def withdrawFinal(update,context):
 	conn.commit()
 	keyboard = [[InlineKeyboardButton('Готово ✅', callback_data=f'withdraw {update.message.from_user.username} {summ}')]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
-	context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Withdraw]</code>\n<b>{nickname}</b> (@{update.message.from_user.username}} подал запрос на вывод {summ} монет.', parse_mode='HTML', reply_markup=reply_markup)
+	context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Withdraw]</code>\n<b>{nickname}</b> (@{update.message.from_user.username}) подал запрос на вывод {summ} монет.', parse_mode='HTML', reply_markup=reply_markup)
 
 
 
