@@ -127,7 +127,7 @@ def withdraw(update, context):
 
 			return WITHDRAWAL_NICK
 		elif int(info[1]) > 0:
-			update.message.reply_text('Вывод недоступен. Осталось отыграть: %s монет.', (info[1],))
+			update.message.reply_text(f'Вывод недоступен. Осталось отыграть: {info[1]} монет.')
 
 			return ConversationHandler.END
 		else:
