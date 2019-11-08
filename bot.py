@@ -52,53 +52,56 @@ channel_username = '@rylcasino'
 # update. Error handlers also receive the raised TelegramError object in error.
 @run_async
 def start(update, context):
-	"""Send a message when the command /start is issued."""
-	ids = update.message.from_user.id
-	cursor.execute('select balance from userz where id = %s', (ids,))
-	balance = cursor.fetchone()
-	error = "None"	
-	if error not in str(balance):
-		pass
-	elif (error in str(update.message.from_user.full_name) or error in str(update.message.from_user.username)):
-		update.message.reply_text('''Приветствуем тебя в нашем клубе!
-Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
-		update.message.reply_text('''<b>Ты у нас впервые?</b>
-Чтобы иметь возможность играть у нас, поля _Name_ и _Username_ не должны быть пустыми.
-Исправь ситуацию и напиши мне /reg :)
-Продолжая использовать бота ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.''', parse_mode='HTML')
-		update.message.reply_text('Также, подпишись на <b>основные каналы</b>, без них никуда:\n@rylcasino - Здесь публикуются все игры.\n@rylchat - Главный чат, где происходит всё самое интересное.', parse_mode='HTML')
+	if update.message.chat_id == -1001441511504:
+		update.message.reply_text('Недоступно в этом чате.')
 	else:
-		fullname = update.message.from_user.full_name
-		usern = update.message.from_user.username
-		username = usern.lower()
-		update.message.reply_text('''Приветствуем тебя в нашем клубе!
-Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
-		registration_Query = "INSERT INTO userz (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
-		cursor.execute(registration_Query, (ids, fullname, username,))
-		conn.commit()
-		update.message.reply_text('<b>Ты у нас впервые?</b>\nТвой профиль успешно создан, для справки введи /info ;)\n\nПродолжая использовать бота ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.', parse_mode='HTML')
-		update.message.reply_text('Также, подпишись на <b>основные каналы</b>, без них никуда:\n@rylcasino - Здесь публикуются все игры.\n@rylchat - Главный чат, где происходит всё самое интересное.', parse_mode='HTML')
-	try:
-		user_says = context.args[0]
-		invoker = update.message.from_user.id
-		error = 'None'
-		cursor.execute('SELECT refferrer FROM userz WHERE id = %s', (invoker,))
-		promo_used = cursor.fetchone()
-		cursor.execute('SELECT id FROM userz')
-		totalb = cursor.fetchall()
-		if user_says not in str(totalb):
-			update.message.reply_text('Такого промокода не существует.')
-		elif user_says in str(invoker):
-			update.message.reply_text('Свой промокод использовать нельзя!')
-		elif error not in str(promo_used):
-			update.message.reply_text('Упси, промокод можно использовать только 1 раз.')
+		"""Send a message when the command /start is issued."""
+		ids = update.message.from_user.id
+		cursor.execute('select balance from userz where id = %s', (ids,))
+		balance = cursor.fetchone()
+		error = "None"	
+		if error not in str(balance):
+			pass
+		elif (error in str(update.message.from_user.full_name) or error in str(update.message.from_user.username)):
+			update.message.reply_text('''Приветствуем тебя в нашем клубе!
+	Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
+			update.message.reply_text('''<b>Ты у нас впервые?</b>
+	Чтобы иметь возможность играть у нас, поля _Name_ и _Username_ не должны быть пустыми.
+	Исправь ситуацию и напиши мне /reg :)
+	Продолжая использовать бота ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.''', parse_mode='HTML')
+			update.message.reply_text('Также, подпишись на <b>основные каналы</b>, без них никуда:\n@rylcasino - Здесь публикуются все игры.\n@rylchat - Главный чат, где происходит всё самое интересное.', parse_mode='HTML')
 		else:
-			cursor.execute('UPDATE userz SET reffs = reffs + 1, balance = balance + 20 WHERE id = %s', (user_says,))
-			cursor.execute('UPDATE userz SET balance = balance + 100, refferrer = %s WHERE id = %s', (user_says, invoker,))
-			update.message.reply_text('Промокод принят. (+100 монет тебе и +20 владельцу промокода)')
+			fullname = update.message.from_user.full_name
+			usern = update.message.from_user.username
+			username = usern.lower()
+			update.message.reply_text('''Приветствуем тебя в нашем клубе!
+	Запомни, первое правило клуба - веселись. Больше никаких правил ;)''')
+			registration_Query = "INSERT INTO userz (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
+			cursor.execute(registration_Query, (ids, fullname, username,))
 			conn.commit()
-	except:
-		pass
+			update.message.reply_text('<b>Ты у нас впервые?</b>\nТвой профиль успешно создан, для справки введи /info ;)\n\nПродолжая использовать бота ты автоматически <a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">соглашаешься</a> с нашими условиями и подтверждаешь что тебе есть 18 лет.', parse_mode='HTML')
+			update.message.reply_text('Также, подпишись на <b>основные каналы</b>, без них никуда:\n@rylcasino - Здесь публикуются все игры.\n@rylchat - Главный чат, где происходит всё самое интересное.', parse_mode='HTML')
+		try:
+			user_says = context.args[0]
+			invoker = update.message.from_user.id
+			error = 'None'
+			cursor.execute('SELECT refferrer FROM userz WHERE id = %s', (invoker,))
+			promo_used = cursor.fetchone()
+			cursor.execute('SELECT id FROM userz')
+			totalb = cursor.fetchall()
+			if user_says not in str(totalb):
+				update.message.reply_text('Такого промокода не существует.')
+			elif user_says in str(invoker):
+				update.message.reply_text('Свой промокод использовать нельзя!')
+			elif error not in str(promo_used):
+				update.message.reply_text('Упси, промокод можно использовать только 1 раз.')
+			else:
+				cursor.execute('UPDATE userz SET reffs = reffs + 1, balance = balance + 20, spins = spins + 1 WHERE id = %s', (user_says,))
+				cursor.execute('UPDATE userz SET balance = balance + 100, refferrer = %s WHERE id = %s', (user_says, invoker,))
+				update.message.reply_text('Промокод принят. (+100 монет тебе и +20 владельцу промокода)')
+				conn.commit()
+		except:
+			pass
 
 
 @run_async
@@ -119,25 +122,35 @@ def withdraw(update, context):
 
 
 @run_async
+def commands(update, context):
+	update.message.reply_text(
+		'/howto - Инструкция\n/deposit - Пополнение счёта<b>*</b>\n/withdraw - Вывод монет<b>*</b>\n/info - Краткая информация\n/promo - Реф. система<b>*</b>\n/anon - Анонимное сообщение<b>*</b>\n/spin - Игра Spin (Стоймость: 1 💎)<b>*</b>\n/dice - Игра Dice<b>*</b>\n/coinflip - Игра Coinflip<b>*</b>\n/tos - Пользовательское соглашение<b>*</b>'
+		'\n\n<b>*</b> - недоступно в главном чате.', parse_mode='HTML')
+
+
+@run_async
 def registration(update, context):
-	ids = update.message.from_user.id
-	fullname = update.message.from_user.full_name
-	usern = update.message.from_user.username
-	username = usern.lower()
-	# balance_Query = 
-	id_Query = 'select balance from userz where id = %s'
-	cursor.execute(id_Query, (ids,))
-	balance = cursor.fetchone()
-	error = "None"	
-	if error not in str(balance):
-		update.message.reply_text('<b>Ошибка!</b> Регистрироваться можно только один раз!', parse_mode='HTML')
-	elif (error in str(fullname) or error in str(username)):
-		update.message.reply_text('<b>Ошибка!</b> <code>Name</code> или <code>Username</code> имеют пустое значение.', parse_mode='HTML')
+	if update.message.chat_id == -1001441511504:
+		update.message.reply_text('Недоступно в этом чате.')
 	else:
-		registration_Query = "INSERT INTO userz (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
-		cursor.execute(registration_Query, (ids, fullname, username,))
-		conn.commit()
-		update.message.reply_text('Регистрация пройдена успешно.')
+		ids = update.message.from_user.id
+		fullname = update.message.from_user.full_name
+		usern = update.message.from_user.username
+		username = usern.lower()
+		# balance_Query = 
+		id_Query = 'select balance from userz where id = %s'
+		cursor.execute(id_Query, (ids,))
+		balance = cursor.fetchone()
+		error = "None"	
+		if error not in str(balance):
+			update.message.reply_text('<b>Ошибка!</b> Регистрироваться можно только один раз!', parse_mode='HTML')
+		elif (error in str(fullname) or error in str(username)):
+			update.message.reply_text('<b>Ошибка!</b> <code>Name</code> или <code>Username</code> имеют пустое значение.', parse_mode='HTML')
+		else:
+			registration_Query = "INSERT INTO userz (id, fullname, username, balance) VALUES (%s, %s, %s, 0)"
+			cursor.execute(registration_Query, (ids, fullname, username,))
+			conn.commit()
+			update.message.reply_text('Регистрация пройдена успешно.')
 
 
 @run_async
@@ -184,8 +197,11 @@ def howto(update, context):
 	
 @run_async
 def tos(update, context):
-	"""Send a message when the command /help is issued."""
-	update.message.reply_text('<a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">Пользовательское соглашение</a> <b>Royal Casino</b>', parse_mode='HTML')
+	if update.message.chat_id == -1001441511504:
+		update.message.reply_text('Недоступно в этом чате.')
+	else:
+		"""Send a message when the command /help is issued."""
+		update.message.reply_text('<a href="https://telegra.ph/Polzovatelskoe-soglashenie-10-22-2">Пользовательское соглашение</a> <b>Royal Casino</b>', parse_mode='HTML')
 
 
 @run_async
@@ -252,9 +268,12 @@ def coinflip(update, context):
 # 	return TOTAL
 @run_async
 def roulette(update, context):
-	update.message.reply_text('Рулетка пока в разработке, но ты можешь сыграть в Dice 🎲 (/dice) или Coinflip 🌕 (/coinflip).')
+	if update.message.chat_id == -1001441511504:
+		update.message.reply_text('Недоступно в этом чате.')
+	else:
+		update.message.reply_text('Рулетка пока в разработке, но ты можешь сыграть в Dice 🎲 (/dice) или Coinflip 🌕 (/coinflip).')
 
-	return ConversationHandler.END
+		return ConversationHandler.END
 
 
 @run_async
