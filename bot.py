@@ -262,15 +262,12 @@ def tos(update, context):
 
 @run_async
 def getPromo(update, context):
-	if update.message.chat_id == -1001441511504:
-		update.message.reply_text('Недоступно в этом чате.')
-	else:
-		ids = update.message.from_user.id
-		cursor.execute('SELECT reffs FROM userz where id = %s', (ids,))
-		reffs = cursor.fetchone()
-		cursor.execute('SELECT refferrer FROM userz where id = %s', (ids,))
-		ref = cursor.fetchone()
-		update.message.reply_text(f'Исп. промокод: {ref[0]}\nКол-во реффералов: {reffs[0]}\n\nСсылка для приглашения:\nhttps://t.me/RoyalCasinoBot?start={ids}')
+	ids = update.message.from_user.id
+	cursor.execute('SELECT reffs FROM userz where id = %s', (ids,))
+	reffs = cursor.fetchone()
+	cursor.execute('SELECT refferrer FROM userz where id = %s', (ids,))
+	ref = cursor.fetchone()
+	update.message.reply_text(f'Исп. промокод: {ref[0]}\nКол-во реффералов: {reffs[0]}\n\nСсылка для приглашения:\nhttps://t.me/RoyalCasinoBot?start={ids}')
 
 
 @run_async
