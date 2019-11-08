@@ -776,10 +776,11 @@ def echo(update, context):
 				update.message.reply_text('Такого пользователя не существует.')
 			elif '!add' in update.message.text:
 				try:
-					cursor.execute('SELECT gamesum FROM userz WHERE username = %s', (args[1],))
+					usrname = args[1]
+					cursor.execute('SELECT gamesum FROM userz WHERE username = %s', (usrname.lower(),))
 					gamesumm = cursor.fetchone()
 					if int(gamesumm[0]) < 0:
-						cursor.execute('UPDATE userz SET gamesum = 0 WHERE username = %s', (args[1],))
+						cursor.execute('UPDATE userz SET gamesum = 0 WHERE username = %s', (usrname.lower(),))
 						conn.commit()
 					else:
 						pass
@@ -792,7 +793,8 @@ def echo(update, context):
 			elif '!remove' in update.message.text:
 				if balance[0] >= int(args[2]):
 					try:
-						cursor.execute('UPDATE userz SET balance = balance - %s WHERE username = %s', (args[2], args[1],))
+						usrname = args[1]
+						cursor.execute('UPDATE userz SET balance = balance - %s WHERE username = %s', (args[2], usrname.lower(),))
 						conn.commit()
 						context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Withdraw]</code>\nПользователь @{args[1]} вывел {args[2]} монет.', parse_mode='HTML')
 					except:
