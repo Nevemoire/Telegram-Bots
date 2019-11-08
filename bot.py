@@ -58,8 +58,7 @@ def start(update, context):
 		update.message.reply_text('Недоступно в этом чате.')
 	else:
 		"""Send a message when the command /start is issued."""
-		ids = update.message.from_user.id
-		cursor.execute('select balance from userz where id = %s', (ids,))
+		cursor.execute('select balance from userz where id = %s', (update.message.from_user.id,))
 		balance = cursor.fetchone()
 		error = "None"	
 		if error not in str(balance):
