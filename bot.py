@@ -822,7 +822,7 @@ def echo(update, context):
 	except AttributeError as error:
 		update.message.text('Ай-я-яй (AttributeError).')
 	except:
-		update.message.reply_text('Произошла ошибка (echo).')
+		pass
 
 
 def error(update, context):
