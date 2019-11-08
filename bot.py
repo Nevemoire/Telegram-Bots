@@ -782,9 +782,9 @@ def echo(update, context):
 				update.message.reply_text('Такого пользователя не существует.')
 			elif '!add' in update.message.text:
 				try:
-					cursor.execute('SELECT gamesum FROM userz WHERE username = %s', (args[1],))
+					cursor.execute('SELECT gamesum, balance FROM userz WHERE username = %s', (args[1],))
 					gamesumm = cursor.fetchone()
-					if int(gamesumm[0]) < 0:
+					if (int(gamesumm[0]) < 0) or (int(gamesumm[1]) == 0):
 						cursor.execute('UPDATE userz SET gamesum = 0 WHERE username = %s', (args[1],))
 						conn.commit()
 					else:
