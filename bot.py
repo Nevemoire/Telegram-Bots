@@ -139,6 +139,8 @@ def withdraw(update, context):
 @run_async
 def withdrawNick(update, context):
 	total = update.message.text
+	cursor.execute('SELECT balance FROM userz WHERE id = %s', (update.message.from_user.id,))
+	balance = cursor.fetchone()
 	try:
 		summ = int(total)
 	except:
