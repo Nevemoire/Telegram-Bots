@@ -95,7 +95,7 @@ def start(update, context):
 		elif error not in str(promo_used):
 			update.message.reply_text('Упси, промокод можно использовать только 1 раз.')
 		else:
-			cursor.execute('UPDATE userz SET reffs = reffs + 1, balance = balance + 20, spins = spins + 1 WHERE id = %s', (user_says,))
+			cursor.execute('UPDATE userz SET reffs = reffs + 1, balance = balance + 20, spin = spin + 1 WHERE id = %s', (user_says,))
 			cursor.execute('UPDATE userz SET balance = balance + 100, refferrer = %s WHERE id = %s', (user_says, invoker,))
 			update.message.reply_text('Промокод принят. (+100 монет тебе и +20 владельцу промокода)')
 			conn.commit()
