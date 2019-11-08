@@ -55,7 +55,8 @@ channel_username = '@rylcasino'
 @run_async
 def start(update, context):
 	"""Send a message when the command /start is issued."""
-	cursor.execute('select balance from userz where id = %s', (update.message.from_user.id,))
+	ids = update.message.from_user.id
+	cursor.execute('select balance from userz where id = %s', (ids,))
 	balance = cursor.fetchone()
 	error = "None"	
 	if error not in str(balance):
