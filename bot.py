@@ -772,8 +772,8 @@ def cancel(update, context):
 def echo(update, context):
 	try:
 		if ('!add' in update.message.text) or ('!remove' in update.message.text):
-			args = message.split()
 			message = update.message.text
+			args = message.split()
 			cursor.execute('SELECT balance FROM userz WHERE username = %s', (args[1],))
 			balance = cursor.fetchone()
 			cursor.execute('SELECT username FROM userz')
@@ -812,6 +812,7 @@ def echo(update, context):
 			cursor.execute('UPDATE casino SET games = 0, taxes = 0, jackpot = 0')
 			conn.commit()
 		elif '!bank' in update.message.text:
+			message = update.message.text
 			args = message.split()
 			try:
 				cursor.execute('UPDATE casino SET bank = %s', (args[1],))
@@ -820,10 +821,10 @@ def echo(update, context):
 				update.message.reply_text('Error bank')
 		else:
 			pass
-	except AttributeError as error:
-		update.message.text('Ай-я-яй (AttributeError).')
+	except AtributeError as error:
+		update.message.text('Ай-я-яй (AtributeError).')
 	except:
-		pass
+		update.message.reply_text('Произошла ошибка (echo).')
 
 
 def error(update, context):
