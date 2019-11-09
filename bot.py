@@ -38,8 +38,7 @@ MESSAGE, TOTAL, DICE, WITHDRAWAL_NICK, WITHDRAWAL = range(5)
 
 members = 'creator, administrator, member'
 memberslist = members.split(', ')
-admins = 'daaetoya, Nikandrov, nolor666'
-adminslist = admins.split(',')
+allowedlist = ['daaetoya', 'Nikandrov', 'nolor666']
 
 
 conn = psycopg2.connect(dbname = 'd19olitilh6q1s', user = 'oukggnzlpirgzh', password = 'a4e84b7de4257e36cecc14b60bb0ff570f7ce52d5d24b1c7eb275c96f403af36', host = 'ec2-79-125-23-20.eu-west-1.compute.amazonaws.com')
@@ -500,9 +499,9 @@ def button(update, context):
 
 	if str(query.from_user.id) not in str(all_users):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
-	elif ('withdraw' in query.data) and (query.from_user.username in adminslist):
+	elif ('withdraw' in query.data) and (str(query.from_user.username) in allowedlist):
 		query.edit_message_text(f'@{participant1[0]} успешно вывел(-а) {betinfo[2]} монет! 🎉')
-	elif ('withdraw' in query.data) and (query.from_user.username not in adminslist):
+	elif ('withdraw' in query.data) and (str(query.from_user.username) not in allowedlist):
 		query.answer(f'Недостаточно прав.\n{adminslist}', show_alert=True)
 	elif ('decline' in query.data) and (betinfo[1] in str(query.from_user.id)):
 		cursor.execute('UPDATE userz SET balance = balance + %s, busy = 0 WHERE id = %s', (betsumm, query.from_user.id,))
