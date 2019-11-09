@@ -814,8 +814,8 @@ def echo(update, context):
 				update.message.reply_text('Error bank')
 		else:
 			pass
-	except AtributeError as error:
-		update.message.text('Ай-я-яй (AtributeError).')
+	except AttributeError as error:
+		pass
 	except:
 		update.message.reply_text('Произошла ошибка (echo).')
 
