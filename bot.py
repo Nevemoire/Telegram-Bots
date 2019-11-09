@@ -501,7 +501,7 @@ def button(update, context):
 	if str(query.from_user.id) not in str(all_users):
 		query.answer(f'Ошибка!\n\nСперва нужно зарегистрироваться.\n\nДля регистрации напиши: /reg', show_alert=True)
 	elif ('withdraw' in query.data) and (query.from_user.username in adminslist):
-		query.edit_message_text(f'@{query.from_user.username} успешно вывел(-а) {betinfo[2]} монет! 🎉')
+		query.edit_message_text(f'@{participant1[0]} успешно вывел(-а) {betinfo[2]} монет! 🎉')
 	elif ('withdraw' in query.data) and (query.from_user.username not in adminslist):
 		query.answer('Недостаточно прав.', show_alert=True)
 	elif ('decline' in query.data) and (betinfo[1] in str(query.from_user.id)):
@@ -772,11 +772,11 @@ def echo(update, context):
 			balance = cursor.fetchone()
 			cursor.execute('SELECT username FROM userz')
 			all_users = cursor.fetchall()
-			if args[1] not in str(all_users):
+			usrname = args[1]
+			if usrname.lower() not in str(all_users):
 				update.message.reply_text('Такого пользователя не существует.')
 			elif '!add' in update.message.text:
 				try:
-					usrname = args[1]
 					cursor.execute('SELECT gamesum FROM userz WHERE username = %s', (usrname.lower(),))
 					gamesumm = cursor.fetchone()
 					if int(gamesumm[0]) < 0:
@@ -793,7 +793,6 @@ def echo(update, context):
 			elif '!remove' in update.message.text:
 				if balance[0] >= int(args[2]):
 					try:
-						usrname = args[1]
 						cursor.execute('UPDATE userz SET balance = balance - %s WHERE username = %s', (args[2], usrname.lower(),))
 						conn.commit()
 						context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Withdraw]</code>\nПользователь @{args[1]} вывел {args[2]} монет.', parse_mode='HTML')
