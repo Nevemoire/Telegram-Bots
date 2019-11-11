@@ -525,7 +525,7 @@ def button(update, context):
 				conn.commit()
 			elif (number > 950) and (number <= 999):
 				query.edit_message_text('Сегодня точно <b>твой</b> день! Забирай свой выигрыш: <code>500</code> монет 🎉', parse_mode='HTML')
-				cursor.execute('UPDATE userz SET balance = balance + %00 WHERE id = %s', (query.from_user.id,))
+				cursor.execute('UPDATE userz SET balance = balance + 500 WHERE id = %s', (query.from_user.id,))
 				conn.commit()
 			elif number == 1000:
 				query.edit_message_text('<b>Принимай поздравления!</b>\nТы срываешь <b>Куш</b> в <code>10000</code> монет! 😳', parse_mode='HTML')
