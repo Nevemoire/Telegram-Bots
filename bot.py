@@ -94,8 +94,8 @@ def start(update, context):
 		elif error not in str(promo_used):
 			update.message.reply_text('Упси, промокод можно использовать только 1 раз.')
 		else:
-			cursor.execute('UPDATE userz SET reffs = reffs + 1, balance = balance + 20, spin = spin + 1 WHERE id = %s', (user_says,))
-			cursor.execute('UPDATE userz SET balance = balance + 100, refferrer = %s WHERE id = %s', (user_says, invoker,))
+			cursor.execute('UPDATE userz SET reffs = reffs + 1, balance = balance + 20, gamesum = gamesum + 40, spin = spin + 1 WHERE id = %s', (user_says,))
+			cursor.execute('UPDATE userz SET balance = balance + 100, refferrer = %s, gamesum = gamesum + 200 WHERE id = %s', (user_says, invoker,))
 			update.message.reply_text('Промокод принят. (+100 монет тебе и +20 владельцу промокода)')
 			conn.commit()
 	except:
@@ -784,7 +784,7 @@ def echo(update, context):
 					else:
 						pass
 					gamesum = int(args[2])*2
-					cursor.execute('UPDATE userz SET balance = balance + %s, gamesum = gamesum + %s WHERE username = %s', (args[2], gamesum, args[1],))
+					cursor.execute('UPDATE userz SET balance = balance + %s, gamesum = gamesum + %s WHERE username = %s', (args[2], gamesum, usrname.lower(),))
 					conn.commit()
 					context.bot.send_message(chat_id='@rylcoinmarket', text=f'<code>[Deposit]</code>\nПользователь @{args[1]} внёс {args[2]} монет на свой счёт.', parse_mode='HTML')
 				except:
