@@ -533,7 +533,7 @@ def button(update, context):
 				cursor.execute('UPDATE userz SET balance = balance + 10000 WHERE id = %s', (query.from_user.id,))
 				conn.commit()
 			else:
-				query.edit_message_text('Произошла ошибка. Отправь скрин с этим сообщением @daaetoya и получи вознаграждение.
+				query.edit_message_text('Произошла ошибка. Отправь скрин с этим сообщением @daaetoya и получи вознаграждение.')
 	elif ('coinflip' in query.data) and (betinfo[1] in str(query.from_user.id)):
 		query.answer('Нельзя участвовать в своей же игре.', show_alert=True)
 	elif ('coinflip' in query.data) and ('1' in str(participant1[1])):
