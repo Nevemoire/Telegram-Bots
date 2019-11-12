@@ -521,16 +521,16 @@ def button(update, context):
 				query.edit_message_text('Эх, в этот раз не повезло.')
 			elif (number > 5000) and (number <=9500):
 				query.edit_message_text('Поздравляем! Твой выигрыш: <code>100</code> монет 🎉', parse_mode='HTML')
-				cursor.execute('UPDATE userz SET balance = balance + 100 WHERE id = %s', (query.from_user.id,))
+				cursor.execute('UPDATE userz SET balance = balance + 100, gamesum = gamesum + 200 WHERE id = %s', (query.from_user.id,))
 				conn.commit()
 			elif (number > 9500) and (number <= 9999):
 				query.edit_message_text('Сегодня точно <b>твой</b> день! Забирай свой выигрыш: <code>500</code> монет 🎉', parse_mode='HTML')
-				cursor.execute('UPDATE userz SET balance = balance + 500 WHERE id = %s', (query.from_user.id,))
+				cursor.execute('UPDATE userz SET balance = balance + 500, gamesum = gamesum + 1000 WHERE id = %s', (query.from_user.id,))
 				conn.commit()
 			elif number == 10000:
 				query.edit_message_text('<b>Принимай поздравления!</b>\nТы срываешь <b>Куш</b> в <code>10000</code> монет! 😳', parse_mode='HTML')
 				context.bot.send_message(chat_id=-1001441511504, text=f'Внимание! Внимание!\nМы нашли <b>счастливчика</b> года!\nПоздравляем @{query.from_user.username}, он(-а) выигрывает <b>Куш</b> в <code>10000</code> монет! 👸', parse_mode='HTML')
-				cursor.execute('UPDATE userz SET balance = balance + 10000 WHERE id = %s', (query.from_user.id,))
+				cursor.execute('UPDATE userz SET balance = balance + 10000, gamesum = gamesum + 20000 WHERE id = %s', (query.from_user.id,))
 				conn.commit()
 			else:
 				query.edit_message_text('Произошла ошибка. Отправь скрин с этим сообщением @daaetoya и получи вознаграждение.')
