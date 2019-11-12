@@ -21,6 +21,9 @@ import random
 import os
 from telegram.ext.dispatcher import run_async
 import psycopg2
+import hashlib
+import string
+import random
 
 
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
