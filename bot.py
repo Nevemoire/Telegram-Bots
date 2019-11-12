@@ -611,7 +611,7 @@ def button(update, context):
 					query.answer('Ошибка.', show_alert=True)
 
 					return
-				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{dnumber}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!\nHash: {last_hash}', parse_mode='HTML')
+				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{dnumber}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!\n<b>Hash</b>: <code>{last_hash}</code>', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '2x',))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('2x',))
@@ -628,7 +628,7 @@ def button(update, context):
 					query.answer('Ошибка.', show_alert=True)
 
 					return
-				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{dnumber}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!\nHash: {last_hash}', parse_mode='HTML')
+				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{dnumber}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!\n<b>Hash</b>: <code>{last_hash}</code>', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '3x',))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('3x',))
@@ -645,7 +645,7 @@ def button(update, context):
 					query.answer('Ошибка.', show_alert=True)
 
 					return
-				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{dnumber}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!\nHash: {last_hash}', parse_mode='HTML')
+				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{dnumber}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!\n<b>Hash</b>: <code>{last_hash}</code>', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '5x',))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('5x',))
@@ -662,7 +662,7 @@ def button(update, context):
 					query.answer('Ошибка.', show_alert=True)
 
 					return
-				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{dnumber}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!\nHash: {last_hash}', parse_mode='HTML')
+				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{dnumber}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!\n<b>Hash</b>: <code>{last_hash}</code>', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '10x',))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('10x',))
@@ -680,7 +680,7 @@ def button(update, context):
 					query.answer('Ошибка.', show_alert=True)
 
 					return
-				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{dnumber}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!\nHash: {last_hash}', parse_mode='HTML')
+				query.edit_message_text(f'<b>Победа!</b>\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{dnumber}</code>\n<b>Выигрыш</b>: <code>{dice_win}</code> монет!\n<b>Hash</b>: <code>{last_hash}</code>', parse_mode='HTML')
 				cursor.execute('UPDATE userz SET balance = balance + %s WHERE id = %s', (dice_win, query.from_user.id,))
 				cursor.execute('UPDATE dstats SET total = total + %s WHERE multiplier = %s', (dice_win, '50x',))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', ('50x',))
@@ -689,7 +689,7 @@ def button(update, context):
 				context.bot.send_message(chat_id='@rylcoinmarket', text=f'👸 {query.from_user.full_name} сорвал(-а) <b>Куш</b>! 👸\n\n<b>Коэффициент</b>: <code>50X</code>!\n<b>Выигрыш</b>: <code>{dice_win}</code>!', parse_mode='HTML')
 			else:
 				query.answer('❌')
-				query.edit_message_text(f'<b>Проигрыш!</b> В следующий раз повезёт :(\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{dnumber}</code>\n<b>Ставка</b>: <code>{betsumm}</code> монет\nHash: {last_hash}', parse_mode='HTML')
+				query.edit_message_text(f'<b>Проигрыш!</b> В следующий раз повезёт :(\n<b>Коэффициент</b>: <code>{multiplier[0]}</code>\n<b>Число</b>: <code>{dnumber}</code>\n<b>Ставка</b>: <code>{betsumm}</code> монет\n<b>Hash</b>: <code>{last_hash}</code>', parse_mode='HTML')
 				cursor.execute(f'UPDATE dstats SET lost = lost - {betsumm} WHERE multiplier = %s', (multiplier[0],))
 				cursor.execute('UPDATE dstats SET games = games + 1 WHERE multiplier = %s', (multiplier[0],))
 				cursor.execute(f'UPDATE casino SET bank = bank + {betsumm}')
