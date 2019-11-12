@@ -504,7 +504,7 @@ def button(update, context):
 	elif ('withdraw' in query.data) and (str(query.from_user.username) not in allowedlist):
 		query.answer('Недостаточно прав.', show_alert=True)
 	elif ('decline' in query.data) and (betinfo[1] in str(query.from_user.id)):
-		cursor.execute('UPDATE userz SET balance = balance + %s, busy = 0 WHERE id = %s', (betsumm, query.from_user.id,))
+		cursor.execute('UPDATE userz SET balance = balance + %s, gamesum = gamesum + %s, busy = 0 WHERE id = %s', (betsumm, betsumm, query.from_user.id,))
 		conn.commit()
 		query.edit_message_text('Игра отменена.')
 	elif ('decline' in query.data) and (betinfo[1] not in str(query.from_user.id)):
