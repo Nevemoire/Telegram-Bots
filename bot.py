@@ -408,7 +408,7 @@ def dice_start(update, context):
 			# If the char is a digit and length of result if 0 or 1
 			if a.isdigit() and len(result) < 3:
 			# Add the digit to the result
-			result += str(a)
+				result += str(a)
 			# Transforming the result into an integer
 		result = int(result) + 1
 		context.user_data['result'] = result
