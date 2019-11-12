@@ -803,7 +803,14 @@ def echo(update, context):
 					update.message.reply_text('Недостаточно монет.')
 			else:
 				pass
-		elif ('!refresh' in update.message.text):
+		elif '!gems' in update.message.text:
+			message = update.message.text
+			args = message.split()
+			target = update.message.reply_to_message.from_user.id
+			cursor.execute(f"UPDATE userz SET spin = spin + {args[1]} WHERE id = {target}")
+			conn.commit()
+			update.message.reply_text(f'@{update.message.reply_to_message.from_user.username} + {args[1]} 💎')
+		elif '!refresh' in update.message.text:
 			cursor.execute('UPDATE dstats SET games = 0, total = 0, lost = 0')
 			cursor.execute('UPDATE casino SET games = 0, taxes = 0, jackpot = 0')
 			conn.commit()
