@@ -459,12 +459,9 @@ def Total(update, context):
 		return ConversationHandler.END
 	elif (summ >= 100) and (summ <= 100000) and game == 'coinflip':
 		try:
-			keyboard = [[InlineKeyboardButton('Играть 🤠', callback_data=f'coinflip {inv_user_id} {summ}'), InlineKeyboardButton('Отменить ❌', callback_data=f'decline {inv_user_id} {summ}')],
-						[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
-			reply_markup = InlineKeyboardMarkup(keyboard)
+			
 			possible_chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
 			last_hash = ''.join(random.choice(possible_chars) for x in range(64))
-			context.user_data['clast_hash'] = last_hash
 			new_hash = hashlib.sha256(last_hash.encode('utf-8')).hexdigest()
 			# Calculating a result
 			result = ''
@@ -476,7 +473,9 @@ def Total(update, context):
 					result += str(a)
 			# Transforming the result into an integer
 			result = int(result) + 1
-			context.user_data['cresult'] = result
+			keyboard = [[InlineKeyboardButton('Играть 🤠', callback_data=f'coinflip {inv_user_id} {summ} {result} {last_hash}'), InlineKeyboardButton('Отменить ❌', callback_data=f'decline {inv_user_id} {summ}')],
+						[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
+			reply_markup = InlineKeyboardMarkup(keyboard)
 			context.bot.send_message(chat_id=channel_username, text=f'<code>Coinflip</code> 🌕\n\n<b>Создатель</b>: {invoker} (@{inv_user})\n<b>Ставка</b>: {summ} монет\n<b>SHA256</b>: <code>{new_hash}</code>', parse_mode='HTML', reply_markup=reply_markup)
 			context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text=f'Дуэль успешно создана.\nНе забудь вступить в канал, где мы публикуем все игры: {channel_username}')
 			cursor.execute('UPDATE userz SET balance = balance - %s, gamesum = gamesum - %s, busy = 2 WHERE id = %s', (summ, summ, inv_user_id,))
@@ -575,8 +574,8 @@ def button(update, context):
 	elif ('coinflip' in query.data) and (int(participant2[1]) < int(betsumm)):
 		query.answer('Недостаточно монет.\nЧтобы пополнить баланс напиши боту /deposit', show_alert=True)
 	elif 'coinflip' in query.data:
-		cresult = context.user_data['cresult']
-		clast_hash = context.user_data['clast_hash']
+		cresult = betinfo[3]
+		clast_hash = betinfo[4]
 		cursor.execute('UPDATE userz SET balance = balance - %s, gamesum = gamesum - %s WHERE id = %s', (betsumm, betsumm, query.from_user.id,))
 		cursor.execute('UPDATE userz SET busy = 1 WHERE username = %s', (participant1[0],))
 		cf_participants = [participant1[0], participant2[0]]
