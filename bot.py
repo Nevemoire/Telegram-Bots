@@ -504,6 +504,7 @@ def Total(update, context):
 
 
 def button(update, context):
+	query = update.callback_query
 	try:
 		cursor.execute('SELECT id FROM userz')
 		all_users = cursor.fetchall()
@@ -513,7 +514,6 @@ def button(update, context):
 		return
 	keyboard = [[InlineKeyboardButton('Создать свою игру', url=bot_link)]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
-	query = update.callback_query
 	betinfo = query.data.split()
 	cursor.execute('SELECT username, busy FROM userz WHERE id = %s', (betinfo[1],))
 	participant1 = cursor.fetchone()
