@@ -601,7 +601,7 @@ def button(update, context):
 				pass
 		else:
 			pass
-		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}! ({cflip[2]})\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!\n\n<b>SHA 256</b>: <code>{cflip[0]}</code>\n<b>Hash</b>: <code>{cflip[1]}</code>\n<a href="https://md5calc.com/hash/sha256/{cflip[1]}">Проверка честности</a>', parse_mode='HTML', reply_markup=reply_markup)
+		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}! ({cflip[2]})\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!\n\n<b>SHA 256</b>: <code>{cflip[0]}</code>\n<b>Hash</b>: <code>{cflip[1]}</code>\n<a href="https://md5calc.com/hash/sha256/{cflip[1]}">Проверка честности</a>', parse_mode='HTML', disable_web_page_preview=True, reply_markup=reply_markup)
 	elif 'roulette' in query.data:
 		query.edit_message_text('Игра в разработке...')
 	elif 'd_rules' in query.data:
