@@ -573,7 +573,7 @@ def button(update, context):
 	elif ('coinflip' in query.data) and (int(participant2[1]) < int(betsumm)):
 		query.answer('Недостаточно монет.\nЧтобы пополнить баланс напиши боту /deposit', show_alert=True)
 	elif 'coinflip' in query.data:
-		cursor.execute('SELECT FROM userz new_hash, last_hash, result WHERE id = %s', (betinfo[1],))
+		cursor.execute('SELECT new_hash, last_hash, result FROM userz WHERE id = %s', (betinfo[1],))
 		cflip = cursor.fetchone()
 		cursor.execute('UPDATE userz SET balance = balance - %s, gamesum = gamesum - %s WHERE id = %s', (betsumm, betsumm, query.from_user.id,))
 		cursor.execute('UPDATE userz SET busy = 1 WHERE username = %s', (participant1[0],))
