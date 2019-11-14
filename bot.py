@@ -596,12 +596,12 @@ def button(update, context):
 				pass
 		elif (int(total) >= 5700) and (int(total) < 9500):
 			try:
-				context.bot.send_message(chat_id=-1001441511504, text=f'<b>Поздравляем</b> @{winner}, он(-а) выигрывает <b>Джекпот</b> в <code>Coinflip</code>! 🏆\n<b>Выигрыш</b>: <code>{int(total)}</code>\n\n<b>SHA 256</b>: <code>{cflip[0]}</code>\n<b>Hash</b>: <code>{cflip[1]}</code>\n<a href="https://md5calc.com/hash/sha256/{cflip[1]}">Проверка честности</a>', parse_mode='HTML')
+				context.bot.send_message(chat_id=-1001441511504, text=f'<b>Поздравляем</b> @{winner}, он(-а) выигрывает <b>Джекпот</b> в <code>Coinflip</code>! 🏆\n<b>Выигрыш</b>: <code>{int(total)}</code>', parse_mode='HTML')
 			except:
 				pass
 		else:
 			pass
-		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}! ({cflip[2]})\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
+		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}! ({cflip[2]})\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!\n\n<b>SHA 256</b>: <code>{cflip[0]}</code>\n<b>Hash</b>: <code>{cflip[1]}</code>\n<a href="https://md5calc.com/hash/sha256/{cflip[1]}">Проверка честности</a>', parse_mode='HTML', reply_markup=reply_markup)
 	elif 'roulette' in query.data:
 		query.edit_message_text('Игра в разработке...')
 	elif 'd_rules' in query.data:
