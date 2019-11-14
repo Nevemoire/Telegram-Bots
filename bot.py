@@ -475,7 +475,7 @@ def Total(update, context):
 					result += str(a)
 				# Transforming the result into an integer
 			result = int(result) + 1
-			cursor.execute(f'UPDATE userz SET new_hash = {new_hash}, last_hash = {last_hash}, result = {result} WHERE id = {inv_user_id}')
+			cursor.execute('UPDATE userz SET new_hash = %s, last_hash = %s, result = %s WHERE id = %s', (new_hash, last_hash, result, inv_user_id,))
 			context.bot.send_message(chat_id=channel_username, text=f'<code>Coinflip</code> 🌕\n\n<b>Создатель</b>: {invoker} (@{inv_user})\n<b>Ставка</b>: {summ} монет\n\n<b>SHA 256</b>: <code>{new_hash}</code>', parse_mode='HTML', reply_markup=reply_markup)
 			context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text=f'Дуэль успешно создана.\nНе забудь вступить в канал, где мы публикуем все игры: {channel_username}')
 			cursor.execute('UPDATE userz SET balance = balance - %s, gamesum = gamesum - %s, busy = 2 WHERE id = %s', (summ, summ, inv_user_id,))
