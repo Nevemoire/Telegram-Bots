@@ -462,11 +462,24 @@ def Total(update, context):
 			keyboard = [[InlineKeyboardButton('Играть 🤠', callback_data=f'coinflip {inv_user_id} {summ}'), InlineKeyboardButton('Отменить ❌', callback_data=f'decline {inv_user_id} {summ}')],
 						[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 			reply_markup = InlineKeyboardMarkup(keyboard)
-			context.bot.send_message(chat_id=channel_username, text=f'<code>Coinflip</code> 🌕\n\n<b>Создатель</b>: {invoker} (@{inv_user})\n<b>Ставка</b>: {summ} монет', parse_mode='HTML', reply_markup=reply_markup)
+			possible_chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
+			last_hash = ''.join(random.choice(possible_chars) for x in range(64))
+			new_hash = hashlib.sha256(last_hash.encode('utf-8')).hexdigest()
+				# Calculating a result
+			result = ''
+				# Checking each char in the hash
+			for a in last_hash:
+				# If the char is a digit and length of result if 0 or 1
+				if a.isdigit() and len(result) < 3:
+				# Add the digit to the result
+					result += str(a)
+				# Transforming the result into an integer
+			result = int(result) + 1
+			cursor.execute(f'UPDATE userz SET new_hash = {new_hash}, last_hash = {last_hash}, result = {result} WHERE id = {inv_user_id}')
+			context.bot.send_message(chat_id=channel_username, text=f'<code>Coinflip</code> 🌕\n\n<b>Создатель</b>: {invoker} (@{inv_user})\n<b>Ставка</b>: {summ} монет\n\n<b>SHA 256</b>: <code>{new_hash}</code>', parse_mode='HTML', reply_markup=reply_markup)
 			context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text=f'Дуэль успешно создана.\nНе забудь вступить в канал, где мы публикуем все игры: {channel_username}')
 			cursor.execute('UPDATE userz SET balance = balance - %s, gamesum = gamesum - %s, busy = 2 WHERE id = %s', (summ, summ, inv_user_id,))
 			conn.commit()
-			context.user_data['participants'] = 0
 			
 			return ConversationHandler.END
 		except:
@@ -560,10 +573,19 @@ def button(update, context):
 	elif ('coinflip' in query.data) and (int(participant2[1]) < int(betsumm)):
 		query.answer('Недостаточно монет.\nЧтобы пополнить баланс напиши боту /deposit', show_alert=True)
 	elif 'coinflip' in query.data:
+		cursor.execute('SELECT FROM userz new_hash, last_hash, result WHERE id = %s', (betinfo[1],))
+		cflip = cursor.fetchone()
 		cursor.execute('UPDATE userz SET balance = balance - %s, gamesum = gamesum - %s WHERE id = %s', (betsumm, betsumm, query.from_user.id,))
 		cursor.execute('UPDATE userz SET busy = 1 WHERE username = %s', (participant1[0],))
-		cf_participants = [participant1[0], participant2[0]]
-		winner = random.choice(cf_participants)
+		cnumber = int(cflip[2])
+		if cnumber <= 500:
+			winner = participant1[0]
+		elif cnumber > 500:
+			winner = participant2[0]
+		else:
+			query.edit_message_text('Ошибка. Для возврата средств: @rylsupportbot')
+
+			return
 		cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (total, winner,))
 		cursor.execute('UPDATE casino SET games = games + 1, taxes = taxes + %s, jackpot = jackpot + %s', (taxes, jackpot,))
 		conn.commit()
@@ -574,12 +596,12 @@ def button(update, context):
 				pass
 		elif (int(total) >= 5700) and (int(total) < 9500):
 			try:
-				context.bot.send_message(chat_id=-1001441511504, text=f'<b>Поздравляем</b> @{winner}, он(-а) выигрывает <b>Джекпот</b> в <code>Coinflip</code>! 🏆\n<b>Выигрыш</b>: <code>{int(total)}</code>', parse_mode='HTML')
+				context.bot.send_message(chat_id=-1001441511504, text=f'<b>Поздравляем</b> @{winner}, он(-а) выигрывает <b>Джекпот</b> в <code>Coinflip</code>! 🏆\n<b>Выигрыш</b>: <code>{int(total)}</code>\n\n<b>SHA 256</b>: <code>{cflip[0]}</code>\n<b>Hash</b>: <code>{cflip[1]}</code>\n<a href="https://md5calc.com/hash/sha256/{cflip[1]}">Проверка честности</a>', parse_mode='HTML')
 			except:
 				pass
 		else:
 			pass
-		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}!\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
+		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}! ({cflip[2]})\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!', parse_mode='HTML', reply_markup=reply_markup)
 	elif 'roulette' in query.data:
 		query.edit_message_text('Игра в разработке...')
 	elif 'd_rules' in query.data:
