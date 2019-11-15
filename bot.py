@@ -269,7 +269,7 @@ def getPromo(update, context):
 	reffs = cursor.fetchone()
 	cursor.execute('SELECT refferrer FROM userz where id = %s', (ids,))
 	ref = cursor.fetchone()
-	update.message.reply_text(f'Исп. промокод: {ref[0]}\nКол-во реффералов: {reffs[0]}\n\nСсылка для приглашения:\nhttps://t.me/RoyalCasinoBot?start={ids}')
+	update.message.reply_text(f'Исп. промокод: {ref[0]}\nКол-во реффералов: {reffs[0]}\n\nСсылка для приглашения:\nhttps://t.me/RoyalCasinoBot?start={ids}\nСсылка для приглашения (жителям РФ):\nhttps://tlg.name/RoyalCasinoBot?start={ids}')
 
 
 @run_async
