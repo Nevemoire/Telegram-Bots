@@ -209,25 +209,22 @@ def inlinequery(update, context):
 
         update.inline_query.answer(results)
     elif '@' in str(target):
-        if 'everyone' in str(target):
-            results = [
-                InlineQueryResultArticle(
-                    id=uuid4(),
-                    title="Вяжем всех!",
-                    input_message_content=InputTextMessageContent(
-                        message_text=f'{name} повязал(-a) весь чатик!\nВсе пользователи отправляются в обезъянник.'))]
-        else:
-            results = [
+        results = [
             #InlineQueryResultCachedAudio(
                 #id=uuid4(),
                 #audio_file_id='CQADBAADIBAAAjsPuFMvbgABZjW0M5cWBA'),
-                InlineQueryResultArticle(
-                    id=uuid4(),
-                    title="Вяжем " + update.inline_query.query,
-                    input_message_content=InputTextMessageContent(
-                        message_text=f'{name} {random.choice(actions.action1)} {target} {random.choice(actions.action2)}'))]
+            InlineQueryResultArticle(
+                id=uuid4(),
+                title="Вяжем всех!",
+                input_message_content=InputTextMessageContent(
+                    message_text=f'{name} попытался(-aсь) повязать весь чатик!\nТеперь ему/ей светит {random.randint(5, 10)} лет бутылки правосудия.')),
+            InlineQueryResultArticle(
+                id=uuid4(),
+                title="Вяжем " + update.inline_query.query,
+                input_message_content=InputTextMessageContent(
+                    message_text=f'{name} {random.choice(actions.action1)} {target} {random.choice(actions.action2)}'))]
 
-            update.inline_query.answer(results)
+        update.inline_query.answer(results)
     else:
         results = [
             InlineQueryResultArticle(
