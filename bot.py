@@ -189,6 +189,7 @@ def inlinequery(update, context):
     target = update.inline_query.query
     name = update.inline_query.from_user.full_name
     member = context.bot.get_chat_member('@rozbiynuki', userid)
+    chances = random.randint(1,100)
     if member.status not in memberslist:
         results = [
             InlineQueryResultArticle(
@@ -209,7 +210,6 @@ def inlinequery(update, context):
         update.inline_query.answer(results)
     elif '@' in str(target):
         if 'everyone' in str(target):
-            chances = random.randint(1,100)
             if int(chances) < 90:
                 results = [
                     InlineQueryResultArticle(
