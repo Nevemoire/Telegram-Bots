@@ -128,8 +128,7 @@ def getId(update, context):
 def echo(update, context):
     text = update.message.text
     userid = update.message.from_user.id
-    member1 = context.bot.get_chat_member('@rozbiynuki', userid)
-    member2 = context.bot.get_chat_member('@rozbiynukirofls', userid)
+    member = context.bot.get_chat_member('@rozbiynuki', userid)
     command1 = '!8ball'
     command2 = '!love'
     command3 = '!ping'
@@ -137,7 +136,7 @@ def echo(update, context):
     invoker = update.message.from_user.full_name
     ginvoker = update.message.from_user.username
 
-    if (member1.status in memberslist and member2.status in memberslist):
+    if member.status in memberslist:
       if command1 in update.message.text:
           update.message.reply_text(
               f'Такс.. Розбійник посовещался с паном президентом и говорит: {random.choice(actions.action3)}')
@@ -173,7 +172,7 @@ def echo(update, context):
     else:
       if (command1 in update.message.text or command2 in update.message.text):
         update.message.reply_text('''Ненене, так не пойдёт.
-Для начала подпишись на: @Rozbiynuki и @RozbiynukiRofls''')
+Для начала подпишись на: @Rozbiynuki''')
       else:
         pass
 
@@ -189,9 +188,8 @@ def inlinequery(update, context):
     userid = update.inline_query.from_user.id
     target = update.inline_query.query
     name = update.inline_query.from_user.full_name
-    member1 = context.bot.get_chat_member('@rozbiynuki', userid)
-    member2 = context.bot.get_chat_member('@rozbiynukirofls', userid)
-    if (member1.status in memberslist and member2.status in memberslist):
+    member = context.bot.get_chat_member('@rozbiynuki', userid)
+    if member.status in memberslist:
         results = [
             InlineQueryResultCachedAudio(
                 id=uuid4(),
@@ -212,16 +210,15 @@ def inlinequery(update, context):
                 input_message_content=InputTextMessageContent(
                     message_text=
                     '''Ненене, так не пойдёт.
-Для начала подпишись на: @Rozbiynuki и @RozbiynukiRofls'''))]
+Для начала подпишись на: @Rozbiynuki'''))]
 
         update.inline_query.answer(results)
 
 
 def anon(update, context):
     userid = update.message.from_user.id
-    member1 = context.bot.get_chat_member('@rozbiynuki', userid)
-    member2 = context.bot.get_chat_member('@rozbiynukirofls', userid)
-    if (member1.status in memberslist and member2.status in memberslist):
+    member = context.bot.get_chat_member('@rozbiynuki', userid)
+    if member.status in memberslist:
     	update.message.reply_text(
         	'''Наконец что-то интересненькое ;)
 
@@ -238,7 +235,7 @@ _Не волнуйся, бот быстренько удалит твоё соо
     	return ID
     else:
         update.message.reply_text('''Ненене, так не пойдёт.
-Для начала подпишись на: @Rozbiynuki и @RozbiynukiRofls''')
+Для начала подпишись на: @Rozbiynuki''')
 	
         return ConversationHandler.END
 
