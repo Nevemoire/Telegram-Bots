@@ -27,7 +27,7 @@ from uuid import uuid4
 import psycopg2
 
 
-from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent, InlineQueryResultCachedAudio
+from telegram import InlineQueryResultArticle, ParseMode, InputTextMessageContent #, InlineQueryResultCachedAudio
 from telegram.ext import Updater, InlineQueryHandler, CommandHandler, MessageHandler, Filters, ConversationHandler
 
 
@@ -218,16 +218,16 @@ def inlinequery(update, context):
         results = [
             InlineQueryResultArticle(
                 id=uuid4(),
-                title="Укажи @username!\n@everyone чтобы выбрать всех.",
+                title="Укажи @username или @everyone!",
                 input_message_content=InputTextMessageContent(
                     message_text=f'{name} повязал(-a) сам(-a) себя..\nКак же так произошло..'))]
 
         update.inline_query.answer(results)
     elif (member.status in memberslist) and ('@' in str(target)):
         results = [
-            InlineQueryResultCachedAudio(
-                id=uuid4(),
-                audio_file_id='CQADBAADIBAAAjsPuFMvbgABZjW0M5cWBA'),
+            #InlineQueryResultCachedAudio(
+                #id=uuid4(),
+                #audio_file_id='CQADBAADIBAAAjsPuFMvbgABZjW0M5cWBA'),
             InlineQueryResultArticle(
                 id=uuid4(),
                 title="Вяжем " + update.inline_query.query,
