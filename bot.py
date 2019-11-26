@@ -236,9 +236,6 @@ def inlinequery(update, context):
                         message_text=f'{name} {random.choice(actions.action1)} {target} {random.choice(actions.action2)}'))]
 
             update.inline_query.answer(results)
-    elif '@everyone' in str(target):
-        
-
     else:
         results = [
             InlineQueryResultArticle(
