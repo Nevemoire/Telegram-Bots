@@ -44,8 +44,8 @@ members = 'creator, administrator, member'
 memberslist = members.split(', ')
 
 
-conn = psycopg2.connect(dbname='d3p95g4d436dvm', user='gogkpkgabilgaj', 
-                        password='984caca9804921aaba645e063270277f0aca1cf316578740c29104822e91254c', host='ec2-54-228-252-67.eu-west-1.compute.amazonaws.com')
+conn = psycopg2.connect(dbname='daqpsemmol11kn', user='fnwjyuhqrjdbcv', 
+                        password='4ae63588868e2423ddb7cc3bd4e71ae5892179b86dca5a90272b747aa933bac9', host='ec2-46-137-75-170.eu-west-1.compute.amazonaws.com')
 cursor = conn.cursor()
 
 
