@@ -198,6 +198,27 @@ def inlinequery(update, context):
                     message_text=f'{name} повязал(-a) сам(-a) себя..\nКажется, причина в отсутствии подписки на <a href="https://t.me/rozbiynuki">наш</a> канал.', parse_mode='HTML', disable_web_page_preview=True))]
 
         update.inline_query.answer(results)
+    elif '@' not in str(target):
+        results = [
+            InlineQueryResultArticle(
+                id=uuid4(),
+                title="Укажи @username или @everyone!",
+                input_message_content=InputTextMessageContent(
+                    message_text=f'{name} повязал(-a) сам(-a) себя..\nКак же так произошло..'))]
+
+        update.inline_query.answer(results)
+    elif '@' in str(target):
+        results = [
+            #InlineQueryResultCachedAudio(
+                #id=uuid4(),
+                #audio_file_id='CQADBAADIBAAAjsPuFMvbgABZjW0M5cWBA'),
+            InlineQueryResultArticle(
+                id=uuid4(),
+                title="Вяжем " + update.inline_query.query,
+                input_message_content=InputTextMessageContent(
+                    message_text=f'{name} {random.choice(actions.action1)} {target} {random.choice(actions.action2)}'))]
+
+        update.inline_query.answer(results)
     elif '@everyone' in str(target):
         chances = random.randint(1,100)
         if int(chances) < 90:
@@ -214,27 +235,6 @@ def inlinequery(update, context):
                     title="Вяжем всех!",
                     input_message_content=InputTextMessageContent(
                         message_text=f'{name} повязал(-a) весь чатик!\nВсе пользователи отправляются в обезъянник.'))]
-    elif '@' not in str(target):
-        results = [
-            InlineQueryResultArticle(
-                id=uuid4(),
-                title="Укажи @username или @everyone!",
-                input_message_content=InputTextMessageContent(
-                    message_text=f'{name} повязал(-a) сам(-a) себя..\nКак же так произошло..'))]
-
-        update.inline_query.answer(results)
-    elif (member.status in memberslist) and ('@' in str(target)):
-        results = [
-            #InlineQueryResultCachedAudio(
-                #id=uuid4(),
-                #audio_file_id='CQADBAADIBAAAjsPuFMvbgABZjW0M5cWBA'),
-            InlineQueryResultArticle(
-                id=uuid4(),
-                title="Вяжем " + update.inline_query.query,
-                input_message_content=InputTextMessageContent(
-                    message_text=f'{name} {random.choice(actions.action1)} {target} {random.choice(actions.action2)}'))]
-
-        update.inline_query.answer(results)
 
     else:
         results = [
