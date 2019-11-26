@@ -195,7 +195,7 @@ def inlinequery(update, context):
                 id=uuid4(),
                 title="Подпишись на @rozbiynuki!",
                 input_message_content=InputTextMessageContent(
-                    message_text=f'{name} повязал(-a) сам(-a) себя..\nКажется, причина в отсутствии подписки на <a href='t.me/rozbiynuki'>наш</a> канал.', parse_mode='HTML', disable_web_page_preview=True))]
+                    message_text=f'{name} повязал(-a) сам(-a) себя..\nКажется, причина в отсутствии подписки на <a href="https://t.me/rozbiynuki">наш</a> канал.', parse_mode='HTML', disable_web_page_preview=True))]
 
         update.inline_query.answer(results)
     elif 'None' in str(target):
