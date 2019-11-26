@@ -203,7 +203,7 @@ def inlinequery(update, context):
         results = [
             InlineQueryResultArticle(
                 id=uuid4(),
-                title="Укажи @username или @everyone!",
+                title="Укажи @username!",
                 input_message_content=InputTextMessageContent(
                     message_text=f'{name} повязал(-a) сам(-a) себя..\nКак же так произошло..'))]
 
