@@ -210,20 +210,12 @@ def inlinequery(update, context):
         update.inline_query.answer(results)
     elif '@' in str(target):
         if 'everyone' in str(target):
-            if int(chances) < 90:
-                results = [
-                    InlineQueryResultArticle(
-                        id=uuid4(),
-                        title="Вяжем всех!",
-                        input_message_content=InputTextMessageContent(
-                            message_text=f'{name} попытался(-ась) повязать весь чатик.\nТеперь его/её ожидает бутылка правосудия.'))]
-            else:
-                results = [
-                    InlineQueryResultArticle(
-                        id=uuid4(),
-                        title="Вяжем всех!",
-                        input_message_content=InputTextMessageContent(
-                            message_text=f'{name} повязал(-a) весь чатик!\nВсе пользователи отправляются в обезъянник.'))]
+            results = [
+                InlineQueryResultArticle(
+                    id=uuid4(),
+                    title="Вяжем всех!",
+                    input_message_content=InputTextMessageContent(
+                        message_text=f'{name} повязал(-a) весь чатик!\nВсе пользователи отправляются в обезъянник.'))]
         else:
             results = [
             #InlineQueryResultCachedAudio(
