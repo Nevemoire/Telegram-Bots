@@ -198,22 +198,29 @@ def inlinequery(update, context):
                     message_text=f'{name} повязал(-a) сам(-a) себя..\nКажется, причина в отсутствии подписки на <a href="https://t.me/rozbiynuki">наш</a> канал.', parse_mode='HTML', disable_web_page_preview=True))]
 
         update.inline_query.answer(results)
-    elif 'None' in str(target):
-        results = [
-            InlineQueryResultArticle(
-                id=uuid4(),
-                title="Введи @username жертвы!",
-                input_message_content=InputTextMessageContent(
-                    message_text=f'{name} повязал(-a) сам(-a) себя..\nКак же так произошло..'))]
-
-        update.inline_query.answer(results)
+    elif '@everyone' in str(target):
+        chances = random.randint(1,100)
+        if int(chances) < 90:
+            results = [
+                InlineQueryResultArticle(
+                    id=uuid4(),
+                    title="Вяжем всех!",
+                    input_message_content=InputTextMessageContent(
+                        message_text=f'{name} попытался(-ась) повязать весь чатик.\nТеперь его/её ожидает бутылка правосудия.'))]
+        else:
+            results = [
+                InlineQueryResultArticle(
+                    id=uuid4(),
+                    title="Вяжем всех!",
+                    input_message_content=InputTextMessageContent(
+                        message_text=f'{name} повязал(-a) весь чатик!\nВсе пользователи отправляются в обезъянник.'))]
     elif '@' not in str(target):
         results = [
             InlineQueryResultArticle(
                 id=uuid4(),
-                title="Нужно указать @username!",
+                title="Укажи @username!\n@everyone чтобы выбрать всех.",
                 input_message_content=InputTextMessageContent(
-                    message_text=f'{name} повязал(-a) сам(-a) себя..\nКажется, причина в отсутствии подписки на <a href="https://t.me/rozbiynuki">наш</a> канал.', parse_mode='HTML', disable_web_page_preview=True))]
+                    message_text=f'{name} повязал(-a) сам(-a) себя..\nКак же так произошло..'))]
 
         update.inline_query.answer(results)
     elif (member.status in memberslist) and ('@' in str(target)):
