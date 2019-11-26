@@ -189,14 +189,41 @@ def inlinequery(update, context):
     target = update.inline_query.query
     name = update.inline_query.from_user.full_name
     member = context.bot.get_chat_member('@rozbiynuki', userid)
-    if member.status in memberslist:
+    if member.status not in memberslist:
+        results = [
+            InlineQueryResultArticle(
+                id=uuid4(),
+                title="Подпишись на @rozbiynuki!",
+                input_message_content=InputTextMessageContent(
+                    message_text=f'{name} повязал(-a) сам(-a) себя..\nКажется, причина в отсутствии подписки на <a href='t.me/rozbiynuki'>наш</a> канал.', parse_mode='HTML', disable_web_page_preview=True))]
+
+        update.inline_query.answer(results)
+    elif 'None' in str(target):
+        results = [
+            InlineQueryResultArticle(
+                id=uuid4(),
+                title="Введи @username жертвы!",
+                input_message_content=InputTextMessageContent(
+                    message_text=f'{name} повязал(-a) сам(-a) себя..\nКак же так произошло..'))]
+
+        update.inline_query.answer(results)
+    elif '@' not in str(target):
+        results = [
+            InlineQueryResultArticle(
+                id=uuid4(),
+                title="Нужно указать @username!",
+                input_message_content=InputTextMessageContent(
+                    message_text=f'{name} повязал(-a) сам(-a) себя..\nКажется, причина в отсутствии подписки на <a href='t.me/rozbiynuki'>наш</a> канал.', parse_mode='HTML', disable_web_page_preview=True))]
+
+        update.inline_query.answer(results)
+    elif (member.status in memberslist) and ('@' in str(target)):
         results = [
             InlineQueryResultCachedAudio(
                 id=uuid4(),
                 audio_file_id='CQADBAADIBAAAjsPuFMvbgABZjW0M5cWBA'),
             InlineQueryResultArticle(
                 id=uuid4(),
-                title="Їбемо " + update.inline_query.query,
+                title="Вяжем " + update.inline_query.query,
                 input_message_content=InputTextMessageContent(
                     message_text=f'{name} {random.choice(actions.action1)} {target} {random.choice(actions.action2)}'))]
 
@@ -206,11 +233,9 @@ def inlinequery(update, context):
         results = [
             InlineQueryResultArticle(
                 id=uuid4(),
-                title="Перед трахом підпишися на @rozbiynuki",
+                title="FATAL ERROR",
                 input_message_content=InputTextMessageContent(
-                    message_text=
-                    '''Ненене, так не пойдёт.
-Для начала подпишись на: @Rozbiynuki'''))]
+                    message_text=f'{name} застрял(-а) в пространстве и времени..'))]
 
         update.inline_query.answer(results)
 
