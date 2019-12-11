@@ -112,7 +112,7 @@ def gemsRaffle(update, context):
 	conn.commit()
 	keyboard = [[InlineKeyboardButton('💎', callback_data="gemsRaffle 777 777")]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
-	context.bot.send_message(chat_id='@ryl_news', message="У нас есть несколько подарков для вас.", reply_markup=reply_markup)
+	context.bot.send_message(chat_id='@ryl_news', text="У нас есть несколько подарков для вас.", reply_markup=reply_markup)
 
 
 @run_async
