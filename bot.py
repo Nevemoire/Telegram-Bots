@@ -730,9 +730,9 @@ def button(update, context):
 			query.answer('Ты не можешь участвовать в этой игре! Чтобы создать свою, напиши: /dice', show_alert=True)
 	elif 'gemsRaffle' in query.data:
 		cursor.execute('SELECT gemstotal FROM casino')
-		gemstotal = str(cursor.fetchone())
+		gemstotal = cursor.fetchone()
 		cursor.execute('SELECT gems_allow FROM userz WHERE id = %s', (query.from_user.id,))
-		gemsAllowed = str(cursor.fetchone())
+		gemsAllowed = cursor.fetchone()
 		while int(gemstotal[0]) >= 1:
 			if int(gemsAllowed[0]) == 1:
 				number = random.randint(1, 5)
