@@ -731,7 +731,7 @@ def button(update, context):
 	elif 'gemsRaffle' in query.data:
 		cursor.execute('SELECT gemstotal FROM casino')
 		gemstotal = int(str(cursor.fetchone())
-		cursor.execute('SELECT gems_allow FROM userz WHERE id = %s', (query.from_user.id,)
+		cursor.execute('SELECT gems_allow FROM userz WHERE id = %s', (query.from_user.id,))
 		gemsAllowed = int(str(cursor.fetchone())
 		while gemstotal >= 1:
 			if gemsAllowed == 1:
