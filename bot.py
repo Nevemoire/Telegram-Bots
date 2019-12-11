@@ -737,7 +737,7 @@ def button(update, context):
 			if int(gemsAllowed[0]) == 1:
 				number = random.randint(1, 5)
 				query.answer(f'Забирай свой подарок ;)\n💎: {number}', show_alert=True)
-				cursor.execute('UPDATE userz SET gems = gems + %s, gems_allow = 0 WHERE id = %s', (number, query.from_user.id,))
+				cursor.execute('UPDATE userz SET spin = spin + %s, gems_allow = 0 WHERE id = %s', (number, query.from_user.id,))
 				cursor.execute('UPDATE casino SET gemstotal = gemstotal - 1')
 				conn.commit()
 				logger.info(f'Выдано {number} 💎')
