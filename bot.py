@@ -110,7 +110,7 @@ def gemsRaffle(update, context):
 	cursor.execute('UPDATE userz SET gems_allow = 1')
 	cursor.execute('UPDATE casino SET gemstotal = 5')
 	conn.commit()
-	keyboard = [[InlineKeyboardButton('💎', callback_data="gemsRaffle 777 777")]]
+	keyboard = [[InlineKeyboardButton('Ухватить 💎', callback_data="gemsRaffle 777 777")]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
 	context.bot.send_message(chat_id='@ryl_news', text="У нас есть несколько подарков для вас.", reply_markup=reply_markup)
 
@@ -730,11 +730,11 @@ def button(update, context):
 			query.answer('Ты не можешь участвовать в этой игре! Чтобы создать свою, напиши: /dice', show_alert=True)
 	elif 'gemsRaffle' in query.data:
 		cursor.execute('SELECT gemstotal FROM casino')
-		gemstotal = int(str(cursor.fetchone()))
+		gemstotal = str(cursor.fetchone())
 		cursor.execute('SELECT gems_allow FROM userz WHERE id = %s', (query.from_user.id,))
-		gemsAllowed = int(str(cursor.fetchone()))
-		while gemstotal >= 1:
-			if gemsAllowed == 1:
+		gemsAllowed = str(cursor.fetchone())
+		while int(gemstotal) >= 1:
+			if int(gemsAllowed) == 1:
 				number = random.randint(1, 5)
 				query.answer(f'Забирай свой подарок ;)\n💎: {number}', show_alert=True)
 				cursor.execute('UPDATE userz SET gems = gems + %s, gems_allow = 0 WHERE id = %s', (number, query.from_user.id,))
