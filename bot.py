@@ -741,6 +741,8 @@ def button(update, context):
 				cursor.execute('UPDATE casino SET gemstotal = gemstotal - 1')
 				conn.commit()
 				logger.info(f'Выдано {number} 💎')
+
+				return
 			else:
 				query.answer('Упс! Забрать можно только 1 подарок за раз.', show_alert=True)
 		else:
