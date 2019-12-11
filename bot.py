@@ -733,8 +733,8 @@ def button(update, context):
 		gemstotal = str(cursor.fetchone())
 		cursor.execute('SELECT gems_allow FROM userz WHERE id = %s', (query.from_user.id,))
 		gemsAllowed = str(cursor.fetchone())
-		while int(gemstotal) >= 1:
-			if int(gemsAllowed) == 1:
+		while int(gemstotal[0]) >= 1:
+			if int(gemsAllowed[0]) == 1:
 				number = random.randint(1, 5)
 				query.answer(f'Забирай свой подарок ;)\n💎: {number}', show_alert=True)
 				cursor.execute('UPDATE userz SET gems = gems + %s, gems_allow = 0 WHERE id = %s', (number, query.from_user.id,))
