@@ -106,6 +106,16 @@ def start(update, context):
 
 
 @run_async
+def gemsRaffle(update, context):
+	cursor.execute('UPDATE userz SET gems_allow = 1')
+	cursor.execute('UPDATE casino SET gemsTotal = 5')
+	conn.commit()
+	keyboard = [[InlineKeyboardButton('💎', callback_data="gemsRaffle 777 777")]]
+	reply_markup = InlineKeyboardMarkup(keyboard)
+	context.bot.send_message(chat_id='@ryl_news', message="У нас есть несколько подарков для вас.", reply_markup=reply_markup)
+
+
+@run_async
 def deposit(update, context):
 	if update.message.chat_id == -1001441511504:
 		update.message.reply_text('Недоступно в этом чате.')
@@ -718,6 +728,23 @@ def button(update, context):
 				conn.commit()
 		else:
 			query.answer('Ты не можешь участвовать в этой игре! Чтобы создать свою, напиши: /dice', show_alert=True)
+	elif 'gemsRaffle' in query.data:
+		cursor.execute('SELECT gemsTotal FROM casino')
+		gemsTotal = int(cursor.fetchone())
+		cursor.execute('SELECT gems_allow FROM userz WHERE id = %s', query.from_user.id)
+		gemsAllowed = int(cursor.fetchone())
+		while gemsTotal >= 1:
+			if gemsAllowed == 1:
+				number = random.randint(1, 5)
+				query.answer(f'Забирай свой подарок ;)\n💎: {number}', show_alert=True)
+				cursor.execute('UPDATE userz SET gems = gems + %s, gems_allow = 0 WHERE id = %s', (number, query.from_user.id,))
+				cursor.execute('UPDATE casino SET gemsTotal = gemsTotal - 1')
+				conn.commit()
+				logger.info(f'Выдано {number} 💎')
+			else:
+				query.answer('Упс! Забрать можно только 1 подарок за раз.', show_alert=True)
+		else:
+			query.edit_message_text('<i>Жаль, но 💎 закончились..</i>\nНе зевай и забери свою долю в следующий раз!', parse_mode='HTML')
 	else:
 		query.edit_message_text('Ошибка! Попробуй чуть позже.')
 
@@ -900,6 +927,7 @@ def main():
     dp.add_handler(CommandHandler("reg", registration))
     dp.add_handler(CommandHandler("bank", bankstats))
     dp.add_handler(CommandHandler("commands", commands))
+    dp.add_handler(CommandHandler("gems" & Filters.user(username="@daaetoya"), gemsRaffle))
     dp.add_handler(CallbackQueryHandler(button))
 
     conv_handler = ConversationHandler(
