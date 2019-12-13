@@ -108,7 +108,8 @@ def start(update, context):
 @run_async
 def gemsRaffle(update, context):
 	cursor.execute('UPDATE userz SET gems_allow = 1')
-	global gemsTotal = 3
+	global gemsTotal
+	gemsTotal = 3
 	conn.commit()
 	keyboard = [[InlineKeyboardButton('Ухватить 💎', callback_data="gemsRaffle 777 777")]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
