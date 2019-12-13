@@ -108,8 +108,7 @@ def start(update, context):
 @run_async
 def gemsRaffle(update, context):
 	cursor.execute('UPDATE userz SET gems_allow = 1')
-	gemsTotal = 5
-	context.chat_data['gemsTotal'] = gemsTotal
+	global gemsTotal = 3
 	conn.commit()
 	keyboard = [[InlineKeyboardButton('Ухватить 💎', callback_data="gemsRaffle 777 777")]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
@@ -730,7 +729,6 @@ def button(update, context):
 		else:
 			query.answer('Ты не можешь участвовать в этой игре! Чтобы создать свою, напиши: /dice', show_alert=True)
 	elif 'gemsRaffle' in query.data:
-		gemsTotal = context.chat_data['gemsTotal']
 		cursor.execute('SELECT gems_allow FROM userz WHERE id = %s', (query.from_user.id,))
 		gemsAllowed = cursor.fetchone()
 		while gemsTotal > 0:
@@ -739,7 +737,6 @@ def button(update, context):
 				query.answer(f'Забирай свой подарок ;)\n💎: {number}', show_alert=True)
 				cursor.execute('UPDATE userz SET spin = spin + %s, gems_allow = 0 WHERE id = %s', (number, query.from_user.id,))
 				gemsTotal = gemsTotal - 1
-				context.chat_data['gemsTotal'] = gemsTotal
 				conn.commit()
 				logger.info(f'Выдано {number} 💎, gemsTotal = {gemsTotal}')
 
