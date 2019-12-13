@@ -515,6 +515,7 @@ def Total(update, context):
 
 
 def button(update, context):
+	global gemsTotal
 	query = update.callback_query
 	try:
 		cursor.execute('SELECT id FROM userz')
@@ -732,8 +733,7 @@ def button(update, context):
 	elif 'gemsRaffle' in query.data:
 		cursor.execute('SELECT gems_allow FROM userz WHERE id = %s', (query.from_user.id,))
 		gemsAllowed = cursor.fetchone()
-		sgemsTotal = gemsTotal
-		while sgemsTotal > 0:
+		while gemsTotal > 0:
 			if int(gemsAllowed[0]) == 1:
 				number = random.randint(1, 5)
 				query.answer(f'Забирай свой подарок ;)\n💎: {number}', show_alert=True)
