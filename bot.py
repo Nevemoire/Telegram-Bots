@@ -741,7 +741,7 @@ def button(update, context):
 				gemsTotal = gemsTotal - 1
 				context.chat_data['gemsTotal'] = gemsTotal
 				conn.commit()
-				logger.info(f'Выдано {number} 💎')
+				logger.info(f'Выдано {number} 💎, gemsTotal = {gemsTotal}')
 
 				return
 			else:
