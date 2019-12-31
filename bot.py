@@ -234,11 +234,11 @@ def getInfo(update, context):
 			if '/info' in update.message.reply_to_message.text:
 				pass
 			elif str(target) in str(all_users):
-				target_info_Query = "select username, balance, spin from userz where id = %s"
+				target_info_Query = "select username, balance, spin, points from userz where id = %s"
 				cursor.execute(target_info_Query, (target,))
 				target_info = cursor.fetchall()
 				for row in target_info:
-					update.message.reply_text(f'👾: @{row[0]}\n💰: <code>{row[1]}</code>\n💎: <code>{row[2]}</code>', parse_mode='HTML')
+					update.message.reply_text(f'👾: @{row[0]}\n💰: <code>{row[1]}</code>\n💎: <code>{row[2]}</code>\n⭐️: <code>{row[3]}</code>', parse_mode='HTML')
 
 					return
 
@@ -249,12 +249,12 @@ def getInfo(update, context):
 		except:
 			pass
 
-		user_info_Query = "select username, balance, spin from userz where id = %s"
+		user_info_Query = "select username, balance, spin, points from userz where id = %s"
 
 		cursor.execute(user_info_Query, (usrid,))
 		info = cursor.fetchall()
 		for row in info:
-			update.message.reply_text(f'👾: @{row[0]}\n💰: <code>{row[1]}</code>\n💎: <code>{row[2]}</code>', parse_mode='HTML')
+			update.message.reply_text(f'👾: @{row[0]}\n💰: <code>{row[1]}</code>\n💎: <code>{row[2]}</code>\n⭐️: <code>{row[3]}</code>', parse_mode='HTML')
 	except:
 		update.message.reply_text('Произошла ошибка. Попробуй чуть позже.')
 
@@ -473,6 +473,7 @@ def Total(update, context):
 			keyboard = [[InlineKeyboardButton('Играть 🤠', callback_data=f'coinflip {inv_user_id} {summ}'), InlineKeyboardButton('Отменить ❌', callback_data=f'decline {inv_user_id} {summ}')],
 						[InlineKeyboardButton('Открыть диалог с ботом 👾', url=bot_link)]]
 			reply_markup = InlineKeyboardMarkup(keyboard)
+			pts = summ//100
 			possible_chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
 			last_hash = ''.join(random.choice(possible_chars) for x in range(64))
 			new_hash = hashlib.sha256(last_hash.encode('utf-8')).hexdigest()
@@ -489,7 +490,7 @@ def Total(update, context):
 			cursor.execute('UPDATE userz SET new_hash = %s, last_hash = %s, result = %s WHERE id = %s', (new_hash, last_hash, result, inv_user_id,))
 			context.bot.send_message(chat_id=channel_username, text=f'<code>Coinflip</code> 🌕\n\n<b>Создатель</b>: {invoker} (@{inv_user})\n<b>Ставка</b>: {summ} монет\n\n<b>SHA 256</b>: <code>{new_hash}</code>', parse_mode='HTML', reply_markup=reply_markup)
 			context.user_data['message'] = context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text=f'Дуэль успешно создана.\nНе забудь вступить в канал, где мы публикуем все игры: {channel_username}')
-			cursor.execute('UPDATE userz SET balance = balance - %s, gamesum = gamesum - %s, busy = 2 WHERE id = %s', (summ, summ, inv_user_id,))
+			cursor.execute('UPDATE userz SET balance = balance - %s, gamesum = gamesum - %s, points = points + %s, busy = 2 WHERE id = %s', (summ, summ, pts, inv_user_id,))
 			conn.commit()
 			
 			return ConversationHandler.END
@@ -536,6 +537,7 @@ def button(update, context):
 	bank = int(banktotal[0])*0.15
 	betsumm = betinfo[2]
 	betssumm = int(betsumm)
+	pts = int(betsumm)//100
 	total = int(betsumm)*1.9
 	taxes = int(betsumm)*0.09
 	jackpot = int(betsumm)*0.01
@@ -548,7 +550,7 @@ def button(update, context):
 	elif ('withdraw' in query.data) and (str(query.from_user.username) not in allowedlist):
 		query.answer('Недостаточно прав.', show_alert=True)
 	elif ('decline' in query.data) and (betinfo[1] in str(query.from_user.id)):
-		cursor.execute('UPDATE userz SET balance = balance + %s, gamesum = gamesum + %s, busy = 0 WHERE id = %s', (betsumm, betsumm, query.from_user.id,))
+		cursor.execute('UPDATE userz SET balance = balance + %s, gamesum = gamesum + %s, points = points - %s, busy = 0 WHERE id = %s', (betsumm, betsumm, pts, query.from_user.id,))
 		conn.commit()
 		query.edit_message_text('Игра отменена.')
 	elif ('decline' in query.data) and (betinfo[1] not in str(query.from_user.id)):
@@ -587,7 +589,7 @@ def button(update, context):
 	elif 'coinflip' in query.data:
 		cursor.execute('SELECT new_hash, last_hash, result FROM userz WHERE id = %s', (betinfo[1],))
 		cflip = cursor.fetchone()
-		cursor.execute('UPDATE userz SET balance = balance - %s, gamesum = gamesum - %s WHERE id = %s', (betsumm, betsumm, query.from_user.id,))
+		cursor.execute('UPDATE userz SET balance = balance - %s, gamesum = gamesum - %s, points = points + %s WHERE id = %s', (betsumm, betsumm, pts, query.from_user.id,))
 		cursor.execute('UPDATE userz SET busy = 1 WHERE username = %s', (participant1[0],))
 		cnumber = int(cflip[2])
 		if cnumber <= 500:
