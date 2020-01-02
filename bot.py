@@ -525,8 +525,6 @@ def button(update, context):
 		query.answer('Ошибка! Повтори через несколько секунд.', show_alert=True)
 
 		return
-	keyboard = [[InlineKeyboardButton('Создать свою игру', url=bot_link), InlineKeyboardButton('Provably Fair', callback_data='provablyfair')]]
-	reply_markup = InlineKeyboardMarkup(keyboard)
 	betinfo = query.data.split()
 	cursor.execute('SELECT username, busy FROM userz WHERE id = %s', (betinfo[1],))
 	participant1 = cursor.fetchone()
@@ -603,6 +601,8 @@ def button(update, context):
 		cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (total, winner,))
 		cursor.execute('UPDATE casino SET games = games + 1, taxes = taxes + %s, jackpot = jackpot + %s', (taxes, jackpot,))
 		conn.commit()
+		keyboard = [[InlineKeyboardButton('Создать свою игру', url=bot_link), InlineKeyboardButton('Provably Fair', callback_data='provablyfair')]]
+		reply_markup = InlineKeyboardMarkup(keyboard)
 		if int(total) >= 9500:
 			try:
 				context.bot.send_message(chat_id=-1001441511504, text=f'<b>Поздравляем</b> @{winner}, он(-а) срывает <b>Куш</b> в <code>Coinflip</code>! 👸\n<b>Выигрыш</b>: <code>{int(total)}</code>', parse_mode='HTML')
