@@ -601,7 +601,7 @@ def button(update, context):
 		cursor.execute('UPDATE userz SET balance = balance + %s WHERE username = %s', (total, winner,))
 		cursor.execute('UPDATE casino SET games = games + 1, taxes = taxes + %s, jackpot = jackpot + %s', (taxes, jackpot,))
 		conn.commit()
-		keyboard = [[InlineKeyboardButton('Создать свою игру', url=bot_link), InlineKeyboardButton('Provably Fair', callback_data='provablyfair')]]
+		keyboard = [[InlineKeyboardButton('Создать свою игру', url=bot_link), InlineKeyboardButton('Provably Fair', callback_data='provablyfair 777 777')]]
 		reply_markup = InlineKeyboardMarkup(keyboard)
 		if int(total) >= 9500:
 			try:
