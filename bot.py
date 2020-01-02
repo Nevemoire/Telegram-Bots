@@ -525,7 +525,7 @@ def button(update, context):
 		query.answer('Ошибка! Повтори через несколько секунд.', show_alert=True)
 
 		return
-	keyboard = [[InlineKeyboardButton('Создать свою игру', url=bot_link)]]
+	keyboard = [[InlineKeyboardButton('Создать свою игру', url=bot_link), InlineKeyboardButton('Provably Fair', callback_data='provablyfair')]]
 	reply_markup = InlineKeyboardMarkup(keyboard)
 	betinfo = query.data.split()
 	cursor.execute('SELECT username, busy FROM userz WHERE id = %s', (betinfo[1],))
@@ -615,9 +615,11 @@ def button(update, context):
 				pass
 		else:
 			pass
-		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}! ({cflip[2]})\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!\n\n<b>SHA 256</b>: <code>{cflip[0]}</code>\n<b>Hash</b>: <code>{cflip[1]}</code>\n<a href="https://md5calc.com/hash/sha256/{cflip[1]}">Проверка честности</a>', parse_mode='HTML', disable_web_page_preview=True, reply_markup=reply_markup)
+		query.edit_message_text(f'<code>Coinflip</code> 🌕\n\n@{participant1[0]} <b>vs</b> @{participant2[0]}\n\n<b>Победитель</b>: @{winner}! ({cflip[2]})\n<b>Выигрыш</b>: <code>{int(total)}</code> монет!\n\n<a href="https://md5calc.com/hash/sha256/{cflip[1]}">Проверка честности</a>', parse_mode='HTML', disable_web_page_preview=True, reply_markup=reply_markup)
 	elif 'roulette' in query.data:
 		query.edit_message_text('Игра в разработке...')
+	elif 'provablyfair' in query.data:
+		query.answer('SHA 256: {cflip[0]}\nHash: {cflip[1]}', show_alert=True)
 	elif 'd_rules' in query.data:
 		query.answer(f'''Правила игры Dice\n\n
 1. Игрок указывает ставку и множитель игры.
