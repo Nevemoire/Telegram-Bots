@@ -619,7 +619,7 @@ def button(update, context):
 	elif 'roulette' in query.data:
 		query.edit_message_text('Игра в разработке...')
 	elif 'provablyfair' in query.data:
-		query.answer('SHA 256: {cflip[0]}\nHash: {cflip[1]}', show_alert=True)
+		query.answer(f'SHA 256: {cflip[0]}\nHash: {cflip[1]}', show_alert=True)
 	elif 'd_rules' in query.data:
 		query.answer(f'''Правила игры Dice\n\n
 1. Игрок указывает ставку и множитель игры.
