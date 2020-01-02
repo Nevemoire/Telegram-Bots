@@ -902,6 +902,11 @@ def echo(update, context):
 		update.message.reply_text('Произошла ошибка (echo).')
 
 
+def refresh(update, context):
+	cursor.execute('UPDATE userz SET fullname = %s, username = %s WHERE id = %s', (update.message.from_user.full_name, update.message.from_user.username, update.message.from_user.id,))
+	update.message.reply_text('Имя и юзернейм успешно обновлены.')
+
+
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
@@ -930,6 +935,7 @@ def main():
     dp.add_handler(CommandHandler("howto", howto))
     dp.add_handler(CommandHandler("reg", registration))
     dp.add_handler(CommandHandler("bank", bankstats))
+    dp.add_handler(CommandHandler("refresh", refresh))
     dp.add_handler(CommandHandler("commands", commands))
     dp.add_handler(CommandHandler("gems", gemsRaffle, filters=Filters.user(username="@daaetoya")))
     dp.add_handler(CallbackQueryHandler(button))
