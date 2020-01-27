@@ -142,12 +142,12 @@ def addChatToDB(update, context):
         chat_id = update.message.chat.id
         name = update.message.chat.title
         if bool(update.message.chat.username):
-                        link = "https://t.me/" + update.message.chat.username
-                    elif adminctrl(update, context, context.bot.id):
-                        if bool(update.message.chat.invite_link):
-                            link = update.message.chat.invite_link
-                        else:
-                            link = context.bot.exportChatInviteLink(chat_id)
+            link = "https://t.me/" + update.message.chat.username
+        elif adminctrl(update, context, context.bot.id):
+            if bool(update.message.chat.invite_link):
+                link = update.message.chat.invite_link
+            else:
+                link = context.bot.exportChatInviteLink(chat_id)
         category = context.args[0]
         cursor.execute('INSERT INTO chats (id, name, link, category, partners) VALUES (%s, %s, %s, %s, 0)', (chat_id, name, link, category,))
 
