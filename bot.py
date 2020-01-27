@@ -73,7 +73,7 @@ def chatsFlood(update, context):
         flood = cursor.fetchall()
 
         for info in flood:
-            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">присоединиться</a>.'
+            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
 
         update.message.reply_text(text, parse_mode='HTML')
 
@@ -92,7 +92,7 @@ def chatsGames(update, context):
         games = cursor.fetchall()
 
         for info in games:
-            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">присоединиться</a>.'
+            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
 
         update.message.reply_text(text, parse_mode='HTML')
 
@@ -111,7 +111,7 @@ def chatsDiscussion(update, context):
         discussion = cursor.fetchall()
 
         for info in discussion:
-            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">присоединиться</a>.'
+            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
 
         update.message.reply_text(text, parse_mode='HTML')
 
@@ -130,7 +130,7 @@ def chatsPartners(update, context):
         partners = cursor.fetchall()
 
         for info in partners:
-            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">присоединиться</a>.'
+            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
 
         update.message.reply_text(text, parse_mode='HTML')
 
@@ -144,9 +144,9 @@ def chatsPartners(update, context):
 @run_async
 def randomChat(update, context):
     cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
-    random = cursor.fetchone()
+    random = cursor.fetchall()
 
-    update.message.reply_text(f'<b>{random[0]}</b> - <a href="{random[1]}">присоединиться</a>.', parse_mode='HTML')
+    update.message.reply_text(f'<b>{random[0]}</b> - <a href="{random[1]}">войти</a>.', parse_mode='HTML')
 
 
 @run_async
