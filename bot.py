@@ -133,8 +133,6 @@ def main():
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler('start', start))
-    dp.add_handler(CommandHandler('random', randomChat))
-    dp.add_handler(CommandHandler('add', addChat))
     dp.add_handler(CommandHandler('addchat', addChatToDB, filters=Filters.user(username='@daaetoya')|Filters.user(username='@aotkh')))
     dp.add_handler(CallbackQueryHandler(button))
 
