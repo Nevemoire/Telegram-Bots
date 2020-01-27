@@ -76,8 +76,8 @@ def chats(update, context):
                 [InlineKeyboardButton("🧐 Тематические чаты", callback_data='discussion')],
                 [InlineKeyboardButton("⭐️ Партнёрские чаты", callback_data='partners')],
 
-                [InlineKeyboardButton("Случайный чат", callback_data='random'),
-                 InlineKeyboardButton("Добавить чат", callback_data='add')]]
+                [InlineKeyboardButton("🎲 Случайный чат", callback_data='random'),
+                 InlineKeyboardButton("🔥 Добавить чат", callback_data='add')]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Выбирайте какие чаты вам интересны 👇', reply_markup=reply_markup)
@@ -89,18 +89,18 @@ def button(update, context):
     if ('flood' in query.data) or ('games' in query.data) or ('discussion' in query.data):
         category = query.data
         if 'flood' in query.data:
-            title = '<u>Чаты для общения</u>\n'
+            title = '<u>Чаты для общения</u> 😎\n'
         elif 'games' in query.data:
-            title = '<u>Игровые чаты</u>\n'
+            title = '<u>Игровые чаты</u> 👾\n'
         else:
-            title = '<u>Чаты по интересам</u>\n'
+            title = '<u>Чаты по интересам</u> 🧐\n'
         cursor.execute('SELECT name, link FROM chats WHERE category = %s', (category,))
     elif 'partners' in query.data:
         cursor.execute('SELECT name, link FROM chats WHERE partners = 1')
-        title = '<u>Партнёрские чаты</u>\n'
+        title = '<u>Партнёрские чаты</u> ⭐️\n'
     elif 'random' in query.data:
         cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
-        title = '<u>Случайный чат</u>\n'
+        title = '<u>Случайный чат</u> 🎲\n'
     elif 'add' in query.data:
         query.edit_message_text(text='Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
         callchats(update, context, query.message.chat_id)
@@ -108,13 +108,10 @@ def button(update, context):
         return
     result = cursor.fetchall()
     text = title
-    try:
-        for info in result:
-            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
-        query.edit_message_text(text=text, parse_mode='HTML')
-        callchats(update, context, query.message.chat_id)
-    except:
-        query.answer(text='Пока что в базе данных нет таких чатов.', show_alert=True)
+    for info in result:
+        text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
+    query.edit_message_text(text=text, parse_mode='HTML')
+    callchats(update, context, query.message.chat_id)
 
     
 
