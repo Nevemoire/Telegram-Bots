@@ -69,7 +69,7 @@ def filteredChats(update, context):
 def chatsFlood(update, context):
     try:
         text = ''
-        cursor.execute('SELECT name, link FROM chats WHERE category = flood')
+        cursor.execute('SELECT name, link FROM chats WHERE category = %s', (,'flood'))
         flood = cursor.fetchall()
 
         for info in flood:
@@ -88,7 +88,7 @@ def chatsFlood(update, context):
 def chatsGames(update, context):
     try:
         text = ''
-        cursor.execute('SELECT name, link FROM chats WHERE category = games')
+        cursor.execute('SELECT name, link FROM chats WHERE category = %s', (,'games'))
         games = cursor.fetchall()
 
         for info in games:
@@ -107,7 +107,7 @@ def chatsGames(update, context):
 def chatsDiscussion(update, context):
     try:
         text = ''
-        cursor.execute('SELECT name, link FROM chats WHERE category = discussion')
+        cursor.execute('SELECT name, link FROM chats WHERE category = %s', (,'discussion'))
         discussion = cursor.fetchall()
 
         for info in discussion:
