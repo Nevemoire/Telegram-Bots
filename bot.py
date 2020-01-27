@@ -48,7 +48,7 @@ def start(update, context):
 
 Специально для вас мы создали бота, объединяющего людей самых разных возрастов, профессий и интересов.
 
-У нас вы сможете найти чат на любой вкус. А если вдруг не найдёте - не проблема, создайте свой и добавьте в нашу базу, а мы поможем вам привлечь собеседников!''', reply_markup=reply_markup)
+У нас вы сможете найти чат на любой вкус. А если вдруг не найдёте - не проблема, создайте свой и добавьте в нашу базу, а мы поможем вам привлечь собеседников!''')
     chats(update, context)
 
 
@@ -79,7 +79,8 @@ def button(update, context):
     elif 'random' in query.data:
         cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
     elif 'add' in query.data:
-        update.message.reply_text('Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
+         query.edit_message_text(text='Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
+         chats(update, context)
 
         return
     result = cursor.fetchall()
