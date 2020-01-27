@@ -36,7 +36,7 @@ bot_id = '1072920015'
 
 
 def adminctrl(update, context):
-    for bot_id in bot.get_chat_administrators(update.message.chat_id):
+    for bot_id in context.bot.get_chat_administrators(update.message.chat_id):
         return True
     return False
 
