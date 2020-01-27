@@ -109,15 +109,14 @@ def button(update, context):
         title = '<u>Случайный чат</u> 🎲\n'
     elif 'add' in query.data:
         query.edit_message_text(text='Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
-        callchats(update, context, query.message.chat_id)
 
         return
     result = cursor.fetchall()
     text = title
     for info in result:
         text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
+    text += '\n\nДругие чаты - /chats'
     query.edit_message_text(text=text, parse_mode='HTML')
-    callchats(update, context, query.message.chat_id)
 
     
 
