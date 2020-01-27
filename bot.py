@@ -68,7 +68,7 @@ def start(update, context):
 def button(update, context):
     text = ''
     query = update.callback_query
-    if ('flood' in query.data) or ('games' in query.data) or ('discussion' in query.data)
+    if ('flood' in query.data) or ('games' in query.data) or ('discussion' in query.data):
         category = query.data
         cursor.execute('SELECT name, link FROM chats WHERE category = %s', (category,))
     elif 'partners' in query.data:
