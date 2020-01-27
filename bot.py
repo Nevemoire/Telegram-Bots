@@ -58,10 +58,12 @@ def callchats(update, context, chat_id):
     keyboard = [[InlineKeyboardButton("😎 Общение", callback_data='flood'),
                  InlineKeyboardButton("👾 Развлечение", callback_data='games')],
 
-                [InlineKeyboardButton("🧐 Тематические чаты", callback_data='discussion')],
+                [InlineKeyboardButton("🧐 Обсуждение", callback_data='discussion'),
+                 InlineKeyboardButton("🗞 Новости", callback_data='news')],
+
                 [InlineKeyboardButton("⭐️ Партнёрские чаты", callback_data='partners')],
 
-                [InlineKeyboardButton("🎲 Случайный чат", callback_data='random'),
+                [InlineKeyboardButton("🎲 Случайный", callback_data='random'),
                  InlineKeyboardButton("🔥 Добавить чат", callback_data='add')]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -73,10 +75,12 @@ def chats(update, context):
     keyboard = [[InlineKeyboardButton("😎 Общение", callback_data='flood'),
                  InlineKeyboardButton("👾 Развлечение", callback_data='games')],
 
-                [InlineKeyboardButton("🧐 Тематические чаты", callback_data='discussion')],
+                [InlineKeyboardButton("🧐 Обсуждение", callback_data='discussion'),
+                 InlineKeyboardButton("🗞 Новости", callback_data='news')],
+
                 [InlineKeyboardButton("⭐️ Партнёрские чаты", callback_data='partners')],
 
-                [InlineKeyboardButton("🎲 Случайный чат", callback_data='random'),
+                [InlineKeyboardButton("🎲 Случайный", callback_data='random'),
                  InlineKeyboardButton("🔥 Добавить чат", callback_data='add')]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -86,12 +90,14 @@ def chats(update, context):
 @run_async
 def button(update, context):
     query = update.callback_query
-    if ('flood' in query.data) or ('games' in query.data) or ('discussion' in query.data):
+    if ('flood' in query.data) or ('games' in query.data) or ('discussion' in query.data) or ('news' in query.data):
         category = query.data
         if 'flood' in query.data:
             title = '<u>Чаты для общения</u> 😎\n'
         elif 'games' in query.data:
             title = '<u>Игровые чаты</u> 👾\n'
+        elif 'news' in query.data:
+            title = '<u>Новостные чаты</u> 🗞\n'
         else:
             title = '<u>Чаты по интересам</u> 🧐\n'
         cursor.execute('SELECT name, link FROM chats WHERE category = %s', (category,))
@@ -129,7 +135,7 @@ def addChatToDB(update, context):
     try:
         if '-' not in str(update.message.chat.id):
             update.message.reply_text('Добавлять в базу можно только чаты!')
-        elif ('flood' not in update.message.text) and ('games' not in update.message.text) and ('discussion' not in update.message.text):
+        elif ('flood' not in update.message.text) and ('games' not in update.message.text) and ('discussion' not in update.message.text) and ('news' not in update.message.text):
             update.message.reply_text('Укажи категорию чата.')
         elif str(update.message.chat.id) in str(all_chats):
             name = update.message.chat.title
@@ -145,7 +151,7 @@ def addChatToDB(update, context):
             cursor.execute('UPDATE chats SET name = %s, link = %s, category = %s WHERE id = %s', (name, link, category, chat_id,))
             conn.commit()
             update.message.reply_text('Данные обновлены.')
-        elif ('flood' in update.message.text) or ('games' in update.message.text) or ('discussion' in update.message.text):       
+        elif ('flood' in update.message.text) or ('games' in update.message.text) or ('discussion' in update.message.text) or ('news' in update.message.text):       
             name = update.message.chat.title
             if bool(update.message.chat.username):
                 link = "https://t.me/" + update.message.chat.username   
