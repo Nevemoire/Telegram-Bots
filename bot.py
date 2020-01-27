@@ -36,12 +36,9 @@ bot_id = '1072920015'
 
 
 def adminctrl(update, context):
-    chat_admins = context.bot.get_chat_administrators(update.message.chat.id)
-    update.message.reply_text(chat_admins)
-    if bot_id in chat_admins:
+    for bot_id in bot.get_chat_administrators(update.message.chat_id):
         return True
-    else:
-        return False
+    return False
 
 
 @run_async
