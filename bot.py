@@ -49,10 +49,10 @@ def start(update, context):
 Специально для вас мы создали бота, объединяющего людей самых разных возрастов, профессий и интересов.
 
 У нас вы сможете найти чат на любой вкус. А если вдруг не найдёте - не проблема, создайте свой и добавьте в нашу базу, а мы поможем вам привлечь собеседников!''')
-    chats(update, context)
+    chats(update, context, update.message.chat.id)
 
 
-def chats(update, context):
+def chats(update, context, chat_id):
     keyboard = [[InlineKeyboardButton("😎 Общение", callback_data='flood'),
                  InlineKeyboardButton("👾 Развлечение", callback_data='games')],
 
@@ -63,7 +63,7 @@ def chats(update, context):
                  InlineKeyboardButton("Добавить чат", callback_data='add')]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.text('Выбирайте какие чаты вам интересны 👇', reply_markup=reply_markup)
+    context.bot.send_message(chat_id=chat_id, text='Выбирайте какие чаты вам интересны 👇', reply_markup=reply_markup)
 
 
 
@@ -80,7 +80,7 @@ def button(update, context):
         cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
     elif 'add' in query.data:
         query.edit_message_text(text='Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
-        chats(update, context)
+        chats(update, context, update.message.chat.id)
 
         return
     result = cursor.fetchall()
