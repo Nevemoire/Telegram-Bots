@@ -143,7 +143,7 @@ def chatsPartners(update, context):
 
 @run_async
 def randomChat(update, context):
-    cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 2')
+    cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
     random = cursor.fetchall()
 
     update.message.reply_text(f'<b>{random[0]}</b> - <a href="{random[1]}">войти</a>.', parse_mode='HTML')
@@ -158,20 +158,26 @@ def addChat(update, context):
 def addChatToDB(update, context):
     if '-' not in str(update.message.chat.id):
         update.message.reply_text('Добавлять в базу можно только чаты!')
-    elif ('flood' not in update.message.text) or ('games' not in update.message.text) or ('discussion' not in update.message.text):
+    elif ('flood' not in update.message.text) and ('games' not in update.message.text) and ('discussion' not in update.message.text):
         update.message.reply_text('Укажи категорию чата.')
-    else:
+    elif ('flood' in update.message.text) or ('games' in update.message.text) or ('discussion' in update.message.text):
         chat_id = update.message.chat.id
         name = update.message.chat.title
         if bool(update.message.chat.username):
             link = "https://t.me/" + update.message.chat.username
+            print('1')
         elif adminctrl(update, context, context.bot.id):
             if bool(update.message.chat.invite_link):
                 link = update.message.chat.invite_link
+                print('2')
             else:
                 link = context.bot.exportChatInviteLink(chat_id)
+                print('3')
+        print('4')
         category = context.args[0]
         cursor.execute('INSERT INTO chats (id, name, link, category, partners) VALUES (%s, %s, %s, %s, 0)', (chat_id, name, link, category,))
+    else:
+        update.message.reply_text('Что-то пошло не так.')
 
 
 @run_async
