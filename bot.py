@@ -44,8 +44,8 @@ def start(update, context):
     keyboard = [[InlineKeyboardButton("😎 Общение", callback_data='flood'),
                  InlineKeyboardButton("👾 Развлечение", callback_data='games')],
 
-                [InlineKeyboardButton("🧐 Тематические", callback_data='discussion'),
-                 InlineKeyboardButton("⭐️ Партнёрские чаты", callback_data='partners')],
+                [InlineKeyboardButton("🧐 Тематические чаты", callback_data='discussion')],
+                [InlineKeyboardButton("⭐️ Партнёрские чаты", callback_data='partners')],
 
                 [InlineKeyboardButton("Случайный чат", callback_data='random'),
                  InlineKeyboardButton("Добавить чат", callback_data='add')]]
