@@ -143,7 +143,7 @@ def chatsPartners(update, context):
 
 @run_async
 def randomChat(update, context):
-    cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
+    cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 2')
     random = cursor.fetchall()
 
     update.message.reply_text(f'<b>{random[0]}</b> - <a href="{random[1]}">войти</a>.', parse_mode='HTML')
