@@ -128,6 +128,7 @@ def chatsDiscussion(update, context):
 
 @run_async
 def chatsPartners(update, context):
+    text = ''
     try:
         cursor.execute('SELECT name, link FROM chats WHERE partners = 1')
         partners = cursor.fetchall()
