@@ -44,11 +44,11 @@ def start(update, context):
     keyboard = [[InlineKeyboardButton("😎 Общение", callback_data='flood'),
                  InlineKeyboardButton("👾 Развлечение", callback_data='games')],
 
-                [InlineKeyboardButton("🧐 Тематические", callback_data='discussion')],
-                [InlineKeyboardButton("⭐️ Партнёрские чаты", callback_data='partners')],
+                [InlineKeyboardButton("🧐 Тематические", callback_data='discussion'),
+                 InlineKeyboardButton("⭐️ Партнёрские чаты", callback_data='partners')],
 
-                [InlineKeyboardButton("Случайный чат", callback_data='random')],
-                [InlineKeyboardButton("Добавить чат", callback_data='add')]]
+                [InlineKeyboardButton("Случайный чат", callback_data='random'),
+                 InlineKeyboardButton("Добавить чат", callback_data='add')]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -84,9 +84,9 @@ def button(update, context):
         for info in result:
             text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
 
-        update.message.reply_text(text, parse_mode='HTML')
+        query.edit_message_text(text=text, parse_mode='HTML')
     except:
-        update.message.reply_text('Пока что в базе данных нет таких чатов.')
+        query.answer(text='Пока что в базе данных нет таких чатов.', show_alert=True)
     
 
 
