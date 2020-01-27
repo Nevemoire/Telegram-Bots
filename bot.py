@@ -32,11 +32,13 @@ logger = logging.getLogger(__name__)
 
 CHOOSING = range(1)
 
-bot_id = 1072920015
+bot_id = '1072920015'
 
 
 def adminctrl(update, context):
-    if bot_id in context.bot.get_chat_administrators(update.message.chat.id):
+    chat_admins = str(context.bot.get_chat_administrators(update.message.chat.id))
+    update.message.reply_text(chat_admins)
+    if bot_id in chat_admins:
         return True
     else:
         return False
