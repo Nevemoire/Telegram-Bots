@@ -119,27 +119,18 @@ def button(update, context):
 @run_async
 def addChatToDB(update, context):
     chat_id = update.message.chat.id
-    cursor.execute('SELECT id FROM chats')
-    all_chats = cursor.fetchall()
+    try:
+        cursor.execute('SELECT id FROM chats')
+        all_chats = cursor.fetchall()
+    except:
+        update.message.reply_text('Ошибка! Повтори через несколько секунд.')
+
+        return
     try:
         if '-' not in str(update.message.chat.id):
             update.message.reply_text('Добавлять в базу можно только чаты!')
         elif ('flood' not in update.message.text) and ('games' not in update.message.text) and ('discussion' not in update.message.text):
             update.message.reply_text('Укажи категорию чата.')
-        elif ('flood' in update.message.text) or ('games' in update.message.text) or ('discussion' in update.message.text):       
-            name = update.message.chat.title
-            if bool(update.message.chat.username):
-                link = "https://t.me/" + update.message.chat.username   
-            elif adminctrl(update, context):
-                if bool(update.message.chat.invite_link):
-                    link = update.message.chat.invite_link        
-                else:
-                    link = context.bot.exportChatInviteLink(chat_id)
-            print(context.bot.id)
-            category = context.args[0]
-            cursor.execute('INSERT INTO chats (id, name, link, category, partners) VALUES (%s, %s, %s, %s, 0)', (chat_id, name, link, category,))
-            conn.commit()
-            update.message.reply_text('Чат добавлен.')
         elif str(update.message.chat.id) in str(all_chats):
             name = update.message.chat.title
             if bool(update.message.chat.username):
@@ -154,6 +145,20 @@ def addChatToDB(update, context):
             cursor.execute('UPDATE chats SET name = %s, link = %s, category = %s WHERE id = %s', (name, link, category, chat_id,))
             conn.commit()
             update.message.reply_text('Данные обновлены.')
+        elif ('flood' in update.message.text) or ('games' in update.message.text) or ('discussion' in update.message.text):       
+            name = update.message.chat.title
+            if bool(update.message.chat.username):
+                link = "https://t.me/" + update.message.chat.username   
+            elif adminctrl(update, context):
+                if bool(update.message.chat.invite_link):
+                    link = update.message.chat.invite_link        
+                else:
+                    link = context.bot.exportChatInviteLink(chat_id)
+            print(context.bot.id)
+            category = context.args[0]
+            cursor.execute('INSERT INTO chats (id, name, link, category, partners) VALUES (%s, %s, %s, %s, 0)', (chat_id, name, link, category,))
+            conn.commit()
+            update.message.reply_text('Чат добавлен.')      
         else:
             update.message.reply_text('Что-то пошло не так.')
     except:
