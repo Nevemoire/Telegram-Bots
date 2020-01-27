@@ -68,13 +68,14 @@ def filteredChats(update, context):
 
 @run_async
 def chatsFlood(update, context):
+    category = "flood"
+    text = ''
     try:
-        text = ''
-        cursor.execute('SELECT name, link FROM chats WHERE category = "flood"')
+        cursor.execute('SELECT name, link FROM chats WHERE category = %s', (category,))
         flood = cursor.fetchall()
 
         for info in flood:
-            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
+            text = f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
 
         update.message.reply_text(text, parse_mode='HTML')
 
@@ -87,9 +88,10 @@ def chatsFlood(update, context):
 
 @run_async
 def chatsGames(update, context):
+    category = "games"
+    text = ''
     try:
-        text = ''
-        cursor.execute('SELECT name, link FROM chats WHERE category = "games"')
+        cursor.execute('SELECT name, link FROM chats WHERE category = %s', (category,))
         games = cursor.fetchall()
 
         for info in games:
@@ -106,9 +108,10 @@ def chatsGames(update, context):
 
 @run_async
 def chatsDiscussion(update, context):
+    category = "discussion"
+    text = ''
     try:
-        text = ''
-        cursor.execute('SELECT name, link FROM chats WHERE category = "discussion"')
+        cursor.execute('SELECT name, link FROM chats WHERE category = %s', (category,))
         discussion = cursor.fetchall()
 
         for info in discussion:
@@ -126,7 +129,6 @@ def chatsDiscussion(update, context):
 @run_async
 def chatsPartners(update, context):
     try:
-        text = ''
         cursor.execute('SELECT name, link FROM chats WHERE partners = 1')
         partners = cursor.fetchall()
 
