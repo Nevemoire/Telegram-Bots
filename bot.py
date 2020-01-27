@@ -184,7 +184,7 @@ def main():
         entry_points=[CommandHandler('filters', filteredChats)],
 
         states={
-            GENDER: [MessageHandler(Filters.regex('^😎 Общение$'), chatsFlood),
+            CHOOSING: [MessageHandler(Filters.regex('^😎 Общение$'), chatsFlood),
                      MessageHandler(Filters.regex('^👾 Развлечение$'), chatsGames),
                      MessageHandler(Filters.regex('^🧐 Тематические$'), chatsDiscussion),
                      MessageHandler(Filters.regex('^⭐️ Партнёрские чаты$'), chatsPartners)]
