@@ -65,58 +65,78 @@ def filteredChats(update, context):
 
 @run_async
 def chatsFlood(update, context):
-    text = ''
-    cursor.execute('SELECT name, link FROM chats WHERE category = flood')
-    flood = cursor.fetchall()
+    try:
+        text = ''
+        cursor.execute('SELECT name, link FROM chats WHERE category = flood')
+        flood = cursor.fetchall()
 
-    for info in flood:
-        text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">присоединиться</a>.'
+        for info in flood:
+            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">присоединиться</a>.'
 
-    update.message.reply_text(text, parse_mode='HTML')
+        update.message.reply_text(text, parse_mode='HTML')
 
-    return CHOOSING
+        return CHOOSING
+    except:
+        update.message.reply_text('Пока что в базе данных нет таких чатов.')
+
+        return ConversationHandler.END
 
 
 @run_async
 def chatsGames(update, context):
-    text = ''
-    cursor.execute('SELECT name, link FROM chats WHERE category = games')
-    games = cursor.fetchall()
+    try:
+        text = ''
+        cursor.execute('SELECT name, link FROM chats WHERE category = games')
+        games = cursor.fetchall()
 
-    for info in games:
-        text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">присоединиться</a>.'
+        for info in games:
+            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">присоединиться</a>.'
 
-    update.message.reply_text(text, parse_mode='HTML')
+        update.message.reply_text(text, parse_mode='HTML')
 
-    return CHOOSING
+        return CHOOSING
+    except:
+        update.message.reply_text('Пока что в базе данных нет таких чатов.')
+
+        return ConversationHandler.END
 
 
 @run_async
 def chatsDiscussion(update, context):
-    text = ''
-    cursor.execute('SELECT name, link FROM chats WHERE category = discussion')
-    discussion = cursor.fetchall()
+    try:
+        text = ''
+        cursor.execute('SELECT name, link FROM chats WHERE category = discussion')
+        discussion = cursor.fetchall()
 
-    for info in discussion:
-        text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">присоединиться</a>.'
+        for info in discussion:
+            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">присоединиться</a>.'
 
-    update.message.reply_text(text, parse_mode='HTML')
+        update.message.reply_text(text, parse_mode='HTML')
 
-    return CHOOSING
+        return CHOOSING
+    except:
+        update.message.reply_text('Пока что в базе данных нет таких чатов.')
+
+        return ConversationHandler.END
 
 
 @run_async
 def chatsPartners(update, context):
-    text = ''
-    cursor.execute('SELECT name, link FROM chats WHERE partners = 1')
-    partners = cursor.fetchall()
+    try:
+        text = ''
+        cursor.execute('SELECT name, link FROM chats WHERE partners = 1')
+        partners = cursor.fetchall()
 
-    for info in partners:
-        text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">присоединиться</a>.'
+        for info in partners:
+            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">присоединиться</a>.'
 
-    update.message.reply_text(text, parse_mode='HTML')
+        update.message.reply_text(text, parse_mode='HTML')
 
-    return CHOOSING
+        return CHOOSING
+    except:
+        update.message.reply_text('Пока что в базе данных нет таких чатов.')
+
+        return ConversationHandler.END
 
 
 @run_async
@@ -175,6 +195,7 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
+    dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('random', randomChat))
     dp.add_handler(CommandHandler('add', addChat))
     dp.add_handler(CommandHandler('addchat', addChatToDB, filters=Filters.user(username='@daaetoya')|Filters.user(username='@aotkh')))
