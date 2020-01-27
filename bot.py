@@ -49,10 +49,11 @@ def start(update, context):
 Специально для вас мы создали бота, объединяющего людей самых разных возрастов, профессий и интересов.
 
 У нас вы сможете найти чат на любой вкус. А если вдруг не найдёте - не проблема, создайте свой и добавьте в нашу базу, а мы поможем вам привлечь собеседников!''')
-    chats(update, context, update.message.chat_id)
+    callchats(update, context, update.message.chat_id)
 
 
-def chats(update, context, chat_id):
+@run_async
+def callchats(update, context, chat_id):
     keyboard = [[InlineKeyboardButton("😎 Общение", callback_data='flood'),
                  InlineKeyboardButton("👾 Развлечение", callback_data='games')],
 
@@ -65,6 +66,20 @@ def chats(update, context, chat_id):
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(chat_id=chat_id, text='Выбирайте какие чаты вам интересны 👇', reply_markup=reply_markup)
 
+
+@run_async
+def chats(update, context):
+    keyboard = [[InlineKeyboardButton("😎 Общение", callback_data='flood'),
+                 InlineKeyboardButton("👾 Развлечение", callback_data='games')],
+
+                [InlineKeyboardButton("🧐 Тематические чаты", callback_data='discussion')],
+                [InlineKeyboardButton("⭐️ Партнёрские чаты", callback_data='partners')],
+
+                [InlineKeyboardButton("Случайный чат", callback_data='random'),
+                 InlineKeyboardButton("Добавить чат", callback_data='add')]]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text('Выбирайте какие чаты вам интересны 👇', reply_markup=reply_markup)
 
 
 @run_async
@@ -80,7 +95,7 @@ def button(update, context):
         cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
     elif 'add' in query.data:
         query.edit_message_text(text='Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
-        chats(update, context, query.message.chat_id)
+        callchats(update, context, query.message.chat_id)
 
         return
     result = cursor.fetchall()
@@ -90,6 +105,7 @@ def button(update, context):
 
         text += '\n\nСписок категорий чатов - /chats'
         query.edit_message_text(text=text, parse_mode='HTML')
+        callchats(update, context, query.message.chat_id)
     except:
         query.answer(text='Пока что в базе данных нет таких чатов.', show_alert=True)
     
@@ -97,13 +113,15 @@ def button(update, context):
 
 @run_async
 def addChatToDB(update, context):
+    chat_id = update.message.chat.id
+    cursor.execute('SELECT id FROM chats')
+    all_chats = cursor.fetchall()
     try:
         if '-' not in str(update.message.chat.id):
             update.message.reply_text('Добавлять в базу можно только чаты!')
         elif ('flood' not in update.message.text) and ('games' not in update.message.text) and ('discussion' not in update.message.text):
             update.message.reply_text('Укажи категорию чата.')
-        elif ('flood' in update.message.text) or ('games' in update.message.text) or ('discussion' in update.message.text):
-            chat_id = update.message.chat.id
+        elif ('flood' in update.message.text) or ('games' in update.message.text) or ('discussion' in update.message.text):       
             name = update.message.chat.title
             if bool(update.message.chat.username):
                 link = "https://t.me/" + update.message.chat.username   
@@ -116,6 +134,21 @@ def addChatToDB(update, context):
             category = context.args[0]
             cursor.execute('INSERT INTO chats (id, name, link, category, partners) VALUES (%s, %s, %s, %s, 0)', (chat_id, name, link, category,))
             conn.commit()
+            update.message.reply_text('Чат добавлен.')
+        elif str(update.message.chat.id) in str(all_chats):
+            name = update.message.chat.title
+            if bool(update.message.chat.username):
+                link = "https://t.me/" + update.message.chat.username   
+            elif adminctrl(update, context):
+                if bool(update.message.chat.invite_link):
+                    link = update.message.chat.invite_link        
+                else:
+                    link = context.bot.exportChatInviteLink(chat_id)
+            print(context.bot.id)
+            category = context.args[0]
+            cursor.execute('UPDATE chats SET name = %s, link = %s, category = %s WHERE id = %s', (name, link, category, chat_id,))
+            conn.commit()
+            update.message.reply_text('Данные обновлены.')
         else:
             update.message.reply_text('Что-то пошло не так.')
     except:
@@ -138,7 +171,7 @@ def main():
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler('start', start))
-    dp.add_handler(CommandHandler('chats', chats), update.message.chat_id)
+    dp.add_handler(CommandHandler('chats', chats))
     dp.add_handler(CommandHandler('addchat', addChatToDB, filters=Filters.user(username='@daaetoya')|Filters.user(username='@aotkh')))
     dp.add_handler(CallbackQueryHandler(button))
 
