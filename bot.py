@@ -61,7 +61,7 @@ def callchats(update, context, chat_id):
                 [InlineKeyboardButton("🧐 Обсуждение", callback_data='discussion'),
                  InlineKeyboardButton("🗞 Новости", callback_data='news')],
 
-                [InlineKeyboardButton("⭐️ Партнёрские чаты", callback_data='partners')],
+                [InlineKeyboardButton("⭐️ Официальные чаты", callback_data='partners')],
 
                 [InlineKeyboardButton("🎲 Случайный", callback_data='random'),
                  InlineKeyboardButton("🔥 Добавить чат", callback_data='add')]]
@@ -78,7 +78,7 @@ def chats(update, context):
                 [InlineKeyboardButton("🧐 Обсуждение", callback_data='discussion'),
                  InlineKeyboardButton("🗞 Новости", callback_data='news')],
 
-                [InlineKeyboardButton("⭐️ Партнёрские чаты", callback_data='partners')],
+                [InlineKeyboardButton("⭐️ Официальные чаты", callback_data='partners')],
 
                 [InlineKeyboardButton("🎲 Случайный", callback_data='random'),
                  InlineKeyboardButton("🔥 Добавить чат", callback_data='add')]]
@@ -103,7 +103,7 @@ def button(update, context):
         cursor.execute('SELECT name, link FROM chats WHERE category = %s', (category,))
     elif 'partners' in query.data:
         cursor.execute('SELECT name, link FROM chats WHERE partners = 1')
-        title = '<u>Партнёрские чаты</u> ⭐️\n'
+        title = '<u>Официальные чаты</u> ⭐️\n'
     elif 'random' in query.data:
         cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
         title = '<u>Случайный чат</u> 🎲\n'
@@ -111,12 +111,17 @@ def button(update, context):
         query.edit_message_text(text='Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
 
         return
+    elif 'other' in query.data:
+        callchats(update, context, query.message.chat.id)
+
+        return
     result = cursor.fetchall()
     text = title
     for info in result:
         text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
-    text += '\n\nДругие чаты - /chats'
-    query.edit_message_text(text=text, parse_mode='HTML')
+    keyboard = [[InlineKeyboardButton("Другие чаты", callback_data='other')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text(text=text, parse_mode='HTML', reply_markup=reply_markup)
 
     
 
