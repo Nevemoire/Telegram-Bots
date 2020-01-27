@@ -18,8 +18,8 @@ import os
 from telegram.ext.dispatcher import run_async
 import psycopg2
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, ParseMode
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 conn = psycopg2.connect(dbname = 'daqpsemmol11kn', user = 'fnwjyuhqrjdbcv', password = '4ae63588868e2423ddb7cc3bd4e71ae5892179b86dca5a90272b747aa933bac9', host = 'ec2-46-137-75-170.eu-west-1.compute.amazonaws.com')
 cursor = conn.cursor()
@@ -29,8 +29,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-
-CHOOSING = range(1)
 
 bot_id = '1072920015'
 
@@ -43,6 +41,17 @@ def adminctrl(update, context):
 
 @run_async
 def start(update, context):
+    keyboard = [[InlineKeyboardButton("😎 Общение", callback_data='flood'),
+                 InlineKeyboardButton("👾 Развлечение", callback_data='games')],
+
+                [InlineKeyboardButton("🧐 Тематические", callback_data='discussion')],
+                [InlineKeyboardButton("⭐️ Партнёрские чаты", callback_data='partners')],
+
+                [InlineKeyboardButton("Случайный чат", callback_data='random')],
+                [InlineKeyboardButton("Добавить чат", callback_data='add')]]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
     update.message.reply_text(
         '''Приветствуем! 👋
 
@@ -52,110 +61,33 @@ def start(update, context):
 
 У нас вы сможете найти чат на любой вкус. А если вдруг не найдёте - не проблема, создайте свой и добавьте в нашу базу, а мы поможем вам привлечь собеседников!
 
-Подбор чатов по фильтрам - /filters
-Случайный чат - /random
-Добавить свой чат - /add''')
+Выбирайте какие чаты вам интересны 👇''')
 
 
 @run_async
-def filteredChats(update, context):
-    reply_keyboard = [['😎 Общение', '👾 Развлечение'], ['🧐 Тематические', '⭐️ Партнёрские чаты'], ['Отмена']]
-    update.message.reply_text('Выберите категорию.',
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True))
-
-    return CHOOSING
-
-
-@run_async
-def chatsFlood(update, context):
-    category = "flood"
+def button(update, context):
     text = ''
-    try:
+    query = update.callback_query
+    if ('flood' in query.data) or ('games' in query.data) or ('discussion' in query.data)
+        category = query.data
         cursor.execute('SELECT name, link FROM chats WHERE category = %s', (category,))
-        flood = cursor.fetchall()
-
-        for info in flood:
-            text = f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
-
-        update.message.reply_text(text, parse_mode='HTML')
-
-        return CHOOSING
-    except:
-        update.message.reply_text('Пока что в базе данных нет таких чатов.')
-
-        return ConversationHandler.END
-
-
-@run_async
-def chatsGames(update, context):
-    category = "games"
-    text = ''
-    try:
-        cursor.execute('SELECT name, link FROM chats WHERE category = %s', (category,))
-        games = cursor.fetchall()
-
-        for info in games:
-            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
-
-        update.message.reply_text(text, parse_mode='HTML')
-
-        return CHOOSING
-    except:
-        update.message.reply_text('Пока что в базе данных нет таких чатов.')
-
-        return ConversationHandler.END
-
-
-@run_async
-def chatsDiscussion(update, context):
-    category = "discussion"
-    text = ''
-    try:
-        cursor.execute('SELECT name, link FROM chats WHERE category = %s', (category,))
-        discussion = cursor.fetchall()
-
-        for info in discussion:
-            text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
-
-        update.message.reply_text(text, parse_mode='HTML')
-
-        return CHOOSING
-    except:
-        update.message.reply_text('Пока что в базе данных нет таких чатов.')
-
-        return ConversationHandler.END
-
-
-@run_async
-def chatsPartners(update, context):
-    text = ''
-    try:
+    elif 'partners' in query.data:
         cursor.execute('SELECT name, link FROM chats WHERE partners = 1')
-        partners = cursor.fetchall()
+    elif 'random' in query.data:
+        cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
+    elif 'add' in query.data:
+        update.message.reply_text('Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
 
-        for info in partners:
+        return
+    result = cursor.fetchall()
+    try:
+        for info in result:
             text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
 
         update.message.reply_text(text, parse_mode='HTML')
-
-        return CHOOSING
     except:
         update.message.reply_text('Пока что в базе данных нет таких чатов.')
-
-        return ConversationHandler.END
-
-
-@run_async
-def randomChat(update, context):
-    cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
-    random = cursor.fetchall()
-    for info in random:
-        update.message.reply_text(f'<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.', parse_mode='HTML')
-
-
-@run_async
-def addChat(update, context):
-    update.message.reply_text('Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
+    
 
 
 @run_async
@@ -185,14 +117,6 @@ def addChatToDB(update, context):
         update.message.reply_text('Произошла ошибка.')
 
 
-@run_async
-def cancel(update, context):
-    update.message.reply_text('Как скажете. Чтобы включить поиск по фильтрам заново - напишите /filters.',
-                              reply_markup=ReplyKeyboardRemove())
-
-    return ConversationHandler.END
-
-
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
@@ -212,22 +136,7 @@ def main():
     dp.add_handler(CommandHandler('random', randomChat))
     dp.add_handler(CommandHandler('add', addChat))
     dp.add_handler(CommandHandler('addchat', addChatToDB, filters=Filters.user(username='@daaetoya')|Filters.user(username='@aotkh')))
-
-    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('filters', filteredChats)],
-
-        states={
-            CHOOSING: [MessageHandler(Filters.regex('^😎 Общение$'), chatsFlood),
-                     MessageHandler(Filters.regex('^👾 Развлечение$'), chatsGames),
-                     MessageHandler(Filters.regex('^🧐 Тематические$'), chatsDiscussion),
-                     MessageHandler(Filters.regex('^⭐️ Партнёрские чаты$'), chatsPartners)]
-        },
-
-        fallbacks=[[MessageHandler(Filters.regex('^Отмена$'), cancel)]]
-    )
-
-    dp.add_handler(conv_handler)
+    dp.add_handler(CallbackQueryHandler(button))
 
     # log all errors
     dp.add_error_handler(error)
