@@ -32,12 +32,14 @@ logger = logging.getLogger(__name__)
 
 CHOOSING = range(1)
 
+bot_id = 1072920015
 
-def adminctrl(update, context, id):
-    for i in context.bot.get_chat_administrators(update.message.chat.id):
-        if id == i.user.id:
-            return True
-    return False
+
+def adminctrl(update, context):
+    if bot_id in context.bot.get_chat_administrators(update.message.chat.id):
+        return True
+    else:
+        return False
 
 
 @run_async
@@ -166,7 +168,7 @@ def addChatToDB(update, context):
         if bool(update.message.chat.username):
             link = "https://t.me/" + update.message.chat.username
             print('1')
-        elif adminctrl(update, context, context.bot.id):
+        elif adminctrl(update, context):
             if bool(update.message.chat.invite_link):
                 link = update.message.chat.invite_link
                 print('2')
