@@ -174,6 +174,7 @@ def addChatToDB(update, context):
                 link = context.bot.exportChatInviteLink(chat_id)
                 print('3')
         print('4')
+        print(context.bot.id)
         category = context.args[0]
         cursor.execute('INSERT INTO chats (id, name, link, category, partners) VALUES (%s, %s, %s, %s, 0)', (chat_id, name, link, category,))
     else:
