@@ -79,8 +79,8 @@ def button(update, context):
     elif 'random' in query.data:
         cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
     elif 'add' in query.data:
-         query.edit_message_text(text='Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
-         chats(update, context)
+        query.edit_message_text(text='Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
+        chats(update, context)
 
         return
     result = cursor.fetchall()
