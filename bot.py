@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 bot_id = '1072920015'
 
 
+@run_async
 def adminctrl(update, context):
     for bot_id in context.bot.get_chat_administrators(update.message.chat_id):
         return True
@@ -84,30 +85,37 @@ def chats(update, context):
 
 @run_async
 def button(update, context):
-    text = ''
     query = update.callback_query
     if ('flood' in query.data) or ('games' in query.data) or ('discussion' in query.data):
         category = query.data
+        if 'flood' in query.data:
+            title = '<u>Чаты для общения</u>\n'
+        elif 'games' in query.data:
+            title = '<u>Игровые чаты</u>\n'
+        else:
+            title = '<u>Чаты по интересам</u>\n'
         cursor.execute('SELECT name, link FROM chats WHERE category = %s', (category,))
     elif 'partners' in query.data:
         cursor.execute('SELECT name, link FROM chats WHERE partners = 1')
+        title = '<u>Партнёрские чаты</u>\n'
     elif 'random' in query.data:
         cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
+        title = '<u>Случайный чат</u>\n'
     elif 'add' in query.data:
         query.edit_message_text(text='Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
         callchats(update, context, query.message.chat_id)
 
         return
     result = cursor.fetchall()
+    text = title
     try:
         for info in result:
             text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
-
-        text += '\n\nСписок категорий чатов - /chats'
         query.edit_message_text(text=text, parse_mode='HTML')
         callchats(update, context, query.message.chat_id)
     except:
         query.answer(text='Пока что в базе данных нет таких чатов.', show_alert=True)
+
     
 
 
