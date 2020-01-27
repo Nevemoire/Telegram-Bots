@@ -49,7 +49,7 @@ def start(update, context):
 Специально для вас мы создали бота, объединяющего людей самых разных возрастов, профессий и интересов.
 
 У нас вы сможете найти чат на любой вкус. А если вдруг не найдёте - не проблема, создайте свой и добавьте в нашу базу, а мы поможем вам привлечь собеседников!''')
-    chats(update, context, update.message.chat.id)
+    chats(update, context, update.message.chat_id)
 
 
 def chats(update, context, chat_id):
@@ -80,7 +80,7 @@ def button(update, context):
         cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
     elif 'add' in query.data:
         query.edit_message_text(text='Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
-        chats(update, context, update.message.chat.id)
+        chats(update, context, query.message.chat_id)
 
         return
     result = cursor.fetchall()
@@ -138,7 +138,7 @@ def main():
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler('start', start))
-    dp.add_handler(CommandHandler('chats', chats))
+    dp.add_handler(CommandHandler('chats', chats), update.message.chat_id)
     dp.add_handler(CommandHandler('addchat', addChatToDB, filters=Filters.user(username='@daaetoya')|Filters.user(username='@aotkh')))
     dp.add_handler(CallbackQueryHandler(button))
 
