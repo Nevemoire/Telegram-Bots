@@ -143,7 +143,7 @@ def addChatToDB(update, context):
         name = update.message.chat.title
         if bool(update.message.chat.username):
                         link = "https://t.me/" + update.message.chat.username
-                    elif adminctrl(update, context, bot.id):
+                    elif adminctrl(update, context, context.bot.id):
                         if bool(update.message.chat.invite_link):
                             link = update.message.chat.invite_link
                         else:
