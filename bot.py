@@ -61,8 +61,8 @@ def callchats(update, context, chat_id):
                 [InlineKeyboardButton("🧐 Тематические чаты", callback_data='discussion')],
                 [InlineKeyboardButton("⭐️ Партнёрские чаты", callback_data='partners')],
 
-                [InlineKeyboardButton("Случайный чат", callback_data='random'),
-                 InlineKeyboardButton("Добавить чат", callback_data='add')]]
+                [InlineKeyboardButton("🎲 Случайный чат", callback_data='random'),
+                 InlineKeyboardButton("🔥 Добавить чат", callback_data='add')]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(chat_id=chat_id, text='Выбирайте какие чаты вам интересны 👇', reply_markup=reply_markup)
