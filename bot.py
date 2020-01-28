@@ -36,7 +36,7 @@ bot_id = os.environ['bot_id']
 
 @run_async
 def adminctrl(update, context):
-    for bot_id in context.bot.get_chat_administrators(str(update.message.chat_id)):
+    for bot_id in context.bot.get_chat_administrators(update.message.chat_id):
         return True
     return False
 
@@ -44,7 +44,7 @@ def adminctrl(update, context):
 @run_async
 def getId(update, context):
     update.message.reply_text('Чтобы поделиться данным чатом, убедитесь что он есть в нашей базе данных и вставьте текст ниже в поле ввода сообщения, затем нажмите на кнопку в всплывшем окне.')
-    update.message.text(update.message.forward_from_chat)
+    update.message.text(str(update.message.forward_from_chat))
 
 
 @run_async
