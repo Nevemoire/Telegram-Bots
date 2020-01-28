@@ -17,8 +17,9 @@ import logging
 import os
 from telegram.ext.dispatcher import run_async
 import psycopg2
+from uuid import uuid4
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, Filters
 
 conn = psycopg2.connect(dbname = 'daqpsemmol11kn', user = 'fnwjyuhqrjdbcv', password = '4ae63588868e2423ddb7cc3bd4e71ae5892179b86dca5a90272b747aa933bac9', host = 'ec2-46-137-75-170.eu-west-1.compute.amazonaws.com')
@@ -38,6 +39,36 @@ def adminctrl(update, context):
     for bot_id in context.bot.get_chat_administrators(update.message.chat_id):
         return True
     return False
+
+
+@run_async
+def getId(update, context):
+    update.message.reply_text('Чтобы поделиться данным чатом, убедитесь что он есть в нашей базе данных и вставьте текст ниже в поле ввода сообщения, затем нажмите на кнопку в всплывшем окне.')
+    update.message.text(f'@chattygrambot {update.message.forward_from_chat.id}')
+
+
+@run_async
+def inlinequery(update, context):
+    """Handle the inline query."""
+    chat_id = update.inline_query.query
+    cursor.execute('SELECT link FROM chats WHERE id = %s', (,chat_id))
+    link = cursor.fetchone()
+    if 'None' in str(link):
+        results = [
+        InlineQueryResultArticle(
+            id=uuid4(),
+            title="Этого чата нет в нашей базе.",
+            input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
+    else:
+        keyboard = [[InlineKeyboardButton("Посмотреть", url=link[0])]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        results = [
+            InlineQueryResultArticle(
+                id=uuid4(),
+                title="Поделиться чатом",
+                input_message_content=InputTextMessageContent("У вас новое сообщение!", reply_markup=reply_markup))]
+
+    update.inline_query.answer(results)
 
 
 @run_async
@@ -192,6 +223,8 @@ def main():
 
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('chats', chats))
+    dp.add_handler(MessageHandler(Filters.forwarded, getId))
+    dp.add_handler(InlineQueryHandler(inlinequery))
     dp.add_handler(CommandHandler('addchat', addChatToDB, filters=Filters.user(username='@daaetoya')|Filters.user(username='@aotkh')))
     dp.add_handler(CallbackQueryHandler(button))
 
