@@ -44,7 +44,7 @@ def adminctrl(update, context):
 @run_async
 def getId(update, context):
     update.message.reply_text('Чтобы поделиться данным чатом, убедитесь что он есть в нашей базе данных и вставьте текст ниже в поле ввода сообщения, затем нажмите на кнопку в всплывшем окне.')
-    update.message.reply_text(update.effective_message.forward_from.id)
+    update.message.reply_text(update.effective_message.forward_from_chat.id)
 
 
 @run_async
@@ -60,13 +60,21 @@ def inlinequery(update, context):
             title="Этого чата нет в нашей базе.",
             input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
     else:
-        keyboard = [[InlineKeyboardButton("Посмотреть", url=link[0])]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        results = [
-            InlineQueryResultArticle(
-                id=uuid4(),
-                title="Поделиться чатом",
-                input_message_content=InputTextMessageContent("У вас новое сообщение!", reply_markup=reply_markup, disable_web_page_preview=True))]
+        try:
+            keyboard = [[InlineKeyboardButton("Посмотреть", url=link[0])]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            results = [
+                InlineQueryResultArticle(
+                    id=uuid4(),
+                    title="Поделиться чатом",
+                    input_message_content=InputTextMessageContent("У вас новое сообщение!"),
+                    reply_markup=reply_markup)]
+        except:
+            results = [
+                InlineQueryResultArticle(
+                    id=uuid4(),
+                    title="Такого чата нет в нашей базе.",
+                    input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
 
     update.inline_query.answer(results)
 
