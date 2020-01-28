@@ -66,7 +66,7 @@ def inlinequery(update, context):
             InlineQueryResultArticle(
                 id=uuid4(),
                 title="Поделиться чатом",
-                input_message_content=InputTextMessageContent("У вас новое сообщение!", reply_markup=reply_markup))]
+                input_message_content=InputTextMessageContent("У вас новое сообщение!", reply_markup=reply_markup, disable_web_page_preview=True))]
 
     update.inline_query.answer(results)
 
@@ -131,7 +131,7 @@ def button(update, context):
             title = '<u>Новостные чаты</u> 🗞\n'
         else:
             title = '<u>Чаты по интересам</u> 🧐\n'
-        cursor.execute('SELECT name, link FROM chats WHERE category = %s', (category,))
+        cursor.execute('SELECT name, link FROM chats WHERE category = %s ORDER BY random() LIMIT 10', (category,))
     elif 'partners' in query.data:
         cursor.execute('SELECT name, link FROM chats WHERE partners = 1')
         title = '<u>Официальные чаты</u> ⭐️\n'
@@ -152,7 +152,7 @@ def button(update, context):
         text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
     keyboard = [[InlineKeyboardButton("Другие чаты", callback_data='other')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=text, parse_mode='HTML', reply_markup=reply_markup)
+    query.edit_message_text(text=text, parse_mode='HTML', reply_markup=reply_markup, disable_web_page_preview=True)
 
     
 
