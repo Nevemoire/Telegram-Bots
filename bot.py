@@ -30,7 +30,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-bot_id = '1072920015'
+bot_id = os.environ['bot_id']
 
 
 @run_async
