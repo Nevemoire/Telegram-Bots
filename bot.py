@@ -51,7 +51,7 @@ def getId(update, context):
 def inlinequery(update, context):
     """Handle the inline query."""
     chat_id = update.inline_query.query
-    cursor.execute('SELECT link FROM chats WHERE id = %s', (,chat_id))
+    cursor.execute('SELECT link FROM chats WHERE id = %s', (chat_id,))
     link = cursor.fetchone()
     if 'None' in str(link):
         results = [
