@@ -36,7 +36,7 @@ bot_id = os.environ['bot_id']
 
 @run_async
 def adminctrl(update, context):
-    for bot_id in context.bot.get_chat_administrators(update.message.chat_id):
+    for bot_id in context.bot.get_chat_administrators(str(update.message.chat_id)):
         return True
     return False
 
