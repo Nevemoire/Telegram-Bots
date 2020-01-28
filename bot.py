@@ -44,7 +44,7 @@ def adminctrl(update, context):
 @run_async
 def getId(update, context):
     update.message.reply_text('Чтобы поделиться данным чатом, убедитесь что он есть в нашей базе данных и вставьте текст ниже в поле ввода сообщения, затем нажмите на кнопку в всплывшем окне.')
-    update.message.text(f'@chattygrambot {update.message.forward_from.chat.id}')
+    update.message.text(f'@chattygrambot {update.message.forward_from_chat.chat_id}')
 
 
 @run_async
