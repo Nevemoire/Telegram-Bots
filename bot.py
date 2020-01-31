@@ -44,7 +44,7 @@ def adminctrl(update, context):
 @run_async
 def getId(update, context):
     text = f'@chattybot {update.message.chat_id}'
-    keyboard = [[InlineKeyboardButton("Поделиться чатом", url=f"tg://msg?text=text")]]
+    keyboard = [[InlineKeyboardButton("Поделиться чатом", url=f"tg://msg?text={text}")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     try: 
         context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
