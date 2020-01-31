@@ -68,7 +68,7 @@ def inlinequery(update, context):
             print('Null inline')
 
             return
-        elif chat_id in all_chats:
+        elif str(chat_id) in str(all_chats):
             cursor.execute('SELECT link FROM chats WHERE id = %s', (chat_id,))
             link = cursor.fetchone()
             keyboard = [[InlineKeyboardButton("Подробнее", url=link[0])]]
