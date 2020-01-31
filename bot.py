@@ -64,7 +64,7 @@ def inlinequery(update, context):
     all_chats = cursor.fetchall()
     chat_id = update.inline_query.query
     try:
-        if chat_id == 'None':
+        if 'None' in chat_id:
             print('Null inline')
 
             return
