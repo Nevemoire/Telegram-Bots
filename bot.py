@@ -43,7 +43,7 @@ def adminctrl(update, context):
 
 @run_async
 def getId(update, context):
-    text = f'@chattybot {update.message.chat_id}'
+    text = f'@chattygrambot {update.message.chat_id}'
     keyboard = [[InlineKeyboardButton("Поделиться чатом", url=f"tg://msg?text={text}")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     try: 
