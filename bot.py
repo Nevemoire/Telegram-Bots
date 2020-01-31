@@ -43,8 +43,18 @@ def adminctrl(update, context):
 
 @run_async
 def getId(update, context):
-    update.message.reply_text('Чтобы поделиться данным чатом, убедитесь что он есть в нашей базе данных и вставьте текст ниже в поле ввода сообщения, затем нажмите на кнопку в всплывшем окне.')
-    update.message.reply_text(update.effective_message.forward_from_chat.chat_id)
+    try:
+        context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
+        context.bot.send_message(chat_id=update.message.from_user.id, text='Скопируйте сообщение 👇 и вставьте в поле ввода чтобы быстро поделиться этим чатом.')
+        context.bot.send_message(chat_id=update.message.from_user.id, text=f'@chattybot {update.message.chat_id}')
+    except:
+        try:
+            context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
+            update.message.reply_text('Скопируйте сообщение 👇 и вставьте в поле ввода чтобы быстро поделиться этим чатом.')
+            update.message.reply_text(f'@chattybot {update.message.chat_id}')
+        except:
+            update.message.reply_text('Скопируйте сообщение 👇 и вставьте в поле ввода чтобы быстро поделиться этим чатом.')
+            update.message.reply_text(f'@chattybot {update.message.chat_id}')
 
 
 @run_async
@@ -61,19 +71,19 @@ def inlinequery(update, context):
             input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
     else:
         try:
-            keyboard = [[InlineKeyboardButton("Посмотреть", url=link[0])]]
+            keyboard = [[InlineKeyboardButton("Подробнее", url=link[0])]]
             reply_markup = InlineKeyboardMarkup(keyboard)
             results = [
                 InlineQueryResultArticle(
                     id=uuid4(),
                     title="Поделиться чатом",
-                    input_message_content=InputTextMessageContent("У вас новое сообщение!"),
+                    input_message_content=InputTextMessageContent("Вас пригласили в чат!"),
                     reply_markup=reply_markup)]
         except:
             results = [
                 InlineQueryResultArticle(
                     id=uuid4(),
-                    title="Такого чата нет в нашей базе.",
+                    title="Этого чата нет в нашей базе.",
                     input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
 
     update.inline_query.answer(results)
@@ -231,7 +241,7 @@ def main():
 
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('chats', chats))
-    dp.add_handler(MessageHandler(Filters.forwarded, getId))
+    dp.add_handler(CommandHandler('id', getId))
     dp.add_handler(InlineQueryHandler(inlinequery))
     dp.add_handler(CommandHandler('addchat', addChatToDB, filters=Filters.user(username='@daaetoya')|Filters.user(username='@aotkh')))
     dp.add_handler(CallbackQueryHandler(button))
