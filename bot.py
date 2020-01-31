@@ -60,26 +60,21 @@ def getId(update, context):
 @run_async
 def inlinequery(update, context):
     """Handle the inline query."""
+    cursor.execute('SELECT id FROM chats')
+    all_chats = cursor.fetchall()
     chat_id = update.inline_query.query
-    try:
+    if chat_id in all_chats:
         cursor.execute('SELECT link FROM chats WHERE id = %s', (chat_id,))
         link = cursor.fetchone()
-        try:
-            keyboard = [[InlineKeyboardButton("Подробнее", url=link[0])]]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            results = [
-                InlineQueryResultArticle(
-                    id=uuid4(),
-                    title="Поделиться чатом",
-                    input_message_content=InputTextMessageContent("Вас пригласили в чат!"),
-                    reply_markup=reply_markup)]
-        except:
-            results = [
-                InlineQueryResultArticle(
-                    id=uuid4(),
-                    title="Этого чата нет в нашей базе.",
-                    input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
-    except:
+        keyboard = [[InlineKeyboardButton("Подробнее", url=link[0])]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        results = [
+            InlineQueryResultArticle(
+                id=uuid4(),
+                title="Поделиться чатом",
+                input_message_content=InputTextMessageContent("Вас пригласили в чат!"),
+                reply_markup=reply_markup)]
+    else:
         results = [
         InlineQueryResultArticle(
             id=uuid4(),
