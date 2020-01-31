@@ -63,13 +63,7 @@ def inlinequery(update, context):
     chat_id = update.inline_query.query
     cursor.execute('SELECT link FROM chats WHERE id = %s', (chat_id,))
     link = cursor.fetchone()
-    if 'None' in str(link):
-        results = [
-        InlineQueryResultArticle(
-            id=uuid4(),
-            title="Этого чата нет в нашей базе.",
-            input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
-    else:
+    try:
         try:
             keyboard = [[InlineKeyboardButton("Подробнее", url=link[0])]]
             reply_markup = InlineKeyboardMarkup(keyboard)
@@ -85,6 +79,12 @@ def inlinequery(update, context):
                     id=uuid4(),
                     title="Этого чата нет в нашей базе.",
                     input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
+    except:
+        results = [
+        InlineQueryResultArticle(
+            id=uuid4(),
+            title="Этого чата нет в нашей базе.",
+            input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
 
     update.inline_query.answer(results)
 
