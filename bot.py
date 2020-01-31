@@ -63,7 +63,7 @@ def inlinequery(update, context):
     cursor.execute('SELECT id FROM chats')
     all_chats = cursor.fetchall()
     chat_id = update.inline_query.query
-    if int(chat_id):
+    try:
         if int(chat_id) in all_chats:
             cursor.execute('SELECT link FROM chats WHERE id = %s', (chat_id,))
             link = cursor.fetchone()
@@ -81,7 +81,7 @@ def inlinequery(update, context):
                 id=uuid4(),
                 title="Этого чата нет в нашей базе.",
                 input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
-    else:
+    except:
         pass
 
     update.inline_query.answer(results)
