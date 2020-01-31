@@ -43,18 +43,18 @@ def adminctrl(update, context):
 
 @run_async
 def getId(update, context):
-    try:
+    text = f'@chattybot {update.message.chat_id}'
+    keyboard = [[InlineKeyboardButton("Поделиться чатом", url=f"tg://msg?text=text")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    try: 
         context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
-        context.bot.send_message(chat_id=update.message.from_user.id, text='Скопируйте сообщение 👇 и вставьте в поле ввода чтобы быстро поделиться этим чатом.')
-        context.bot.send_message(chat_id=update.message.from_user.id, text=f'@chattybot {update.message.chat_id}')
+        context.bot.send_message(chat_id=update.message.from_user.id, text='Нажмите кнопку 👇 и поделитесь с друзьями.', reply_markup=reply_markup)
     except:
         try:
             context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
-            update.message.reply_text('Скопируйте сообщение 👇 и вставьте в поле ввода чтобы быстро поделиться этим чатом.')
-            update.message.reply_text(f'@chattybot {update.message.chat_id}')
+            update.message.reply_text('Нажмите кнопку 👇 и поделитесь с друзьями.', reply_markup=reply_markup)
         except:
-            update.message.reply_text('Скопируйте сообщение 👇 и вставьте в поле ввода чтобы быстро поделиться этим чатом.')
-            update.message.reply_text(f'@chattybot {update.message.chat_id}')
+            update.message.reply_text('Нажмите кнопку 👇 и поделитесь с друзьями.', reply_markup=reply_markup)
 
 
 @run_async
