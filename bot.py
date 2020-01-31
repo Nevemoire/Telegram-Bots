@@ -82,7 +82,7 @@ def inlinequery(update, context):
                 title="Этого чата нет в нашей базе.",
                 input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
     except:
-        pass
+        return
 
     update.inline_query.answer(results)
 
