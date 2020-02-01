@@ -79,17 +79,24 @@ def inlinequery(update, context):
                 title="Этого чата нет в нашей базе.",
                 input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
         else:
-            print(1)
-            cursor.execute('SELECT link FROM chats WHERE id = %s', (chat_id,))
-            link = cursor.fetchone()
-            keyboard = [[InlineKeyboardButton("Подробнее", url=link[0])]]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            results = [
-                InlineQueryResultArticle(
-                    id=uuid4(),
-                    title="Поделиться чатом",
-                    input_message_content=InputTextMessageContent("Вас пригласили в чат!"),
-                    reply_markup=reply_markup)]
+            try:
+                print(1)
+                cursor.execute('SELECT link FROM chats WHERE id = %s', (chat_id,))
+                link = cursor.fetchone()
+                keyboard = [[InlineKeyboardButton("Подробнее", url=link[0])]]
+                reply_markup = InlineKeyboardMarkup(keyboard)
+                results = [
+                    InlineQueryResultArticle(
+                        id=uuid4(),
+                        title="Поделиться чатом",
+                        input_message_content=InputTextMessageContent("Вас пригласили в чат!"),
+                        reply_markup=reply_markup)]
+            except TypeError as error:
+                print('TypeError')
+
+                return
+            except:
+                return
 
     update.inline_query.answer(results)
 
