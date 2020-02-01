@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 bot_id = os.environ['bot_id']
 
 
+
 @run_async
 def adminctrl(update, context):
     for bot_id in context.bot.get_chat_administrators(update.message.chat_id):
@@ -63,12 +64,8 @@ def inlinequery(update, context):
     cursor.execute('SELECT id FROM chats')
     all_chats = cursor.fetchall()
     chat_id = update.inline_query.query
-    try:
-        if chat_id is None:
-            print('Null inline')
-
-            return
-        elif str(chat_id) in str(all_chats):
+    while len(chat_id) < 5:
+        if int(chat_id) in all_chats:
             cursor.execute('SELECT link FROM chats WHERE id = %s', (chat_id,))
             link = cursor.fetchone()
             keyboard = [[InlineKeyboardButton("Подробнее", url=link[0])]]
