@@ -82,8 +82,12 @@ def inlinequery(update, context):
                 id=uuid4(),
                 title="Этого чата нет в нашей базе.",
                 input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
-    except:
-        return
+    else:
+        results = [
+            InlineQueryResultArticle(
+                id=uuid4(),
+                title="Этого чата нет в нашей базе.",
+                input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
 
     update.inline_query.answer(results)
 
