@@ -65,6 +65,12 @@ def inlinequery(update, context):
     all_chats = cursor.fetchall()
     chat_id = update.inline_query.query
     if not chat_id:
+        results = [
+            InlineQueryResultArticle(
+                id=uuid4(),
+                title="Этого чата нет в нашей базе.",
+                input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
+    else:
         if chat_id not in all_chats:
             results = [
             InlineQueryResultArticle(
@@ -82,12 +88,6 @@ def inlinequery(update, context):
                     title="Поделиться чатом",
                     input_message_content=InputTextMessageContent("Вас пригласили в чат!"),
                     reply_markup=reply_markup)]
-    else:
-        results = [
-            InlineQueryResultArticle(
-                id=uuid4(),
-                title="Этого чата нет в нашей базе.",
-                input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
 
     update.inline_query.answer(results)
 
