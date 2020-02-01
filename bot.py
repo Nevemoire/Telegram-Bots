@@ -71,13 +71,15 @@ def inlinequery(update, context):
                 title="Этого чата нет в нашей базе.",
                 input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
     else:
-        if chat_id not in all_chats:
+        if str(chat_id) not in str(all_chats):
+            print(2)
             results = [
             InlineQueryResultArticle(
                 id=uuid4(),
                 title="Этого чата нет в нашей базе.",
                 input_message_content=InputTextMessageContent("Привет! Как дела?\nУ меня не получилось поделиться чатом :/"))]
         else:
+            print(1)
             cursor.execute('SELECT link FROM chats WHERE id = %s', (chat_id,))
             link = cursor.fetchone()
             keyboard = [[InlineKeyboardButton("Подробнее", url=link[0])]]
