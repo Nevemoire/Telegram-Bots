@@ -98,18 +98,23 @@ def inlinequery(update, context):
 
 
 def message(update, context):
-    able, unable = 0, 0
-    cursor.execute('SELECT id from chats')
+    f = open("chats.txt", "w")
+    f.write("Мы опубликовали вашу рассылку в этих чатах:\n\n")
+    able, unable = 1, 1
+    cursor.execute('SELECT id, name, link from chats')
     ids = cursor.fetchall()
     for chats in ids:
         try:
             context.bot.send_message(chat_id=chats[0], text=context.args[0])
             able += 1
+            f.write(f"{able}) {chats[1]} - {chats[2]}")
         except:
-            cursor.execute("UPDATE chats SET unable = 1 WHERE id = %s", (ids,))
+            cursor.execute("UPDATE chats SET unable = 1 WHERE id = %s", (chats[0],))
             conn.commit()
             unable += 1
-    update.message.reply_text(f'<u>Информация о рассылке</u>\n{able} чатов получили сообщение.\n{unable} чатов не получили сообщение.', parse_mode='HTML')
+    update.message.reply_text(f'Рассылку получили <u>{able-1}</u>/{able+unable-2} чатов.', parse_mode='HTML')
+    f.close()
+    context.bot.send_document(chat_id=update.message.chat.id, document=open('chats.txt', 'rb'))
 
 
 @run_async
