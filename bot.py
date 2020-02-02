@@ -97,6 +97,21 @@ def inlinequery(update, context):
     update.inline_query.answer(results)
 
 
+def message(update, context):
+    able, unable = 0, 0
+    cursor.execute('SELECT id from chats')
+    ids = cursor.fetchall()
+    for chats in ids:
+        try:
+            context.bot.send_message(chat_id=chats[0], text=context.args[0])
+            able += 1
+        except:
+            cursor.execute("UPDATE chats SET unable = 1 WHERE id = %s", (ids,))
+            conn.commit()
+            unable += 1
+    update.message.reply_text(f'<u>Информация о рассылке</u>\n{able} чатов получили сообщение.\n{unable} чатов не получили сообщение.')
+
+
 @run_async
 def start(update, context):
     update.message.reply_text(
@@ -250,6 +265,7 @@ def main():
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('chats', chats))
     dp.add_handler(CommandHandler('id', getId))
+    dp.add_handler(CommandHandler('message', message))
     dp.add_handler(InlineQueryHandler(inlinequery))
     dp.add_handler(CommandHandler('addchat', addChatToDB, filters=Filters.user(username='@daaetoya')|Filters.user(username='@aotkh')))
     dp.add_handler(CallbackQueryHandler(button))
