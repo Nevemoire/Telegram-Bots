@@ -109,7 +109,7 @@ def message(update, context):
             cursor.execute("UPDATE chats SET unable = 1 WHERE id = %s", (ids,))
             conn.commit()
             unable += 1
-    update.message.reply_text(f'<u>Информация о рассылке</u>\n{able} чатов получили сообщение.\n{unable} чатов не получили сообщение.')
+    update.message.reply_text(f'<u>Информация о рассылке</u>\n{able} чатов получили сообщение.\n{unable} чатов не получили сообщение.', parse_mode='HTML')
 
 
 @run_async
