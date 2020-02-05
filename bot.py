@@ -64,7 +64,7 @@ def get_admin_ids(bot, chat_id):
 @run_async
 def add_group(update, context):
     for member in update.message.new_chat_members:
-        if member.id == bot_id:
+        if bot_id in str(member.id):
             update.message.reply_text(f"""
 Чтобы добавить свой чат в нашу базу данных, <u>выдайте</u> боту права:
 <b>1)</b> Удалять сообщения.
