@@ -252,6 +252,8 @@ def addChatToDB(update, context):
     try:
         if update.effective_user.id in get_admin_ids(context.bot, update.message.chat_id):
             chat_id = update.message.chat.id
+            user_id = update.message.from_user.id
+            user_name = update.message.from_user.full_name
             try:
                 cursor.execute('SELECT id FROM chats')
                 all_chats = cursor.fetchall()
@@ -292,7 +294,7 @@ def addChatToDB(update, context):
                     cursor.execute('INSERT INTO chats (id, name, link, category, partners) VALUES (%s, %s, %s, %s, 0)', (chat_id, name, link, category,))
                     conn.commit()
                     update.message.reply_text('Запрос на добавление чата успешно подан.')
-                    context.bot.send_message(chat_id=-378607058, text=f'<b>Название</b>: {name}\n<b>Ссылка</b>: <a href={link}>просмотр</a>.\n<b>Категория</b>: {category}\n<b>Администратор</b>: <a href="tg://user?id={update.message.from_user.id}">{update.message.from_user.full_name}</a>', parse_mode="HTML")      
+                    context.bot.send_message(chat_id=-378607058, text=f'<b>Название</b>: {name}\n<b>Ссылка</b>: <a href={link}>просмотр</a>.\n<b>Категория</b>: {category}\n<b>Администратор</b>: <a href="tg://user?id={user_id}">{user_name}</a>', parse_mode='HTML')      
                 else:
                     update.message.reply_text('Что-то пошло не так.')
             except:
