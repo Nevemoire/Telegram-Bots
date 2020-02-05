@@ -267,21 +267,28 @@ def addChatToDB(update, context):
                 elif ('flood' not in update.message.text) and ('games' not in update.message.text) and ('discussion' not in update.message.text) and ('news' not in update.message.text):
                     update.message.reply_text('Укажите категорию чата.')
                 elif str(update.message.chat.id) in str(all_chats):
+                    print('ok1')
                     name = update.message.chat.title
                     if bool(update.message.chat.username):
-                        link = "https://t.me/" + update.message.chat.username   
+                        link = "https://t.me/" + update.message.chat.username
+                        print('ok2') 
                     elif adminctrl(update, context):
                         if bool(update.message.chat.invite_link):
-                            link = update.message.chat.invite_link        
+                            link = update.message.chat.invite_link
+                            print('ok3')        
                         else:
                             link = context.bot.exportChatInviteLink(chat_id)
+                            print('ok4')
                     category = context.args[0]
+                    print('ok5')
                     try:
                         cursor.execute('UPDATE chats SET name = %s, link = %s, category = %s WHERE id = %s', (name, link, category, chat_id,))
+                        conn.commit()
+                        print('ok6')
                     except:
                         update.message.reply_text('Ошибка! Обновление отменено.')
                         return
-                    conn.commit()
+                        print('ok7')
                     update.message.reply_text('Данные обновлены.')
                 elif ('flood' in update.message.text) or ('games' in update.message.text) or ('discussion' in update.message.text) or ('news' in update.message.text):       
                     name = update.message.chat.title
