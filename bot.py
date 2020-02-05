@@ -292,7 +292,7 @@ def addChatToDB(update, context):
                     cursor.execute('INSERT INTO chats (id, name, link, category, partners) VALUES (%s, %s, %s, %s, 0)', (chat_id, name, link, category,))
                     conn.commit()
                     update.message.reply_text('Запрос на добавление чата успешно подан.')
-                    context.bot.send_message(chat_id=-378607058, text=f'<b>Название</b>: {name}\n<b>Ссылка</b>: <a href={link}>просмотр.<a/>\n<b>Категория</b>: {category}\n<b>Администратор</b>: <a href="tg://user?id={update.message.from_user.id}">{update.message.from_user.full_name}</a>', parse_mode="HTML")      
+                    context.bot.send_message(chat_id=-378607058, text=f'<b>Название</b>: {name}\n<b>Ссылка</b>: <a href={link}>просмотр.<a/>\n<b>Категория</b>: {category}', parse_mode="HTML")      
                 else:
                     update.message.reply_text('Что-то пошло не так.')
             except:
