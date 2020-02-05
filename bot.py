@@ -275,11 +275,12 @@ def addChatToDB(update, context):
                             link = update.message.chat.invite_link        
                         else:
                             link = context.bot.exportChatInviteLink(chat_id)
-                    print(context.bot.id)
                     category = context.args[0]
-                    print('1')
-                    cursor.execute('UPDATE chats SET name = %s, link = %s, category = %s WHERE id = %s', (name, link, category, chat_id,))
-                    print('2')
+                    try:
+                        cursor.execute('UPDATE chats SET name = %s, link = %s, category = %s WHERE id = %s', (name, link, category, chat_id,))
+                    except:
+                        update.message.reply_text('Ошибка! Обновление отменено.')
+                        return
                     conn.commit()
                     update.message.reply_text('Данные обновлены.')
                 elif ('flood' in update.message.text) or ('games' in update.message.text) or ('discussion' in update.message.text) or ('news' in update.message.text):       
