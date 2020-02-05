@@ -283,7 +283,7 @@ def addChatToDB(update, context):
                     category = context.args[0]
                     print('ok5')
                     try:
-                        cursor.execute('UPDATE chats SET name = %s, link = %s, category = %s WHERE id = %s', (name, link, category, chat_id,))
+                        cursor.execute('UPDATE chats SET name = %s, link = %s, category = %s, partners = 0 WHERE id = %s', (name, link, category, chat_id,))
                         conn.commit()
                         print('ok6')
                     except:
