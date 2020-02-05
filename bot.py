@@ -254,6 +254,7 @@ def addChatToDB(update, context):
             chat_id = update.message.chat.id
             user_id = update.message.from_user.id
             user_name = update.message.from_user.full_name
+            print('ok')
             try:
                 cursor.execute('SELECT id FROM chats')
                 all_chats = cursor.fetchall()
@@ -287,8 +288,8 @@ def addChatToDB(update, context):
                         print('ok6')
                     except:
                         update.message.reply_text('Ошибка! Обновление отменено.')
-                        return
                         print('ok7')
+                        return
                     update.message.reply_text('Данные обновлены.')
                 elif ('flood' in update.message.text) or ('games' in update.message.text) or ('discussion' in update.message.text) or ('news' in update.message.text):       
                     name = update.message.chat.title
