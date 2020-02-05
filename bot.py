@@ -296,7 +296,7 @@ def addChatToDB(update, context):
                 else:
                     update.message.reply_text('Что-то пошло не так.')
             except:
-                update.message.reply_text('Произошла ошибка.')
+                update.message.reply_text('Не хватает прав.')
         else:
             update.message.reply_text('Добавить чат может только администратор!')
     except:
@@ -313,7 +313,7 @@ def main():
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
     # updater = Updater("939504559:AAEf7LZ1r1-bHuFcFKdC73LhJblco1EJ0Jc", use_context=True)
-    updater = Updater(os.environ['token'], use_context=True, defaults=defaults)
+    updater = Updater(os.environ['token'], use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
