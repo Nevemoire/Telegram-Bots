@@ -56,6 +56,7 @@ def adminctrl(update, context):
     return False
 
 
+@run_async
 def get_admin_ids(bot, chat_id):
     """Returns a list of admin IDs for a given chat. Results are cached for 1 hour."""
     return [admin.user.id for admin in bot.get_chat_administrators(chat_id)]
@@ -160,6 +161,27 @@ def message(update, context):
     context.bot.send_document(chat_id=update.message.chat.id, document=open('chats.txt', 'rb'))
 
 
+@restricted
+def updateUsers(update, context):
+    cursor.execute('SELECT id from chats')
+    ids = cursor.fetchall() 
+    for chats in ids:
+        try:
+            users = context.bot.get_chat_members_count(chats[0])
+            cursor.execute('UPDATE chats SET users = %s WHERE id = %s', (users, chats[0],))
+            conn.commit()
+        except:
+            pass
+    update.message.reply_text('Кол-во пользователей в чатах обновлено до настоящего момента.')
+
+
+@run_async
+def stats(update, context):
+    cursor.execute('SELECT COUNT(id), SUM(users) FROM chats')
+    info = cursor.fetchone()
+    update.message.reply_text(f'Всего чатов: {info[0]}\nВсего участников: {info[1]}')
+
+
 @run_async
 def start(update, context):
     update.message.reply_text(
@@ -228,7 +250,20 @@ def button(update, context):
         cursor.execute('SELECT name, link FROM chats ORDER BY random() LIMIT 1')
         title = '<u>Случайный чат</u> 🎲\n'
     elif 'add' in query.data:
-        query.edit_message_text(text='Пока мы автоматизируем данную функцию, вы можете написать @daaetoya или @aotkh чтобы узнать как добавить свой чат.')
+        query.edit_message_text(text="""Чтобы добавить свой чат, пригласите в него бота и <u>выдайте</u> ему права:
+<b>1)</b> Удалять сообщения.
+<b>2)</b> Приглашать пользователей.
+
+Далее, напишите:
+/addchat <code>news/discussion/flood/games</code>, где:
+<u>news</u> - обсуждение новостей и т.п.,
+<u>discussion</u> - обсуждение по интересам,
+<u>flood</u> - общение на любые темы,
+<u>games</u> - игровые чаты.
+
+Важно:
+<b>1)</b> Указывать можно только одну категорию для одного чата.
+<b>2)</b> Запрещено удалять бота, иначе ваш чат будет удалён из нашей базы.""")
 
         return
     elif 'other' in query.data:
@@ -245,12 +280,35 @@ def button(update, context):
 
 
 @run_async
+def addDescription(update, context):
+    cursor.execute('SELECT id FROM chats')
+    all_chats = cursor.fetchall()
+    chat_id = update.message.chat.id
+    if str(chat_id) in str(all_chats):
+        cursor.execute('SELECT partners FROM chats WHERE id = %s', (chat_id,))
+        is_partner = cursor.fetchone()
+        if (update.effective_user.id in get_admin_ids(context.bot, chat_id)) and is_partner[0] == 1:
+            description = update.message.text.split(' ', 1)[1]
+            if len(description) <= 200:
+                cursor.execute('UPDATE chats SET description = %s WHERE id = %s', (description, chat_id,))
+                conn.commit()
+                update.message.reply_text('Описание обновлено.')
+            else:
+                update.message.reply_text('Ошибка! Описание не должно превышать 200 символов.')
+        else:
+            update.message.reply_text('Отказываюсь! Этого чата нет в нашей базе, либо это не партнёрский чат.')
+    else:
+        pass
+
+
+@run_async
 def addChatToDB(update, context):
     try:
         if update.effective_user.id in get_admin_ids(context.bot, update.message.chat_id):
             chat_id = update.message.chat.id
             user_id = update.message.from_user.id
             user_name = update.message.from_user.full_name
+            userscount = context.bot.get_chat_members_count(update.message.chat.id)
             try:
                 cursor.execute('SELECT id FROM chats')
                 all_chats = cursor.fetchall()
@@ -274,7 +332,7 @@ def addChatToDB(update, context):
                             link = context.bot.exportChatInviteLink(chat_id)
                     category = context.args[0]
                     try:
-                        cursor.execute('UPDATE chats SET name = %s, link = %s, category = %s WHERE id = %s', (name, link, category, chat_id,))
+                        cursor.execute('UPDATE chats SET name = %s, link = %s, category = %s, users = %s WHERE id = %s', (name, link, category, userscount, chat_id,))
                         conn.commit()
                     except:
                         update.message.reply_text('Ошибка! Обновление отменено.')
@@ -290,10 +348,10 @@ def addChatToDB(update, context):
                         else:
                             link = context.bot.exportChatInviteLink(chat_id)
                     category = context.args[0]
-                    cursor.execute('INSERT INTO chats (id, name, link, category, partners) VALUES (%s, %s, %s, %s, 0)', (chat_id, name, link, category,))
+                    cursor.execute('INSERT INTO chats (id, name, link, category, users, partners) VALUES (%s, %s, %s, %s, %s, 0)', (chat_id, name, link, category, userscount,))
                     conn.commit()
                     update.message.reply_text('Запрос на добавление чата успешно подан.')
-                    context.bot.send_message(chat_id=-1001214960439, text=f'<b>Название</b>: {name}\n<b>Ссылка</b>: <a href="{link}">просмотр</a>.\n<b>Категория</b>: {category}\n<b>Администратор</b>: <a href="tg://user?id={user_id}">{user_name}</a>', parse_mode='HTML')      
+                    context.bot.send_message(chat_id=-1001214960439, text=f'<b>Название</b>: {name}\n<b>Ссылка</b>: <a href="{link}">просмотр</a>.\n<b>Категория</b>: {category}\n<b>Администратор</b>: <a href="tg://user?id={user_id}">{user_name}</a>\n<b>Участников</b>: {userscount}', parse_mode='HTML')      
                 else:
                     update.message.reply_text('Что-то пошло не так.')
             except:
@@ -323,9 +381,12 @@ def main():
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('chats', chats))
     dp.add_handler(CommandHandler('id', getId))
+    dp.add_handler(CommandHandler('update', updateUsers))
+    dp.add_handler(CommandHandler('desc', addDescription))
     dp.add_handler(CommandHandler('message', message))
     dp.add_handler(InlineQueryHandler(inlinequery))
     dp.add_handler(CommandHandler('addchat', addChatToDB))
+    dp.add_handler(CommandHandler('stats', stats))
     dp.add_handler(CallbackQueryHandler(button))
 
     # log all errors
