@@ -34,7 +34,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 bot_id = os.environ['bot_id']
-# bot_id = 1098805537
+# bot_id = '1098805537'
 LIST_OF_ADMINS = [391206263, 79799667]
 
 
