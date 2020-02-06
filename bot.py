@@ -71,7 +71,7 @@ def add_group(update, context):
 <b>2)</b> Приглашать пользователей.
 
 Далее, напишите:
-/addchat news/discussion/flood/games, где:
+/addchat <code>news/discussion/flood/games</code>, где:
 <u>news</u> - обсуждение новостей и т.п.,
 <u>discussion</u> - обсуждение по интересам,
 <u>flood</u> - общение на любые темы,
@@ -81,7 +81,8 @@ def add_group(update, context):
 <b>1)</b> Указывать можно только одну категорию для одного чата.
 <b>2)</b> Запрещено удалять бота, иначе ваш чат будет удалён из нашей базы.
 
-Все новости, обновления и другую важную информацию мы публикуем здесь: @chattygram""", parse_mode='HTML')
+Все новости, обновления и другую важную информацию мы публикуем здесь: @chattygram
+Каталог чатов: @chatscollection""", parse_mode='HTML')
         else:
             pass
 
@@ -95,11 +96,7 @@ def getId(update, context):
         context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
         context.bot.send_message(chat_id=update.message.from_user.id, text='Нажмите кнопку 👇 и поделитесь с друзьями.', reply_markup=reply_markup)
     except:
-        try:
-            context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
-            update.message.reply_text('Нажмите кнопку 👇 и поделитесь с друзьями.', reply_markup=reply_markup)
-        except:
-            update.message.reply_text('Нажмите кнопку 👇 и поделитесь с друзьями.', reply_markup=reply_markup)
+        update.message.reply_text('Нажмите кнопку 👇 и поделитесь с друзьями.', reply_markup=reply_markup)
 
 
 @run_async
