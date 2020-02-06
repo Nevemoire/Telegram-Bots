@@ -171,7 +171,8 @@ def updateUsers(update, context):
             cursor.execute('UPDATE chats SET users = %s WHERE id = %s', (users, chats[0],))
             conn.commit()
         except:
-            pass
+            cursor.execute('UPDATE chats SET unable = 1 WHERE id = %s', (chats[0],))
+            conn.commit()
     update.message.reply_text('Кол-во пользователей в чатах обновлено до настоящего момента.')
 
 
@@ -279,26 +280,26 @@ def button(update, context):
     query.edit_message_text(text=text, parse_mode='HTML', reply_markup=reply_markup, disable_web_page_preview=True)
 
 
-@run_async
-def addDescription(update, context):
-    cursor.execute('SELECT id FROM chats')
-    all_chats = cursor.fetchall()
-    chat_id = update.message.chat.id
-    if str(chat_id) in str(all_chats):
-        cursor.execute('SELECT partners FROM chats WHERE id = %s', (chat_id,))
-        is_partner = cursor.fetchone()
-        if (update.effective_user.id in get_admin_ids(context.bot, chat_id)) and is_partner[0] == 1:
-            description = update.message.text.split(' ', 1)[1]
-            if len(description) <= 200:
-                cursor.execute('UPDATE chats SET description = %s WHERE id = %s', (description, chat_id,))
-                conn.commit()
-                update.message.reply_text('Описание обновлено.')
-            else:
-                update.message.reply_text('Ошибка! Описание не должно превышать 200 символов.')
-        else:
-            update.message.reply_text('Отказываюсь! Этого чата нет в нашей базе, либо это не партнёрский чат.')
-    else:
-        pass
+# @run_async
+# def addDescription(update, context):
+#     cursor.execute('SELECT id FROM chats')
+#     all_chats = cursor.fetchall()
+#     chat_id = update.message.chat.id
+#     if str(chat_id) in str(all_chats):
+#         cursor.execute('SELECT partners FROM chats WHERE id = %s', (chat_id,))
+#         is_partner = cursor.fetchone()
+#         if (update.effective_user.id in get_admin_ids(context.bot, chat_id)) and is_partner[0] == 1:
+#             description = update.message.text.split(' ', 1)[1]
+#             if len(description) <= 200:
+#                 cursor.execute('UPDATE chats SET description = %s WHERE id = %s', (description, chat_id,))
+#                 conn.commit()
+#                 update.message.reply_text('Описание обновлено.')
+#             else:
+#                 update.message.reply_text('Ошибка! Описание не должно превышать 200 символов.')
+#         else:
+#             update.message.reply_text('Отказываюсь! Этого чата нет в нашей базе, либо это не партнёрский чат.')
+#     else:
+#         pass
 
 
 @run_async
@@ -382,7 +383,7 @@ def main():
     dp.add_handler(CommandHandler('chats', chats))
     dp.add_handler(CommandHandler('id', getId))
     dp.add_handler(CommandHandler('update', updateUsers))
-    dp.add_handler(CommandHandler('desc', addDescription))
+    # dp.add_handler(CommandHandler('desc', addDescription))
     dp.add_handler(CommandHandler('message', message))
     dp.add_handler(InlineQueryHandler(inlinequery))
     dp.add_handler(CommandHandler('addchat', addChatToDB))
