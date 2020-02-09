@@ -233,6 +233,8 @@ def chats(update, context):
 @run_async
 def button(update, context):
     query = update.callback_query
+    keyboard = [[InlineKeyboardButton("Другие чаты", callback_data='other')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
     if ('flood' in query.data) or ('games' in query.data) or ('discussion' in query.data) or ('news' in query.data):
         category = query.data
         if 'flood' in query.data:
@@ -264,7 +266,7 @@ def button(update, context):
 
 Важно:
 <b>1)</b> Указывать можно только одну категорию для одного чата.
-<b>2)</b> Запрещено удалять бота, иначе ваш чат будет удалён из нашей базы.""")
+<b>2)</b> Запрещено удалять бота, иначе ваш чат будет удалён из нашей базы.""", parse_mode='HTML', reply_markup=reply_markup)
 
         return
     elif 'other' in query.data:
@@ -275,8 +277,6 @@ def button(update, context):
     text = title
     for info in result:
         text += f'\n<b>{info[0]}</b> - <a href="{info[1]}">войти</a>.'
-    keyboard = [[InlineKeyboardButton("Другие чаты", callback_data='other')]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=text, parse_mode='HTML', reply_markup=reply_markup, disable_web_page_preview=True)
 
 
@@ -304,63 +304,60 @@ def button(update, context):
 
 @run_async
 def addChatToDB(update, context):
-    try:
-        if update.effective_user.id in get_admin_ids(context.bot, update.message.chat_id):
-            chat_id = update.message.chat.id
-            user_id = update.message.from_user.id
-            user_name = update.message.from_user.full_name
-            userscount = context.bot.get_chat_members_count(update.message.chat.id)
-            try:
-                cursor.execute('SELECT id FROM chats')
-                all_chats = cursor.fetchall()
-            except:
-                update.message.reply_text('Ошибка! Повтори через несколько секунд.')
+    if update.effective_user.id in get_admin_ids(context.bot, update.message.chat_id):
+        chat_id = update.message.chat.id
+        user_id = update.message.from_user.id
+        user_name = update.message.from_user.full_name
+        userscount = context.bot.get_chat_members_count(update.message.chat.id)
+        try:
+            cursor.execute('SELECT id FROM chats')
+            all_chats = cursor.fetchall()
+        except:
+            update.message.reply_text('Ошибка! Повтори через несколько секунд.')
 
-                return
-            try:
-                if '-' not in str(update.message.chat.id):
-                    update.message.reply_text('Добавлять в базу можно только чаты!')
-                elif ('flood' not in update.message.text) and ('games' not in update.message.text) and ('discussion' not in update.message.text) and ('news' not in update.message.text):
-                    update.message.reply_text('Укажите категорию чата.')
-                elif str(update.message.chat.id) in str(all_chats):
-                    name = update.message.chat.title
-                    if bool(update.message.chat.username):
-                        link = "https://t.me/" + update.message.chat.username   
-                    elif adminctrl(update, context):
-                        if bool(update.message.chat.invite_link):
-                            link = update.message.chat.invite_link        
-                        else:
-                            link = context.bot.exportChatInviteLink(chat_id)
-                    category = context.args[0]
-                    try:
-                        cursor.execute('UPDATE chats SET name = %s, link = %s, category = %s, users = %s WHERE id = %s', (name, link, category, userscount, chat_id,))
-                        conn.commit()
-                    except:
-                        update.message.reply_text('Ошибка! Обновление отменено.')
-                        return
-                    update.message.reply_text('Данные обновлены.')
-                elif ('flood' in update.message.text) or ('games' in update.message.text) or ('discussion' in update.message.text) or ('news' in update.message.text):       
-                    name = update.message.chat.title
-                    if bool(update.message.chat.username):
-                        link = "https://t.me/" + update.message.chat.username   
-                    elif adminctrl(update, context):
-                        if bool(update.message.chat.invite_link):
-                            link = update.message.chat.invite_link        
-                        else:
-                            link = context.bot.exportChatInviteLink(chat_id)
-                    category = context.args[0]
-                    cursor.execute('INSERT INTO chats (id, name, link, category, users, partners) VALUES (%s, %s, %s, %s, %s, 0)', (chat_id, name, link, category, userscount,))
+            return
+        try:
+            if '-' not in str(update.message.chat.id):
+                update.message.reply_text('Добавлять в базу можно только чаты!')
+            elif ('flood' not in update.message.text) and ('games' not in update.message.text) and ('discussion' not in update.message.text) and ('news' not in update.message.text):
+                update.message.reply_text('Укажите категорию чата.')
+            elif str(update.message.chat.id) in str(all_chats):
+                name = update.message.chat.title
+                if bool(update.message.chat.username):
+                    link = "https://t.me/" + update.message.chat.username   
+                elif adminctrl(update, context):
+                    if bool(update.message.chat.invite_link):
+                        link = update.message.chat.invite_link        
+                    else:
+                        link = context.bot.exportChatInviteLink(chat_id)
+                category = context.args[0]
+                try:
+                    cursor.execute('UPDATE chats SET name = %s, link = %s, category = %s, users = %s WHERE id = %s', (name, link, category, userscount, chat_id,))
                     conn.commit()
-                    update.message.reply_text('Запрос на добавление чата успешно подан.')
-                    context.bot.send_message(chat_id=-1001214960439, text=f'<b>Название</b>: {name}\n<b>Ссылка</b>: <a href="{link}">просмотр</a>.\n<b>Категория</b>: {category}\n<b>Администратор</b>: <a href="tg://user?id={user_id}">{user_name}</a>\n<b>Участников</b>: {userscount}', parse_mode='HTML')      
-                else:
-                    update.message.reply_text('Что-то пошло не так.')
-            except:
-                update.message.reply_text('Не хватает прав.')
-        else:
-            update.message.reply_text('Добавить чат может только администратор!')
-    except:
-        update.message.reply_text('Эту команду можно использовать только в чатах!')
+                except:
+                    update.message.reply_text('Ошибка! Обновление отменено.')
+                    return
+                update.message.reply_text('Данные обновлены.')
+            elif ('flood' in update.message.text) or ('games' in update.message.text) or ('discussion' in update.message.text) or ('news' in update.message.text):       
+                name = update.message.chat.title
+                if bool(update.message.chat.username):
+                    link = "https://t.me/" + update.message.chat.username   
+                elif adminctrl(update, context):
+                    if bool(update.message.chat.invite_link):
+                        link = update.message.chat.invite_link        
+                    else:
+                        link = context.bot.exportChatInviteLink(chat_id)
+                category = context.args[0]
+                cursor.execute('INSERT INTO chats (id, name, link, category, users, partners) VALUES (%s, %s, %s, %s, %s, 0)', (chat_id, name, link, category, userscount,))
+                conn.commit()
+                update.message.reply_text('Запрос на добавление чата успешно подан.')
+                context.bot.send_message(chat_id=-1001214960439, text=f'<b>Название</b>: {name}\n<b>Ссылка</b>: <a href="{link}">просмотр</a>.\n<b>Категория</b>: {category}\n<b>Администратор</b>: <a href="tg://user?id={user_id}">{user_name}</a>\n<b>Участников</b>: {userscount}', parse_mode='HTML')      
+            else:
+                update.message.reply_text('Что-то пошло не так.')
+        except:
+            update.message.reply_text('Не хватает прав.')
+    else:
+        update.message.reply_text('Добавить чат может только администратор!')
 
 
 def error(update, context):
