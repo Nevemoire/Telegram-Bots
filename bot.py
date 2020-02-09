@@ -304,7 +304,8 @@ def button(update, context):
 
 @run_async
 def addChatToDB(update, context):
-    if str(update.effective_user.id) in get_admin_ids(context.bot, update.message.chat_id):
+    try:
+        # if str(update.effective_user.id) in get_admin_ids(context.bot, update.message.chat_id):
         chat_id = update.message.chat.id
         user_id = update.message.from_user.id
         user_name = update.message.from_user.full_name
@@ -356,8 +357,10 @@ def addChatToDB(update, context):
                 update.message.reply_text('Что-то пошло не так.')
         except:
             update.message.reply_text('Не хватает прав.')
-    else:
-        update.message.reply_text('Добавить чат может только администратор!')
+        # else:
+        #     update.message.reply_text('Добавить чат может только администратор!')
+    except:
+        update.message.reply_text(f'Эту команду можно использовать только в чатах!\n{update.message.chat.id}')
 
 
 def error(update, context):
