@@ -18,6 +18,7 @@ import logging
 import random
 import psycopg2
 import os
+import time
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, Filters
@@ -122,27 +123,20 @@ def krokodil(update, context):
 
 def button(update, context):
     query = update.callback_query
-    cursor.execute('SELECT id FROM users')
-    all_users = cursor.fetchall()
-    if query.from_user.id in all_users:
-        if ('krokoword' in query.data) and (query.from_user.id in query.data):
-            query.answer(f'{context.chat_data["krokodil"]}', show_alert=True)
-        elif ('krokochange' in query.data) and (query.from_user.id in query.data):
-            cursor.execute('SELECT exp FROM users WHERE  id = %s', (query.from_user.id,))
-            balance = int(cursor.fetchone())
-            if balance >= 5:
-                context.chat_data['krokodil'] = (get_word('russian.txt'))
-                query.answer(f'context.chat_data["krokodil"]', show_alert=True)
-                cursor.execute('UPDATE users SET exp = exp - 5 WHERE id = %s', (query.from_user.id,))
-                conn.commit()
-            else:
-                query.answer('Недостаточно очков!', show_alert=True)
-        elif (query.from_user.id not in query.data):
-            query.answer('Пресекаем попытку взлома! -1 очко', show_alert=True)
-            cursor.execute('UPDATE users SET exp = exp - 1 WHERE id = %s', (query.from_user.id,))
+    if ('krokoword' in query.data) and (query.from_user.id in query.data):
+        query.answer(f'{context.chat_data["krokodil"]}', show_alert=True)
+    elif ('krokochange' in query.data) and (query.from_user.id in query.data):
+        cursor.execute('SELECT exp FROM users WHERE  id = %s', (query.from_user.id,))
+        balance = int(cursor.fetchone())
+        if balance >= 5:
+            context.chat_data['krokodil'] = (get_word('russian.txt'))
+            query.answer(f'context.chat_data["krokodil"]', show_alert=True)
+            cursor.execute('UPDATE users SET exp = exp - 5 WHERE id = %s', (query.from_user.id,))
             conn.commit()
-    else:
-        query.answer('Неавторизованный вход!', show_alert=True)
+        else:
+            query.answer('Недостаточно очков!', show_alert=True)
+    elif (query.from_user.id not in query.data):
+        query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data['kroko_inv']}', show_alert=True)
 
 
 def pussy(update, context):
