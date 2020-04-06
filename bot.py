@@ -108,7 +108,7 @@ def krokodie(update, context):
     del context.chat_data['kroko_inv']
 
 
-def krokodil(update, context):
+def krokodil(context):
     if 'kroko_job' not in context.chat_data:
         keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id}')], [InlineKeyboardButton("Поменять (-5 очков)", callback_data=f'krokochange {update.message.from_user.id}')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
