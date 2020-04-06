@@ -132,7 +132,7 @@ def button(update, context):
             cursor.execute('UPDATE users SET exp = exp - 1 WHERE id = %s', (query.from_user.id,))
             conn.commit()
     else:
-        qury.answer('Неавторизованный вход!', show_alert=True)
+        query.answer('Неавторизованный вход!', show_alert=True)
 
 
 def pussy(update, context):
