@@ -186,7 +186,7 @@ def main():
 
     # log all errors
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("krokodil", krokodil), pass_job_queue=True)
+    dp.add_handler(CommandHandler("krokodil", krokodil, pass_job_queue=True))
     dp.add_handler(CommandHandler("pidor", pidor))
     dp.add_handler(CommandHandler("pussy", showPussy))
     dp.add_handler(MessageHandler(Filters.text, echo))
