@@ -53,11 +53,15 @@ def echo(update, context):
     members = cursor.fetchall()
     if ids in int(members):
         cursor.execute('UPDATE users SET lastmsg = %s WHERE id = %s', (cur_time, ids,))
+        logger.info('1')
     else:
         name = update.message.from_user.full_name
         cursor.execute('INSERT INTO users (id, name, lastmsg) VALUES (%s, %s, %s)', (ids, name, cur_time,))
+        conn.commit()
         logger.info(f'New user {update.message.from_user.full_name}!')
+        logger.info('2')
     chance = random.randint(0, 1000)
+    logger.info(f'Random: {chance}')
     if chance <= 1:
         update.message.reply_text('Кстати, ты - пидор чата.')
         cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
@@ -75,9 +79,12 @@ def echo(update, context):
         del context.chat_data['krokoword']
         del context.chat_data['kroko_job']
         del context.chat_data['kroko_inv']
+        logger.info('3')
     else:
-        pass 
+        pass
+        logger.info('4')
     conn.commit()
+    logger.info('5')
 
 
 def get_word(fname):
@@ -86,8 +93,11 @@ def get_word(fname):
 
 
 def pidor(update, context):
-    pidor = context.chat_data['pidor']
-    update.message.reply_text(f'Текущий пидор чата: {pidor}')
+    if 'pidor' in context.chat_data:
+        pidor = context.chat_data['pidor']
+        update.message.reply_text(f'Текущий пидор чата: {pidor}')
+    else:
+        update.message.reply_text('Пидор чата пока не определён.')
 
 
 def krokodie(update, context):
