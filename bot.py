@@ -123,9 +123,9 @@ def krokodil(update, context):
 
 def button(update, context):
     query = update.callback_query
-    if ('krokoword' in query.data) and (query.from_user.id in query.data):
+    if ('krokoword' in query.data) and (str(query.from_user.id) in query.data):
         query.answer(f'{context.chat_data["krokodil"]}', show_alert=True)
-    elif ('krokochange' in query.data) and (query.from_user.id in query.data):
+    elif ('krokochange' in query.data) and (str(query.from_user.id) in query.data):
         cursor.execute('SELECT exp FROM users WHERE  id = %s', (query.from_user.id,))
         balance = int(cursor.fetchone())
         if balance >= 5:
@@ -135,7 +135,7 @@ def button(update, context):
             conn.commit()
         else:
             query.answer('Недостаточно очков!', show_alert=True)
-    elif query.from_user.id not in query.data:
+    elif str(query.from_user.id) not in query.data:
         query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data["kroko_inv"]}', show_alert=True)
 
 
