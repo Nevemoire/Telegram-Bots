@@ -135,8 +135,8 @@ def button(update, context):
             conn.commit()
         else:
             query.answer('Недостаточно очков!', show_alert=True)
-    elif (query.from_user.id not in query.data):
-        query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data['kroko_inv']}', show_alert=True)
+    elif query.from_user.id not in query.data:
+        query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data["kroko_inv"]}', show_alert=True)
 
 
 def pussy(update, context):
