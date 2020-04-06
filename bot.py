@@ -100,7 +100,7 @@ def pidor(update, context):
         update.message.reply_text('Пидор чата пока не определён.')
 
 
-def krokodie(update, context):
+def krokodie(context):
     krokoword = context.chat_data['krokoword']
     context.bot.send_message(chat_id=context.job.context, text=f'Время истекло!\nНикто не смог отгадать слово: {krokoword}')
     del context.chat_data['krokoword']
@@ -108,7 +108,7 @@ def krokodie(update, context):
     del context.chat_data['kroko_inv']
 
 
-def krokodil(context):
+def krokodil(update, context):
     if 'kroko_job' not in context.chat_data:
         keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id}')], [InlineKeyboardButton("Поменять (-5 очков)", callback_data=f'krokochange {update.message.from_user.id}')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
