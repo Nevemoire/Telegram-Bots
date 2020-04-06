@@ -38,7 +38,7 @@ def start(update, context):
     update.message.reply_text('Meow')
 
 
-def set_exp(context: telegram.ext.CallbackContext):
+def set_exp(update, context):
     cur_time = int(time.time())
     exp_time = cur_time - 600
     cursor.execute('UPDATE exp = exp + 10 WHERE lastmsg >= %s', (exp_time,))
@@ -90,7 +90,7 @@ def pidor(update, context):
     update.message.reply_text(f'Текущий пидор чата: {pidor}')
 
 
-def krokodie(context: telegram.ext.CallbackContext):
+def krokodie(update, context):
     krokoword = context.chat_data['krokoword']
     context.bot.send_message(chat_id=context.job.context, text=f'Время истекло!\nНикто не смог отгадать слово: {krokoword}')
     del context.chat_data['krokoword']
