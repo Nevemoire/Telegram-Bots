@@ -72,9 +72,10 @@ def echo(update, context):
     else:
         pass
     if 'krokoword' in context.chat_data:
+        logger.info('krokoword-y')
         msg = update.message.text
         wrd = context.chat_data['krokoword']
-        if (msg.lower() == wrd.lower()) and (update.message.from_user.id != context.chat_data['kroko_inv']):
+        if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) != context.chat_data['kroko_inv']):
             update.message.reply_text('А вот и победитель! +5 очков')
             cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
             job = context.chat_data['kroko_job']
@@ -88,6 +89,7 @@ def echo(update, context):
             pass
             logger.info('4')
     else:
+        logger.info('krokoword-n')
         pass
     conn.commit()
     logger.info('5')
