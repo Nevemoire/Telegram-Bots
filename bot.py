@@ -121,7 +121,7 @@ def krokodil(update, context):
         invoker = update.message.from_user.full_name
         context.chat_data['krokoword'] = (get_word('russian.txt'))
         update.message.reply_text(f'Начинаем!\nОбъясняет: {invoker}\nВремени: 5 минут', reply_markup=reply_markup)
-        context.chat_data['kroko_job'] = context.job_queue.run_once(krokodie, 300, context=update.message.chat_id)
+        context.chat_data['kroko_job'] = context.job_queue.run_once(krokodie, 10, context=update.message.chat_id)
         context.chat_data['kroko_inv'] = update.message.from_user.id
         context.chat_data['kroko_iname'] = update.message.from_user.full_name
     else:
@@ -197,7 +197,7 @@ def main():
 
     # log all errors
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("krokodil", krokodil, pass_job_queue=True))
+    dp.add_handler(CommandHandler("krokodil", krokodil, pass_job_queue=True, pass_chat_data=True)
     dp.add_handler(CommandHandler("pidor", pidor))
     dp.add_handler(CommandHandler("fbi", fbi))
     dp.add_handler(CommandHandler("pussy", showPussy))
