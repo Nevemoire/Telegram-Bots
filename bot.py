@@ -49,6 +49,13 @@ def set_exp(context):
     logger.info('Set exp done!')
 
 
+def del_data(context, update):
+    del context.chat_data['krokoword']
+    del context.chat_data['kroko_inv']
+    del context.chat_data['kroko_iname']
+    logger.info('Done!')
+
+
 def echo(update, context):
     try:
         cur_time = int(time.time())
@@ -109,9 +116,7 @@ def pidor(update, context):
 
 def krokodie(context):
     context.bot.send_message(chat_id=context.job.context, text='Время истекло!\nНикто не смог отгадать слово.')
-    del context.chat_data['krokoword']
-    del context.chat_data['kroko_inv']
-    del context.chat_data['kroko_iname']
+    del_data(update, context)
 
 
 def krokodil(update, context):
