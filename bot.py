@@ -53,6 +53,7 @@ def echo(update, context):
     try:
         cur_time = int(time.time())
         ids = update.message.from_user.id
+        chatid = update.message.chat_id
         cursor.execute('SELECT id FROM users')
         members = cursor.fetchall()
         if str(ids) in str(members):
@@ -76,6 +77,7 @@ def echo(update, context):
             if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])):
                 update.message.reply_text('А вот и победитель! +5 монет')
                 cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
+                cursor.execute('UPDATE games SET state = 0 WHERE chatid = %s', (chatid,))
                 job = context.chat_data['kroko_job']
                 job.enabled=False
                 job.schedule_removal()
