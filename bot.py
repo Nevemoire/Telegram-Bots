@@ -200,7 +200,7 @@ def main():
     dp.add_handler(CommandHandler("pidor", pidor))
     dp.add_handler(CommandHandler("fbi", fbi))
     dp.add_handler(CommandHandler("pussy", showPussy))
-    dp.add_handler(MessageHandler(Filters.text, echo))
+    dp.add_handler(MessageHandler(Filters.group, echo))
     dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte") | Filters.user(username="@daaetoya")), pussy))
     dp.add_handler(CallbackQueryHandler(button))
     dp.add_error_handler(error)
