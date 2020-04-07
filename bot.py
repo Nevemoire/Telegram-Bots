@@ -117,7 +117,7 @@ def krokodil(update, context):
     try:
         cursor.execute('SELECT state FROM games WHERE chatid = %s', (update.message.chat_id,))
         state = cursor.fetchone()
-        if '0' in state[0]:
+        if '0' in str(state[0]):
             keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id}')], [InlineKeyboardButton("Поменять (-5 очков)", callback_data=f'krokochange {update.message.from_user.id}')]]
             reply_markup = InlineKeyboardMarkup(keyboard)
             invoker = update.message.from_user.full_name
@@ -126,7 +126,9 @@ def krokodil(update, context):
             context.chat_data['kroko_job'] = context.job_queue.run_once(krokodie, 300, context=update.message.chat_id)
             context.chat_data['kroko_inv'] = update.message.from_user.id
             context.chat_data['kroko_iname'] = update.message.from_user.full_name
-        elif '1' in state[0]:
+            cursor.execute('UPDATE games SET state = 1 WHERE chatid = %s', (update.message.chat_id,))
+            conn.commit()
+        elif '1' in str(state[0]):
             update.message.reply_text('Игра уже идёт!')
         else:
             update.message.reply_text('Error!')
