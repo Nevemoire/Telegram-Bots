@@ -52,8 +52,6 @@ def set_exp(context):
 def echo(update, context):
     cur_time = int(time.time())
     ids = update.message.from_user.id
-    name = update.message.from_user.full_name
-    logger.info(name)
     cursor.execute('SELECT id FROM users')
     members = cursor.fetchall()
     if str(ids) in str(members):
@@ -74,7 +72,7 @@ def echo(update, context):
     if 'krokoword' in context.chat_data:
         msg = update.message.text
         wrd = context.chat_data['krokoword']
-        if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) != context.chat_data['kroko_inv']):
+        if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in context.chat_data['kroko_inv']):
             update.message.reply_text('А вот и победитель! +5 очков')
             cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
             job = context.chat_data['kroko_job']
@@ -83,6 +81,7 @@ def echo(update, context):
             del context.chat_data['krokoword']
             del context.chat_data['kroko_job']
             del context.chat_data['kroko_inv']
+            del context.chat_data['kroko_iname']
         else:
             pass
     else:
@@ -108,6 +107,7 @@ def krokodie(context):
     del context.chat_data['krokoword']
     del context.chat_data['kroko_job']
     del context.chat_data['kroko_inv']
+    del context.chat_data['kroko_iname']
 
 
 def krokodil(update, context):
@@ -119,6 +119,7 @@ def krokodil(update, context):
         update.message.reply_text(f'Начинаем!\nОбъясняет: {invoker}\nВремени: 5 минут', reply_markup=reply_markup)
         context.chat_data['kroko_job'] = context.job_queue.run_once(krokodie, 300, context=update.message.chat_id)
         context.chat_data['kroko_inv'] = update.message.from_user.id
+        context.chat_data['kroko_iname'] = update.message.from_user.full_name
     else:
         update.message.reply_text('Игра уже идёт!')
 
@@ -145,7 +146,7 @@ def button(update, context):
         else:
             query.answer('Недостаточно очков!', show_alert=True)
     elif str(query.from_user.id) not in query.data:
-        query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data["kroko_inv"]}', show_alert=True)
+        query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data["kroko_iname"]}', show_alert=True)
 
 
 def pussy(update, context):
