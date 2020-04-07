@@ -49,13 +49,6 @@ def set_exp(context):
     logger.info('Set exp done!')
 
 
-def del_data(context, update):
-    del context.chat_data['krokoword']
-    del context.chat_data['kroko_inv']
-    del context.chat_data['kroko_iname']
-    logger.info('Done!')
-
-
 def echo(update, context):
     try:
         cur_time = int(time.time())
@@ -116,21 +109,31 @@ def pidor(update, context):
 
 def krokodie(context):
     context.bot.send_message(chat_id=context.job.context, text='Время истекло!\nНикто не смог отгадать слово.')
-    del_data(update, context)
+    cursor.execute('UPDATE games SET state = 0 WHERE chatid = %s', (context.job.context,))
+    conn.commit()
 
 
 def krokodil(update, context):
-    if 'kroko_job' not in context.chat_data:
-        keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id}')], [InlineKeyboardButton("Поменять (-5 очков)", callback_data=f'krokochange {update.message.from_user.id}')]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        invoker = update.message.from_user.full_name
-        context.chat_data['krokoword'] = (get_word('russian.txt'))
-        update.message.reply_text(f'Начинаем!\nОбъясняет: {invoker}\nВремени: 5 минут', reply_markup=reply_markup)
-        context.chat_data['kroko_job'] = context.job_queue.run_once(krokodie, 10, context=update.message.chat_id)
-        context.chat_data['kroko_inv'] = update.message.from_user.id
-        context.chat_data['kroko_iname'] = update.message.from_user.full_name
-    else:
-        update.message.reply_text('Игра уже идёт!')
+    try:
+        cursor.execute('SELECT state FROM games WHERE chatid = %s', (update.message.chat_id,))
+        state = cursor.fetchone()
+        if '0' in state[0]:
+            keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id}')], [InlineKeyboardButton("Поменять (-5 очков)", callback_data=f'krokochange {update.message.from_user.id}')]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            invoker = update.message.from_user.full_name
+            context.chat_data['krokoword'] = (get_word('russian.txt'))
+            update.message.reply_text(f'Начинаем!\nОбъясняет: {invoker}\nВремени: 5 минут', reply_markup=reply_markup)
+            context.chat_data['kroko_job'] = context.job_queue.run_once(krokodie, 300, context=update.message.chat_id)
+            context.chat_data['kroko_inv'] = update.message.from_user.id
+            context.chat_data['kroko_iname'] = update.message.from_user.full_name
+        elif '1' in state[0]:
+            update.message.reply_text('Игра уже идёт!')
+        else:
+            update.message.reply_text('Error!')
+    except:
+        cursor.execute('INSERT INTO games (chatid, state) VALUES (%s, 0)', (update.message.chat_id,))
+        conn.commit()
+        update.message.reply_text('Чат зарегестрирован! Напиши /krokodil ещё раз, чтобы начать игру.')
 
 
 def fbi(update, context):
