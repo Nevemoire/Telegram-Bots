@@ -114,8 +114,9 @@ def krokodil(update, context):
     if 'kroko_job' not in context.chat_data:
         keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id}')], [InlineKeyboardButton("Поменять (-5 очков)", callback_data=f'krokochange {update.message.from_user.id}')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
+        invoker = update.message.from_user.full_name
         context.chat_data['krokoword'] = (get_word('russian.txt'))
-        update.message.reply_text(f'Начинаем!\nОбъясняет: {update.message.from_user.full_name}\nВремени: 5 минут', reply_markup=reply_markup)
+        update.message.reply_text(f'Начинаем!\nОбъясняет: {invoker}\nВремени: 5 минут', reply_markup=reply_markup)
         context.chat_data['kroko_job'] = context.job_queue.run_once(krokodie, 300, context=update.message.chat_id)
         context.chat_data['kroko_inv'] = update.message.from_user.id
     else:
