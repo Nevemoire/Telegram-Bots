@@ -32,6 +32,8 @@ logger = logging.getLogger(__name__)
 
 conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], password=os.environ['password'],
                         host=os.environ['host'])
+# conn = psycopg2.connect(dbname='d19olitilh6q1s', user='oukggnzlpirgzh', password='a4e84b7de4257e36cecc14b60bb0ff570f7ce52d5d24b1c7eb275c96f403af36',
+#                         host='ec2-79-125-23-20.eu-west-1.compute.amazonaws.com')
 cursor = conn.cursor()
 
 
@@ -39,10 +41,10 @@ def start(update, context):
     update.message.reply_text('Meow')
 
 
-def set_exp(update, context):
+def set_exp(context):
     cur_time = int(time.time())
     exp_time = cur_time - 600
-    cursor.execute('UPDATE exp = exp + 10 WHERE lastmsg >= %s', (exp_time,))
+    cursor.execute('UPDATE users SET exp = exp + 10 WHERE lastmsg >= %s', (exp_time,))
     conn.commit()
     logger.info('Set exp done!')
 
@@ -52,7 +54,7 @@ def echo(update, context):
     ids = update.message.from_user.id
     cursor.execute('SELECT id FROM users')
     members = cursor.fetchall()
-    if ids in int(members):
+    if str(ids) in str(members):
         cursor.execute('UPDATE users SET lastmsg = %s WHERE id = %s', (cur_time, ids,))
         logger.info('1')
     else:
@@ -63,27 +65,30 @@ def echo(update, context):
         logger.info('2')
     chance = random.randint(0, 1000)
     logger.info(f'Random: {chance}')
-    if chance <= 1:
+    if chance <= 5:
         update.message.reply_text('Кстати, ты - пидор чата.')
         cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
         context.chat_data['pidor'] = update.message.from_user.full_name
     else:
         pass
-    msg = update.message.from_user.text
-    wrd = context.chat_data['krokoword']
-    if (msg.lower() == wrd.lower()) and (update.message.from_user.id != context.chat_data['kroko_inv']):
-        update.message.reply_text('А вот и победитель! +5 очков')
-        cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
-        job = context.chat_data['kroko_job']
-        job.enabled=False
-        job.schedule_removal()
-        del context.chat_data['krokoword']
-        del context.chat_data['kroko_job']
-        del context.chat_data['kroko_inv']
-        logger.info('3')
+    if 'krokoword' in context.chat_data:
+        msg = update.message.text
+        wrd = context.chat_data['krokoword']
+        if (msg.lower() == wrd.lower()) and (update.message.from_user.id != context.chat_data['kroko_inv']):
+            update.message.reply_text('А вот и победитель! +5 очков')
+            cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
+            job = context.chat_data['kroko_job']
+            job.enabled=False
+            job.schedule_removal()
+            del context.chat_data['krokoword']
+            del context.chat_data['kroko_job']
+            del context.chat_data['kroko_inv']
+            logger.info('3')
+        else:
+            pass
+            logger.info('4')
     else:
         pass
-        logger.info('4')
     conn.commit()
     logger.info('5')
 
@@ -126,14 +131,18 @@ def button(update, context):
     if ('krokoword' in query.data) and (str(query.from_user.id) in query.data):
         query.answer(f'{context.chat_data["krokodil"]}', show_alert=True)
     elif ('krokochange' in query.data) and (str(query.from_user.id) in query.data):
+        logger.info('yes')
         cursor.execute('SELECT exp FROM users WHERE  id = %s', (query.from_user.id,))
-        balance = int(cursor.fetchone())
+        balancez = cursor.fetchone()
+        balance = int(balancez[0])
         if balance >= 5:
+            logger.info('byes')
             context.chat_data['krokodil'] = (get_word('russian.txt'))
-            query.answer(f'context.chat_data["krokodil"]', show_alert=True)
+            query.answer(f'Новое слово: {context.chat_data["krokodil"]}', show_alert=True)
             cursor.execute('UPDATE users SET exp = exp - 5 WHERE id = %s', (query.from_user.id,))
             conn.commit()
         else:
+            logger.info('bno')
             query.answer('Недостаточно очков!', show_alert=True)
     elif str(query.from_user.id) not in query.data:
         query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data["kroko_inv"]}', show_alert=True)
@@ -141,23 +150,24 @@ def button(update, context):
 
 def pussy(update, context):
     try:
-        fID = update.message.photo.file_id
-        fType = photo
+        fID = update.message.photo[-1].file_id
+        fType = "photo"
     except:
         fID = update.message.document.file_id
-        fType = gif
+        fType = "gif"
     update.message.reply_text(f'{fID} ({fType})')
-    cursor.execute('INSER INTO pussy (id, type) VALUES (%s, %s)', (fID, fType,))
+    cursor.execute('INSERT  INTO pussy (id, type) VALUES (%s, %s)', (fID, fType,))
     conn.commit()
 
 
 def showPussy(update, context):
     cursor.execute('SELECT id, type FROM pussy ORDER BY random() LIMIT 1')
     pussy = cursor.fetchall()
-    if pussy[1] == 'photo':
-        context.bot.send_photo(chat_id=update.message.chat_id, photo=pussy[0])
-    elif pussy[1] == 'gif':
-        context.bot.send_animation(chat_id=update.message.chat_id, animation=pussy[0])
+    pussies = pussy[0]
+    if pussies[1] == 'photo':
+        context.bot.send_photo(chat_id=update.message.chat_id, photo=pussies[0])
+    elif pussies[1] == 'gif':
+        context.bot.send_animation(chat_id=update.message.chat_id, animation=pussies[0])
     else:
         logger.info('GIF/PHOTO ERROR')
 
@@ -171,22 +181,14 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    # TOKEN='792500219:AAHxYVirYrEwIAJ_kqAucaI9PovVuyEYVgo'
-    # REQUEST_KWARGS={
-    # 'proxy_url': 'socks5h://207.97.174.134:1080'
-    # Optional, if you need authentication:
-    # 'urllib3_proxy_kwargs': {
-    #     'username': 'PROXY_USER',
-    #     'password': 'PROXY_PASS',
-    # }
 
-    # updater = Updater(TOKEN, request_kwargs=REQUEST_KWARGS, use_context=True)
+    # updater = Updater('1231333868:AAFd96BYIyTq0IznE1W-ynFpxBMGrOkbNK4', use_context=True)
     updater = Updater(os.environ['token'], use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
     j = updater.job_queue
-    j.run_repeating(set_exp, interval=600, first=600)
+    j.run_repeating(set_exp, interval=600, first=0)
 
     # log all errors
     dp.add_handler(CommandHandler("start", start))
@@ -194,7 +196,7 @@ def main():
     dp.add_handler(CommandHandler("pidor", pidor))
     dp.add_handler(CommandHandler("pussy", showPussy))
     dp.add_handler(MessageHandler(Filters.text, echo))
-    dp.add_handler(MessageHandler((Filters.photo | Filters.document.gif) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte")), pussy))
+    dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte") | Filters.user(username="@daaetoya")), pussy))
     dp.add_handler(CallbackQueryHandler(button))
     dp.add_error_handler(error)
 
