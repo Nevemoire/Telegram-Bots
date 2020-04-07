@@ -74,7 +74,7 @@ def echo(update, context):
             msg = update.message.text
             wrd = context.chat_data['krokoword']
             if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])):
-                update.message.reply_text('А вот и победитель! +5 очков')
+                update.message.reply_text('А вот и победитель! +5 монет')
                 cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
                 job = context.chat_data['kroko_job']
                 job.enabled=False
@@ -89,7 +89,7 @@ def echo(update, context):
             pass
         conn.commit()
     except AttributeError as error:
-        update.message.reply_text('Что ты такое?!')
+        return
     except:
         update.message.reply_text('Произошла оши-и-и-б... (System Error)')
 
@@ -118,7 +118,7 @@ def krokodil(update, context):
         cursor.execute('SELECT state FROM games WHERE chatid = %s', (update.message.chat_id,))
         state = cursor.fetchone()
         if '0' in str(state[0]):
-            keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id}')], [InlineKeyboardButton("Поменять (-5 очков)", callback_data=f'krokochange {update.message.from_user.id}')]]
+            keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id}')], [InlineKeyboardButton("Поменять (-5 монет)", callback_data=f'krokochange {update.message.from_user.id}')]]
             reply_markup = InlineKeyboardMarkup(keyboard)
             invoker = update.message.from_user.full_name
             context.chat_data['krokoword'] = (get_word('russian.txt'))
@@ -138,8 +138,20 @@ def krokodil(update, context):
         update.message.reply_text('Чат зарегестрирован! Напиши /krokodil ещё раз, чтобы начать игру.')
 
 
+def krokoreload(context):
+    context.bot.send_message(chat_id=context.job.context, text='Все крокодилы сброшены после рестарта бота, можете начать игру заново.')
+    cursor.execute('UPDATE games SET state = 0')
+    conn.commit()
+
+
 def fbi(update, context):
     context.bot.send_animation(chat_id=update.message.chat_id, animation='CgACAgIAAxkBAAIBrF6MQgz-TZJXda7BWdgFSZfY1LAOAAIVAwACuzWoSw_3NpLvCy0dGAQ')
+
+
+def babki(update, context):
+    cursor.execute('SELECT exp FROM users WHERE id = %s', (update.message.from_user.id,))
+    babki = cursor.fetchone()
+    update.message.reply_text(f'У тебя {babki[0]} бабок!')
 
 
 def button(update, context):
@@ -158,7 +170,7 @@ def button(update, context):
             cursor.execute('UPDATE users SET exp = exp - 5 WHERE id = %s', (query.from_user.id,))
             conn.commit()
         else:
-            query.answer('Недостаточно очков!', show_alert=True)
+            query.answer('Недостаточно монет!', show_alert=True)
     elif str(query.from_user.id) not in query.data:
         query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data["kroko_iname"]}', show_alert=True)
 
@@ -187,6 +199,25 @@ def showPussy(update, context):
         logger.info('GIF/PHOTO ERROR')
 
 
+# def gop(update, context):
+#     user_says = context.args[0]
+#     try:
+#         gopstop = int(user_says)
+#     except:
+#         return
+#     cGop = 1000/(gopstop+1)
+#     if (gopstop >= 0) and (gopstop <= 10):
+#         cButilka = 100
+#     elif (gopstop > 10) and (gopstop <= 25):
+#         cButilka = 250
+#     elif (gopstop > 25) and (gopstop <= 50):
+#         cButilka = 500
+#     elif (gopstop > 50) and (gopstop <= 100):
+#         cButilka = 990
+#     else:
+#         cButilka = 999
+
+
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
@@ -204,6 +235,7 @@ def main():
     dp = updater.dispatcher
     j = updater.job_queue
     j.run_repeating(set_exp, interval=600, first=0)
+    j.run_once(krokoreload, 1)
 
     # log all errors
     dp.add_handler(CommandHandler("start", start))
@@ -211,6 +243,8 @@ def main():
     dp.add_handler(CommandHandler("pidor", pidor))
     dp.add_handler(CommandHandler("fbi", fbi))
     dp.add_handler(CommandHandler("pussy", showPussy))
+    dp.add_handler(CommandHandler("babki", babki))
+    # dp.add_handler(CommandHandler("gop", gop, pass_args=True))
     dp.add_handler(MessageHandler(Filters.group, echo))
     dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte") | Filters.user(username="@daaetoya")), pussy))
     dp.add_handler(CallbackQueryHandler(button))
