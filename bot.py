@@ -110,7 +110,6 @@ def pidor(update, context):
 def krokodie(context):
     context.bot.send_message(chat_id=context.job.context, text='Время истекло!\nНикто не смог отгадать слово.')
     del context.chat_data['krokoword']
-    del context.chat_data['kroko_job']
     del context.chat_data['kroko_inv']
     del context.chat_data['kroko_iname']
 
