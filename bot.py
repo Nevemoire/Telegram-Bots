@@ -126,6 +126,10 @@ def krokodil(update, context):
         update.message.reply_text('Игра уже идёт!')
 
 
+def fbi(update, context):
+    context.bot.send_animation(chat_id=update.message.chat_id, animation='CgACAgIAAxkBAAIBrF6MQgz-TZJXda7BWdgFSZfY1LAOAAIVAwACuzWoSw_3NpLvCy0dGAQ')
+
+
 def button(update, context):
     query = update.callback_query
     if ('krokoword' in query.data) and (str(query.from_user.id) in query.data):
@@ -194,6 +198,7 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("krokodil", krokodil, pass_job_queue=True))
     dp.add_handler(CommandHandler("pidor", pidor))
+    dp.add_handler(CommandHandler("fbi", fbi))
     dp.add_handler(CommandHandler("pussy", showPussy))
     dp.add_handler(MessageHandler(Filters.text, echo))
     dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte") | Filters.user(username="@daaetoya")), pussy))
