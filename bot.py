@@ -72,7 +72,6 @@ def echo(update, context):
     else:
         pass
     if 'krokoword' in context.chat_data:
-        logger.info('krokoword-y')
         msg = update.message.text
         wrd = context.chat_data['krokoword']
         if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) != context.chat_data['kroko_inv']):
@@ -84,15 +83,11 @@ def echo(update, context):
             del context.chat_data['krokoword']
             del context.chat_data['kroko_job']
             del context.chat_data['kroko_inv']
-            logger.info('3')
         else:
             pass
-            logger.info('4')
     else:
-        logger.info('krokoword-n')
         pass
     conn.commit()
-    logger.info('5')
 
 
 def get_word(fname):
