@@ -52,17 +52,16 @@ def set_exp(context):
 def echo(update, context):
     cur_time = int(time.time())
     ids = update.message.from_user.id
+    logger.info(update.message.from_user.full_name)
     cursor.execute('SELECT id FROM users')
     members = cursor.fetchall()
     if str(ids) in str(members):
         cursor.execute('UPDATE users SET lastmsg = %s WHERE id = %s', (cur_time, ids,))
-        logger.info('1')
     else:
         name = update.message.from_user.full_name
         cursor.execute('INSERT INTO users (id, name, lastmsg) VALUES (%s, %s, %s)', (ids, name, cur_time,))
         conn.commit()
         logger.info(f'New user {update.message.from_user.full_name}!')
-        logger.info('2')
     chance = random.randint(0, 1000)
     logger.info(f'Random: {chance}')
     if chance <= 5:
@@ -109,7 +108,7 @@ def pidor(update, context):
 
 
 def krokodie(context):
-    context.bot.send_message(chat_id=context.job.context, text=f'Время истекло!\nНикто не смог отгадать слово: {context.chat_data["krokoword"]}')
+    context.bot.send_message(chat_id=context.job.context, text='Время истекло!\nНикто не смог отгадать слово.')
     del context.chat_data['krokoword']
     del context.chat_data['kroko_job']
     del context.chat_data['kroko_inv']
