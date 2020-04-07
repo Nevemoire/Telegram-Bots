@@ -139,7 +139,13 @@ def krokodil(update, context):
 
 
 def krokoreload(context):
-    context.bot.send_message(chat_id=context.job.context, text='Все крокодилы сброшены после рестарта бота, можете начать игру заново.')
+    cursor.execute('SELECT chatid from games')
+    ids = cursor.fetchall()
+    for chats in ids:
+        try:
+            context.bot.send_message(chat_id=chats[0], text='Все крокодилы сброшены после рестарта бота, можете начать игру заново.')
+        except:
+            pass
     cursor.execute('UPDATE games SET state = 0')
     conn.commit()
 
