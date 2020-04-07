@@ -50,43 +50,48 @@ def set_exp(context):
 
 
 def echo(update, context):
-    cur_time = int(time.time())
-    ids = update.message.from_user.id
-    cursor.execute('SELECT id FROM users')
-    members = cursor.fetchall()
-    if str(ids) in str(members):
-        cursor.execute('UPDATE users SET lastmsg = %s WHERE id = %s', (cur_time, ids,))
-    else:
-        name = update.message.from_user.full_name
-        cursor.execute('INSERT INTO users (id, name, lastmsg) VALUES (%s, %s, %s)', (ids, name, cur_time,))
-        conn.commit()
-        logger.info(f'New user {update.message.from_user.full_name}!')
-    chance = random.randint(0, 1000)
-    logger.info(f'Random: {chance}')
-    if chance <= 5:
-        update.message.reply_text('Кстати, ты - пидор чата.')
-        cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
-        context.chat_data['pidor'] = update.message.from_user.full_name
-    else:
-        pass
-    if 'krokoword' in context.chat_data:
-        msg = update.message.text
-        wrd = context.chat_data['krokoword']
-        if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])):
-            update.message.reply_text('А вот и победитель! +5 очков')
+    try:
+        cur_time = int(time.time())
+        ids = update.message.from_user.id
+        cursor.execute('SELECT id FROM users')
+        members = cursor.fetchall()
+        if str(ids) in str(members):
+            cursor.execute('UPDATE users SET lastmsg = %s WHERE id = %s', (cur_time, ids,))
+        else:
+            name = update.message.from_user.full_name
+            cursor.execute('INSERT INTO users (id, name, lastmsg) VALUES (%s, %s, %s)', (ids, name, cur_time,))
+            conn.commit()
+            logger.info(f'New user {update.message.from_user.full_name}!')
+        chance = random.randint(0, 1000)
+        logger.info(f'Random: {chance}')
+        if chance <= 5:
+            update.message.reply_text('Кстати, ты - пидор чата.')
             cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
-            job = context.chat_data['kroko_job']
-            job.enabled=False
-            job.schedule_removal()
-            del context.chat_data['krokoword']
-            del context.chat_data['kroko_job']
-            del context.chat_data['kroko_inv']
-            del context.chat_data['kroko_iname']
+            context.chat_data['pidor'] = update.message.from_user.full_name
         else:
             pass
-    else:
-        pass
-    conn.commit()
+        if 'krokoword' in context.chat_data:
+            msg = update.message.text
+            wrd = context.chat_data['krokoword']
+            if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])):
+                update.message.reply_text('А вот и победитель! +5 очков')
+                cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
+                job = context.chat_data['kroko_job']
+                job.enabled=False
+                job.schedule_removal()
+                del context.chat_data['krokoword']
+                del context.chat_data['kroko_job']
+                del context.chat_data['kroko_inv']
+                del context.chat_data['kroko_iname']
+            else:
+                pass
+        else:
+            pass
+        conn.commit()
+    except AttributeError as error:
+        update.message.reply_text('Что ты такое?!')
+    except:
+        update.message.reply_text('Произошла оши-и-и-б... (System Error)')
 
 
 def get_word(fname):
