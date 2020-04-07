@@ -109,8 +109,7 @@ def pidor(update, context):
 
 
 def krokodie(context):
-    krokoword = context.chat_data['krokoword']
-    context.bot.send_message(chat_id=context.job.context, text=f'Время истекло!\nНикто не смог отгадать слово: {krokoword}')
+    context.bot.send_message(chat_id=context.job.context, text=f'Время истекло!\nНикто не смог отгадать слово: {context.chat_data["krokoword"]}')
     del context.chat_data['krokoword']
     del context.chat_data['kroko_job']
     del context.chat_data['kroko_inv']
@@ -120,7 +119,7 @@ def krokodil(update, context):
     if 'kroko_job' not in context.chat_data:
         keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id}')], [InlineKeyboardButton("Поменять (-5 очков)", callback_data=f'krokochange {update.message.from_user.id}')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        context.chat_data['krokodil'] = (get_word('russian.txt'))
+        context.chat_data['krokoword'] = (get_word('russian.txt'))
         update.message.reply_text(f'Начинаем!\nОбъясняет: {update.message.from_user.full_name}\nВремени: 5 минут', reply_markup=reply_markup)
         context.chat_data['kroko_job'] = context.job_queue.run_once(krokodie, 300, context=update.message.chat_id)
         context.chat_data['kroko_inv'] = update.message.from_user.id
@@ -135,7 +134,7 @@ def fbi(update, context):
 def button(update, context):
     query = update.callback_query
     if ('krokoword' in query.data) and (str(query.from_user.id) in query.data):
-        query.answer(f'{context.chat_data["krokodil"]}', show_alert=True)
+        query.answer(f'{context.chat_data["krokoword"]}', show_alert=True)
     elif ('krokochange' in query.data) and (str(query.from_user.id) in query.data):
         logger.info('yes')
         cursor.execute('SELECT exp FROM users WHERE  id = %s', (query.from_user.id,))
@@ -143,12 +142,11 @@ def button(update, context):
         balance = int(balancez[0])
         if balance >= 5:
             logger.info('byes')
-            context.chat_data['krokodil'] = (get_word('russian.txt'))
-            query.answer(f'Новое слово: {context.chat_data["krokodil"]}', show_alert=True)
+            context.chat_data['krokoword'] = (get_word('russian.txt'))
+            query.answer(f'Новое слово: {context.chat_data["krokoword"]}', show_alert=True)
             cursor.execute('UPDATE users SET exp = exp - 5 WHERE id = %s', (query.from_user.id,))
             conn.commit()
         else:
-            logger.info('bno')
             query.answer('Недостаточно очков!', show_alert=True)
     elif str(query.from_user.id) not in query.data:
         query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data["kroko_inv"]}', show_alert=True)
