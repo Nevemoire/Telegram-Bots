@@ -52,7 +52,8 @@ def set_exp(context):
 def echo(update, context):
     cur_time = int(time.time())
     ids = update.message.from_user.id
-    logger.info(f"{update.message.from_user.full_name}")
+    name = update.message.from_user.full_name
+    logger.info(name)
     cursor.execute('SELECT id FROM users')
     members = cursor.fetchall()
     if str(ids) in str(members):
