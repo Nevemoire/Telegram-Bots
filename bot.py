@@ -72,7 +72,7 @@ def echo(update, context):
     if 'krokoword' in context.chat_data:
         msg = update.message.text
         wrd = context.chat_data['krokoword']
-        if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in context.chat_data['kroko_inv']):
+        if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])):
             update.message.reply_text('А вот и победитель! +5 очков')
             cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
             job = context.chat_data['kroko_job']
