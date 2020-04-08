@@ -30,15 +30,25 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], password=os.environ['password'],
-                        host=os.environ['host'])
-# conn = psycopg2.connect(dbname='d19olitilh6q1s', user='oukggnzlpirgzh', password='a4e84b7de4257e36cecc14b60bb0ff570f7ce52d5d24b1c7eb275c96f403af36',
-#                         host='ec2-79-125-23-20.eu-west-1.compute.amazonaws.com')
+# conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], password=os.environ['password'],
+#                         host=os.environ['host'])
+conn = psycopg2.connect(dbname='d19olitilh6q1s', user='oukggnzlpirgzh', password='a4e84b7de4257e36cecc14b60bb0ff570f7ce52d5d24b1c7eb275c96f403af36',
+                        host='ec2-79-125-23-20.eu-west-1.compute.amazonaws.com')
 cursor = conn.cursor()
 
 
 def start(update, context):
     update.message.reply_text('Meow')
+
+
+def new_user(update, context):
+    logger.info('hey')
+    for member in update.message.new_chat_members:
+        if member.id != context.bot.get_me().id:
+            cursor.execute('SELECT id FROM hello ORDER BY random() LIMIT 1')
+            hgif = cursor.fetchall()
+            hello = hgif[0]
+            context.bot.send_animation(chat_id=update.message.chat_id, animation=hello[0], caption=f'Здарова, {update.message.from_user.full_name}!')
 
 
 def set_exp(context):
@@ -183,6 +193,14 @@ def button(update, context):
         query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data["kroko_iname"]}', show_alert=True)
 
 
+def hGif(update, context):
+    fID = update.message.document.file_id
+    update.message.reply_text(fID)
+    cursor.execute('INSERT INTO hello (id) VALUES (%s)', (fID,))
+    conn.commit()
+    logger.info('New hi gif')
+
+
 def pussy(update, context):
     try:
         fID = update.message.photo[-1].file_id
@@ -191,7 +209,7 @@ def pussy(update, context):
         fID = update.message.document.file_id
         fType = "gif"
     update.message.reply_text(f'{fID} ({fType})')
-    cursor.execute('INSERT  INTO pussy (id, type) VALUES (%s, %s)', (fID, fType,))
+    cursor.execute('INSERT INTO pussy (id, type) VALUES (%s, %s)', (fID, fType,))
     conn.commit()
 
 
@@ -236,8 +254,8 @@ def main():
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
 
-    # updater = Updater('1231333868:AAFd96BYIyTq0IznE1W-ynFpxBMGrOkbNK4', use_context=True)
-    updater = Updater(os.environ['token'], use_context=True)
+    updater = Updater('1231333868:AAHiPBXYKNgoHpBTeGbxb2mwe2aBm9hToeI', use_context=True)
+    # updater = Updater(os.environ['token'], use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -247,6 +265,7 @@ def main():
 
     # log all errors
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_user))
     dp.add_handler(CommandHandler("krokodil", krokodil, pass_job_queue=True, pass_chat_data=True))
     dp.add_handler(CommandHandler("pidor", pidor))
     dp.add_handler(CommandHandler("fbi", fbi))
@@ -254,7 +273,8 @@ def main():
     dp.add_handler(CommandHandler("babki", babki))
     # dp.add_handler(CommandHandler("gop", gop, pass_args=True))
     dp.add_handler(MessageHandler(Filters.group, echo))
-    dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte") | Filters.user(username="@daaetoya")), pussy))
+    dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte")), pussy))
+    dp.add_handler(MessageHandler(Filters.document & (~Filters.group) & Filters.user(username="@daaetoya"), hGif))
     dp.add_handler(CallbackQueryHandler(button))
     dp.add_error_handler(error)
 
