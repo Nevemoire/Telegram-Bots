@@ -30,10 +30,10 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-# conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], password=os.environ['password'],
-#                         host=os.environ['host'])
-conn = psycopg2.connect(dbname='d19olitilh6q1s', user='oukggnzlpirgzh', password='a4e84b7de4257e36cecc14b60bb0ff570f7ce52d5d24b1c7eb275c96f403af36',
-                        host='ec2-79-125-23-20.eu-west-1.compute.amazonaws.com')
+conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], password=os.environ['password'],
+                        host=os.environ['host'])
+# conn = psycopg2.connect(dbname='d19olitilh6q1s', user='oukggnzlpirgzh', password='a4e84b7de4257e36cecc14b60bb0ff570f7ce52d5d24b1c7eb275c96f403af36',
+#                         host='ec2-79-125-23-20.eu-west-1.compute.amazonaws.com')
 cursor = conn.cursor()
 
 
@@ -254,8 +254,8 @@ def main():
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
 
-    updater = Updater('1231333868:AAHiPBXYKNgoHpBTeGbxb2mwe2aBm9hToeI', use_context=True)
-    # updater = Updater(os.environ['token'], use_context=True)
+    # updater = Updater('1231333868:AAHiPBXYKNgoHpBTeGbxb2mwe2aBm9hToeI', use_context=True)
+    updater = Updater(os.environ['token'], use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
