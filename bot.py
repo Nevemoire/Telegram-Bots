@@ -466,7 +466,7 @@ def main():
     # dp.add_handler(CommandHandler("gop", gop, pass_args=True))
     dp.add_handler(MessageHandler(Filters.group, echo))
     dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte")), pussy))
-    dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@balak_in") | Filters.user(username="@aoth") | Filters.user(username="@daaetoya")), memes))
+    dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@balak_in") | Filters.user(username="@aotkh") | Filters.user(username="@daaetoya")), memes))
     # dp.add_handler(MessageHandler(Filters.document & (~Filters.group) & Filters.user(username="@daaetoya"), hGif))
     dp.add_handler(CallbackQueryHandler(button))
     dp.add_error_handler(error)
