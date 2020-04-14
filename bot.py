@@ -172,7 +172,7 @@ def echo(update, context):
                 update.message.reply_text('Ты угадал(-а)! Держи 5 монет за правильный ответ.\n\nНачать заново - /krokodil')
                 context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
                 cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
-                cursor.execute('UPDATE games SET state = 0 WHERE chatid = %s', (chatid,))
+                cursor.execute('UPDATE games SET state = 0, total = total + 1 WHERE chatid = %s', (chatid,))
                 job = context.chat_data['kroko_job']
                 job.enabled=False
                 job.schedule_removal()
