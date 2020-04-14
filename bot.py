@@ -145,7 +145,7 @@ def echo(update, context):
         else:
             cursor.execute('INSERT INTO chats (id) VALUES (%s)', (chatid,))
             conn.commit()
-            logger.info(f'New user {update.message.from_user.full_name}!')
+            logger.info(f'New chat {update.message.chat_id}!')
         chance = random.randint(0, 1000)
         logger.info(f'Random: {chance}')
         if chance <= 5:
@@ -215,6 +215,7 @@ def updateUsers(update, context):
     update.message.reply_text('Кол-во пользователей в чатах обновлено до настоящего момента.')
 
 
+@restricted
 def stats(update, context):
     cursor.execute('SELECT COUNT(id) FROM users')
     users = cursor.fetchone()
@@ -279,13 +280,6 @@ def krokodil(update, context):
 
 
 def krokoreload(context):
-    cursor.execute('SELECT chatid from games')
-    ids = cursor.fetchall()
-    for chats in ids:
-        try:
-            context.bot.send_message(chat_id=chats[0], text='Все крокодилы сброшены после рестарта бота, можете начать игру заново.')
-        except:
-            pass
     cursor.execute('UPDATE games SET state = 0')
     conn.commit()
 
@@ -297,7 +291,19 @@ def fbi(update, context):
 def babki(update, context):
     cursor.execute('SELECT exp FROM users WHERE id = %s', (update.message.from_user.id,))
     babki = cursor.fetchone()
-    update.message.reply_text(f'У тебя {babki[0]} бабок!')
+    update.message.reply_text(f'У тебя {babki[0]} монет!')
+
+
+@restricted
+def message(update, context):
+    s = update.message.text
+    cursor.execute('SELECT id FROM chats')
+    ids = cursor.fetchall()
+    for chats in ids:
+        try:
+            context.bot.send_message(chat_id=chats[0], text=s.split(' ', 1)[1])
+        except:
+            cursor.execute("UPDATE chats SET unable = 1 WHERE id = %s", (chats[0],))
 
 
 def button(update, context):
@@ -455,6 +461,7 @@ def main():
     dp.add_handler(CommandHandler("balance", babki))
     dp.add_handler(CommandHandler('update', updateUsers))
     dp.add_handler(CommandHandler('stats', stats))
+    dp.add_handler(CommandHandler('message', message))
     # dp.add_handler(InlineQueryHandler(checkquery))
     # dp.add_handler(CommandHandler("gop", gop, pass_args=True))
     dp.add_handler(MessageHandler(Filters.group, echo))
