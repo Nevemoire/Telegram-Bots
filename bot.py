@@ -229,15 +229,22 @@ def get_word(fname):
 
 
 def pidor(update, context):
-    cursor.execute('SELECT pidor_total, pidor_last FROM chats WHERE id = %s', (update.message.chat_id,))
-    pInfo = cursor.fetchall()
-    if 'pidor' in context.chat_data:
-        pidor = context.chat_data['pidor']
-        update.message.reply_text(f'Текущий пидор чата: {pidor}')
-    elif int(pInfo[0]) > 0:
-        update.message.reply_text(f'Последний зарегестрированный пидор: {pInfo[1]}')
-    else:
-        update.message.reply_text('Пидор чата пока не определён.')
+    try:
+        cursor.execute('SELECT pidor_total FROM chats WHERE id = %s', (update.message.chat_id,))
+        pInfo = cursor.fetchone()
+        if 'pidor' in context.chat_data:
+            pidor = context.chat_data['pidor']
+            update.message.reply_text(f'Текущий пидор чата: {pidor}')
+        elif int(pInfo[0]) > 0:
+            сursor.execute('SELECT pidor_last FROM chats WHERE id = %s', (update.message.chat_id,))
+            pidor = cursor.fetchone()
+            update.message.reply_text(f'Последний зарегестрированный пидор: {pidor[0]}')
+        else:
+            update.message.reply_text('Пидор чата пока не определён.')
+    except IndexError as error:
+        update.message.reply_text('Парам-пара-па. Пау! Этот чат пока слишком зелёный.')
+    except:
+        update.message.reply_text('Произошла оши-и-и-б... (System Error)')
 
 
 def krokodie(context):
