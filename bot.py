@@ -200,6 +200,56 @@ def echo(update, context):
         update.message.reply_text('Произошла оши-и-и-б... (System Error)')
 
 
+def bets(update, context):
+    ids = update.message.from_user.id
+    cursor.execute('SELECT id FROM users')
+    members = cursor.fetchall()
+    if str(ids) in str(members):
+        """Echo the user message."""
+        cursor.execute('SELECT exp, bet FROM users WHERE id = %s', (update.message.from_user.id,))
+        betinfo = cursor.fetchone()
+        balance = int(betinfo[0])
+        bet = int(betinfo[1])
+        dice = update.message.dice.value
+        if balance >= bet:
+            if dice <= 3:
+                update.message.reply_text(f'Проигрыш! (-{bet} монет)\nРезультат: {dice}')
+                cursor.execute('UPDATE users SET exp = exp - %s', (bet,))
+                conn.commit()
+            elif dice > 3:
+                update.message.reply_text(f'Выигрыш! (+{bet} монет)\nРезультат: {dice}')
+                cursor.execute('UPDATE users SET exp = exp + %s', (bet,))
+                conn.commit()
+            else:
+                update.message.reply_text('Произошла ошибка, попробуй позже!')
+        elif balance < bet:
+            update.message.reply_text('Недостаточно монет!')
+        else:
+            update.message.reply_text('Произошла ошибка, попробуй позже!')
+    else:
+        update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
+
+
+def setBet(update, context):
+    ids = update.message.from_user.id
+    cursor.execute('SELECT id FROM users')
+    members = cursor.fetchall()
+    if str(ids) in str(members):
+        user_says = context.args
+        try:
+            bet = int(user_says[0])
+            if (bet >= 10) and (bet <= 1000):
+                cursor.execute('UPDATE users SET bet = %s WHERE id = %s', (bet, ids,))
+                conn.commit()
+                update.message.reply_text('Готово! Чтобы сделать ставку, пришли в чат этот эмодзи: 🎲')
+            else:
+                update.message.reply_text('Недопустимое значение!\nМин. ставка: 10 монет\nМакс. ставка: 1000 монет')
+        except:
+            update.message.reply_text('Пришли мне команду в формате:\n/bet <ЧИСЛО>,\n\nгде <ЧИСЛО> - сумма ставки.')
+    else:
+        update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
+
+
 @restricted
 def updateUsers(update, context):
     cursor.execute('SELECT id from chats')
@@ -463,6 +513,8 @@ def main():
     # dp.add_handler(InlineQueryHandler(checkquery))
     # dp.add_handler(CommandHandler("gop", gop, pass_args=True))
     dp.add_handler(MessageHandler(Filters.group, echo))
+    dp.add_handler(MessageHandler(Filters.dice, bets))
+    dp.add_handler(CommandHandler("bet", setBet))
     dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte")), pussy))
     dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@balak_in") | Filters.user(username="@aotkh") | Filters.user(username="@daaetoya")), memes))
     # dp.add_handler(MessageHandler(Filters.document & (~Filters.group) & Filters.user(username="@daaetoya"), hGif))
