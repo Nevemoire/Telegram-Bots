@@ -214,11 +214,11 @@ def bets(update, context):
         if balance >= bet:
             if dice <= 3:
                 update.message.reply_text(f'Проигрыш! (-{bet} монет)\nРезультат: {dice}')
-                cursor.execute('UPDATE users SET exp = exp - %s', (bet,))
+                cursor.execute('UPDATE users SET exp = exp - %s WHERE id = %s', (bet, ids,))
                 conn.commit()
             elif dice > 3:
                 update.message.reply_text(f'Выигрыш! (+{bet} монет)\nРезультат: {dice}')
-                cursor.execute('UPDATE users SET exp = exp + %s', (bet,))
+                cursor.execute('UPDATE users SET exp = exp + %s WHERE id = %s', (bet, ids,))
                 conn.commit()
             else:
                 update.message.reply_text('Произошла ошибка, попробуй позже!')
@@ -263,6 +263,13 @@ def updateUsers(update, context):
             cursor.execute('UPDATE chats SET unable = 1 WHERE id = %s', (chats[0],))
             conn.commit()
     update.message.reply_text('Кол-во пользователей в чатах обновлено до настоящего момента.')
+
+
+@restricted
+def compensate(update, context):
+    cursor.execute("UPDATE users SET exp = exp + 1004")
+    conn.commit()
+    update.message.reply_text('Готово!')
 
 
 @restricted
@@ -509,6 +516,7 @@ def main():
     dp.add_handler(CommandHandler("balance", babki))
     dp.add_handler(CommandHandler('update', updateUsers))
     dp.add_handler(CommandHandler('stats', stats))
+    dp.add_handler(CommandHandler('compensate', compensate))
     dp.add_handler(CommandHandler('message', message))
     dp.add_handler(MessageHandler(Filters.dice, bets))
     dp.add_handler(CommandHandler('bet', setBet, pass_args=True))
