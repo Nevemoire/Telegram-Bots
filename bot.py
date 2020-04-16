@@ -231,15 +231,13 @@ def get_word(fname):
 
 def pidor(update, context):
     try:
-        cursor.execute('SELECT pidor_total FROM chats WHERE id = %s', (update.message.chat_id,))
+        cursor.execute('SELECT pidor_total, pidor_last FROM chats WHERE id = %s', (update.message.chat_id,))
         pInfo = cursor.fetchone()
         if 'pidor' in context.chat_data:
             pidor = context.chat_data['pidor']
             update.message.reply_text(f'Текущий пидор чата: {pidor}')
         elif int(pInfo[0]) > 0:
-            сursor.execute('SELECT pidor_last FROM chats WHERE id = %s', (update.message.chat_id,))
-            pidor = cursor.fetchone()
-            update.message.reply_text(f'Последний зарегестрированный пидор: {pidor[0]}')
+            update.message.reply_text(f'Последний зарегестрированный пидор: {pInfo[1]}')
         else:
             update.message.reply_text('Пидор чата пока не определён.')
     except IndexError as error:
