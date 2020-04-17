@@ -323,7 +323,7 @@ def krokodil(update, context):
             reply_markup = InlineKeyboardMarkup(keyboard)
             invoker = update.message.from_user.full_name
             context.chat_data['krokoword'] = (get_word('russian.txt'))
-            context.chat_data['message'] = update.message.reply_text(f'Начинаем!\nОбъясняет: {invoker}\nВремени: 2 минуты', reply_markup=reply_markup)
+            context.chat_data['message'] = update.message.reply_text(f'Игра #{gameid[0]}\nОбъясняет: {invoker}\nВремени: 2 минуты', reply_markup=reply_markup)
             context.chat_data['kroko_job'] = context.job_queue.run_once(krokodie, 120, context=update.message.chat_id)
             context.chat_data['kroko_inv'] = update.message.from_user.id
             context.chat_data['kroko_iname'] = update.message.from_user.full_name
