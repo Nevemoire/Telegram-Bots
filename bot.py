@@ -518,7 +518,7 @@ def main():
     dp.add_handler(CommandHandler('stats', stats))
     dp.add_handler(CommandHandler('compensate', compensate))
     dp.add_handler(CommandHandler('message', message))
-    dp.add_handler(MessageHandler(Filters.dice, bets))
+    dp.add_handler(MessageHandler((Filters.dice & (~Filters.forwarded)), bets))
     dp.add_handler(CommandHandler('bet', setBet, pass_args=True))
     # dp.add_handler(InlineQueryHandler(checkquery))
     # dp.add_handler(CommandHandler("gop", gop, pass_args=True))
