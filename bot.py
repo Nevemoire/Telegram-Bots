@@ -372,7 +372,7 @@ def button(update, context):
     gId = data[2]
     cursor.execute('SELECT total FROM games WHERE chatid = %s', (query.message.chat_id,))
     gameid = cursor.fetchone()
-    if str(gId) == str(gameid):
+    if str(gId) == str(gameid[0]):
         if ('krokoword' in query.data) and (str(query.from_user.id) in query.data):
             query.answer(f'{context.chat_data["krokoword"]}', show_alert=True)
         elif ('krokochange' in query.data) and (str(query.from_user.id) in query.data):
