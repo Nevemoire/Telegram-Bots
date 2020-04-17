@@ -370,7 +370,7 @@ def button(update, context):
     query = update.callback_query
     data = query.data.split()
     gId = data[2]
-    cursor.execute('SELECT total FROM games WHERE chatid = %s', (query.chat_id,))
+    cursor.execute('SELECT total FROM games WHERE chatid = %s', (query.message.chat_id,))
     gameid = cursor.fetchone()
     if str(gId) == str(gameid):
         if ('krokoword' in query.data) and (str(query.from_user.id) in query.data):
