@@ -315,7 +315,7 @@ def krokodil(update, context):
         cursor.execute('SELECT state FROM games WHERE chatid = %s', (update.message.chat_id,))
         state = cursor.fetchone()
         if ('0' in str(state[0])) or ('2' in str(state[0])):
-            cursor.execute('UPDATE games SET total = total + 1 WHERE chatid = %s', (chatid,))
+            cursor.execute('UPDATE games SET total = total + 1 WHERE chatid = %s', (update.message.chat_id,))
             conn.commit()
             cursor.execute('SELECT total FROM games WHERE chatid = %s', (update.message.chat_id,))
             gameid = cursor.fetchone()
