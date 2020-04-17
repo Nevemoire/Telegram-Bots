@@ -193,6 +193,7 @@ def echo(update, context):
                 pass
         else:
             pass
+        cursor.execute('UPDATE chats SET messages = messages + 1 WHERE id = %s', (update.messages.chat_id,))
         conn.commit()
     except AttributeError as error:
         return
@@ -314,7 +315,9 @@ def krokodil(update, context):
         cursor.execute('SELECT state FROM games WHERE chatid = %s', (update.message.chat_id,))
         state = cursor.fetchone()
         if ('0' in str(state[0])) or ('2' in str(state[0])):
-            keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id}')], [InlineKeyboardButton("Поменять (-5 монет)", callback_data=f'krokochange {update.message.from_user.id}')]]
+            cursor.execute('SELECT total FROM games WHERE chatid = %s', (update.message.chat_id,))
+            gameid = cursor.fetchone()
+            keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id}')], [InlineKeyboardButton("Поменять (-5 монет)", callback_data=f'krokochange {update.message.from_user.id} {gameid[0]}')]]
             reply_markup = InlineKeyboardMarkup(keyboard)
             invoker = update.message.from_user.full_name
             context.chat_data['krokoword'] = (get_word('russian.txt'))
@@ -363,23 +366,30 @@ def message(update, context):
 
 def button(update, context):
     query = update.callback_query
-    if ('krokoword' in query.data) and (str(query.from_user.id) in query.data):
-        query.answer(f'{context.chat_data["krokoword"]}', show_alert=True)
-    elif ('krokochange' in query.data) and (str(query.from_user.id) in query.data):
-        logger.info('yes')
-        cursor.execute('SELECT exp FROM users WHERE  id = %s', (query.from_user.id,))
-        balancez = cursor.fetchone()
-        balance = int(balancez[0])
-        if balance >= 5:
-            logger.info('byes')
-            context.chat_data['krokoword'] = (get_word('russian.txt'))
-            query.answer(f'Новое слово: {context.chat_data["krokoword"]}', show_alert=True)
-            cursor.execute('UPDATE users SET exp = exp - 5 WHERE id = %s', (query.from_user.id,))
-            conn.commit()
-        else:
-            query.answer('Недостаточно монет!', show_alert=True)
-    elif str(query.from_user.id) not in query.data:
-        query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data["kroko_iname"]}', show_alert=True)
+    data = query.data.split()
+    gId = data[2]
+    cursor.execute('SELECT total FROM games WHERE chatid = %s', (update.message.chat_id,))
+    gameid = cursor.fetchone()
+    if str(gId) == str(gameid):
+        if ('krokoword' in query.data) and (str(query.from_user.id) in query.data):
+            query.answer(f'{context.chat_data["krokoword"]}', show_alert=True)
+        elif ('krokochange' in query.data) and (str(query.from_user.id) in query.data):
+            logger.info('yes')
+            cursor.execute('SELECT exp FROM users WHERE  id = %s', (query.from_user.id,))
+            balancez = cursor.fetchone()
+            balance = int(balancez[0])
+            if balance >= 5:
+                logger.info('byes')
+                context.chat_data['krokoword'] = (get_word('russian.txt'))
+                query.answer(f'Новое слово: {context.chat_data["krokoword"]}', show_alert=True)
+                cursor.execute('UPDATE users SET exp = exp - 5 WHERE id = %s', (query.from_user.id,))
+                conn.commit()
+            else:
+                query.answer('Недостаточно монет!', show_alert=True)
+        elif str(query.from_user.id) not in query.data:
+            query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data["kroko_iname"]}', show_alert=True)
+    else:
+        query.answer('Эта игра уже закончилась!', show_alert=True)
     # elif 'cheque' in query.data and:
     #     if (str(query.from_user.id) not in query.data):
     #         cursor.execute('SELECT id FROM users')
