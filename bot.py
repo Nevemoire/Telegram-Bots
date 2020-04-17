@@ -193,7 +193,7 @@ def echo(update, context):
                 pass
         else:
             pass
-        cursor.execute('UPDATE chats SET messages = messages + 1 WHERE id = %s', (update.messages.chat_id,))
+        cursor.execute('UPDATE chats SET messages = messages + 1 WHERE id = %s', (update.message.chat_id,))
         conn.commit()
     except AttributeError as error:
         return
