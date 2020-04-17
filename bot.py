@@ -317,7 +317,7 @@ def krokodil(update, context):
         if ('0' in str(state[0])) or ('2' in str(state[0])):
             cursor.execute('SELECT total FROM games WHERE chatid = %s', (update.message.chat_id,))
             gameid = cursor.fetchone()
-            keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id}')], [InlineKeyboardButton("Поменять (-5 монет)", callback_data=f'krokochange {update.message.from_user.id} {gameid[0]}')]]
+            keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id} {gameid[0]}')], [InlineKeyboardButton("Поменять (-5 монет)", callback_data=f'krokochange {update.message.from_user.id} {gameid[0]}')]]
             reply_markup = InlineKeyboardMarkup(keyboard)
             invoker = update.message.from_user.full_name
             context.chat_data['krokoword'] = (get_word('russian.txt'))
