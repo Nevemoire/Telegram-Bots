@@ -362,11 +362,11 @@ def tip(update, context):
             balance = cursor.fetchone()
             if (amount < 10) or (amount > 1000):
                 update.message.reply_text('Ошибка!\nМин. перевод: 10 монет, макс. перевод: 1000 монет за раз.')
-            elif ids in target:
+            elif str(ids) in str(target):
                 update.message.reply_text('Очень смешно. 🤨')
             elif amount > int(balance[0]):
                 update.message.reply_text('Недостаточно средств!')
-            elif ((amount >= 10) or (amount <= 1000)) and amount <= int(balance[0]):
+            elif ((amount >= 10) and (amount <= 1000)) and amount <= int(balance[0]):
                 cursor.execute('UPDATE users SET exp = exp - %s, total_tipped = total_tipped + %s WHERE id = %s', (amount, amount, ids,))
                 cursor.execute('UPDATE users SET exp = exp + %s, total_recieved = total_recieved + %s WHERE id = %s', (amount, amount, target,))
                 conn.commit()
@@ -374,7 +374,7 @@ def tip(update, context):
         else:
             update.message.reply_text('Ошибка! Перевод возможен только если оба пользователя присутствуют в базе данных.')
     except:
-        update.message.reply_text('Ошибка! Удостоверься что ты отвечаешь на сообщение, а не на команду, медиа файл и т.п.')
+        update.message.reply_text('Ошибка! Удостоверься, что ты отвечаешь на сообщение, а не на команду, медиа файл и т.п.')
 
 
 def button(update, context):
