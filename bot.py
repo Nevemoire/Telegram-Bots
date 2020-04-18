@@ -354,7 +354,7 @@ def tip(update, context):
         if (str(ids) in str(members)) and (str(target) in str(members)):
             user_says = context.args
             try:
-                amount = int(user_says)
+                amount = int(user_says[0])
             except:
                 update.message.reply_text('Ошибка! Укажи сумму перевода.')
                 return
@@ -362,6 +362,8 @@ def tip(update, context):
             balance = cursor.fetchone()
             if (amount < 10) or (amount > 1000):
                 update.message.reply_text('Ошибка!\nМин. перевод: 10 монет, макс. перевод: 1000 монет за раз.')
+            elif ids in target:
+                update.message.reply_text('Очень смешно. 🤨')
             elif amount > int(balance[0]):
                 update.message.reply_text('Недостаточно средств!')
             elif ((amount >= 10) or (amount <= 1000)) and amount <= int(balance[0]):
