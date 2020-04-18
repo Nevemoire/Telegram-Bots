@@ -350,7 +350,7 @@ def tip(update, context):
         target = update.message.reply_to_message.from_user.id
         ids = update.message.from_user.id
         cursor.execute('SELECT id FROM users')
-        members = cursor.fetchone()
+        members = cursor.fetchall()
         if (str(ids) in str(members)) and (str(target) in str(members)):
             user_says = context.args
             try:
