@@ -554,7 +554,7 @@ def echo(update, context):
 
 
 def qHelp(update, context):
-    update.message.reply_text('''Список доступных комманд:
+    update.message.reply_text('''Список доступных команд:
 
 /krokodil - Игра в угадать слово.
 /pidor - Напомнить кто является лучшим человеком чата.
@@ -567,6 +567,7 @@ def qHelp(update, context):
 /bet <SUMM> - Указать сумму ставки.
 
 Вместо <SUMM> указываем число от 10 до 1000 (10.000 для подписчиков @theclownfiesta).''')
+    logger.info('Help requested')
 
 
 def error(update, context):
