@@ -553,6 +553,22 @@ def echo(update, context):
 #         update.message.reply_text('Ошибка! Удостоверься, что ты отвечаешь на сообщение, а не на фото, видео и т.п.')
 
 
+def qHelp(update, context):
+    update.message.reply_text('''Список доступных комманд:
+
+/krokodil - Игра в угадать слово.
+/pidor - Напомнить кто является лучшим человеком чата.
+/nya - Котики и другая живность.
+/memepls - Мемчики.
+/fbi - На случай важных переговоров.
+/balance - Узнать свой баланс.
+
+/tip <SUMM> - Перевести денежку (пишется в ответ на сообщение получателя).
+/bet <SUMM> - Указать сумму ставки.
+
+Вместо <SUMM> указываем число от 10 до 1000 (10.000 для подписчиков @theclownfiesta).''')
+
+
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
@@ -573,14 +589,14 @@ def main():
     j.run_once(krokoreload, 1)
 
     # log all errors
-    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler('start', start))
     dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_user))
-    dp.add_handler(CommandHandler("krokodil", krokodil, pass_job_queue=True, pass_chat_data=True))
-    dp.add_handler(CommandHandler("pidor", pidor))
-    dp.add_handler(CommandHandler("fbi", fbi))
-    dp.add_handler(CommandHandler("nya", showPussy))
-    dp.add_handler(CommandHandler("memepls", showMemes))
-    dp.add_handler(CommandHandler("balance", babki))
+    dp.add_handler(CommandHandler('krokodil', krokodil, pass_job_queue=True, pass_chat_data=True))
+    dp.add_handler(CommandHandler('pidor', pidor))
+    dp.add_handler(CommandHandler('fbi', fbi))
+    dp.add_handler(CommandHandler('nya', showPussy))
+    dp.add_handler(CommandHandler('memepls', showMemes))
+    dp.add_handler(CommandHandler('balance', babki))
     dp.add_handler(CommandHandler('update', updateUsers))
     dp.add_handler(CommandHandler('stats', stats))
     dp.add_handler(CommandHandler('compensate', compensate))
@@ -588,6 +604,7 @@ def main():
     dp.add_handler(MessageHandler((Filters.dice & (~Filters.forwarded)), bets))
     dp.add_handler(CommandHandler('bet', setBet, pass_args=True))
     dp.add_handler(CommandHandler('tip', tip, pass_args=True))
+    dp.add_handler(CommandHandler('help', qHelp))
     # dp.add_handler(InlineQueryHandler(checkquery))
     # dp.add_handler(CommandHandler("gop", gop, pass_args=True))
     dp.add_handler(MessageHandler(Filters.group, echo))
