@@ -170,7 +170,7 @@ def pussy(update, context):
 def showPussy(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
-    if '0' in banned[0]:
+    if '0' in str(banned[0]):
         cursor.execute('SELECT id, type FROM pussy ORDER BY random() LIMIT 1')
         pussy = cursor.fetchall()
         pussies = pussy[0]
@@ -199,7 +199,7 @@ def memes(update, context):
 def showMemes(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
-    if '0' in banned[0]:
+    if '0' in str(banned[0]):
         cursor.execute('SELECT id, type FROM memes ORDER BY random() LIMIT 1')
         meme = cursor.fetchall()
         memes = meme[0]
@@ -216,7 +216,7 @@ def showMemes(update, context):
 def start(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
-    if '0' in banned[0]:
+    if '0' in str(banned[0]):
     # args = context.args
     # if len(args) == 0:
     #     update.message.reply_text('Meow')
@@ -276,7 +276,7 @@ def start(update, context):
 def bets(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
-    if '0' in banned[0]:
+    if '0' in str(banned[0]):
         ids = update.message.from_user.id
         cursor.execute('SELECT id FROM users')
         members = cursor.fetchall()
@@ -310,7 +310,7 @@ def bets(update, context):
 def setBet(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
-    if '0' in banned[0]:
+    if '0' in str(banned[0]):
         ids = update.message.from_user.id
         cursor.execute('SELECT id FROM users')
         members = cursor.fetchall()
@@ -340,7 +340,7 @@ def setBet(update, context):
 def pidor(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
-    if '0' in banned[0]:
+    if '0' in str(banned[0]):
         try:
             cursor.execute('SELECT pidor_total, pidor_last FROM chats WHERE id = %s', (update.message.chat_id,))
             pInfo = cursor.fetchone()
@@ -362,7 +362,7 @@ def pidor(update, context):
 def krokodil(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
-    if '0' in banned[0]:
+    if '0' in str(banned[0]):
         try:
             cursor.execute('SELECT state FROM games WHERE chatid = %s', (update.message.chat_id,))
             state = cursor.fetchone()
@@ -396,7 +396,7 @@ def krokodil(update, context):
 def fbi(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
-    if '0' in banned[0]:
+    if '0' in str(banned[0]):
         context.bot.send_animation(chat_id=update.message.chat_id, animation='CgACAgIAAxkBAAIBrF6MQgz-TZJXda7BWdgFSZfY1LAOAAIVAwACuzWoSw_3NpLvCy0dGAQ')
     else:
         pass
@@ -405,7 +405,7 @@ def fbi(update, context):
 def babki(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
-    if '0' in banned[0]:
+    if '0' in str(banned[0]):
         cursor.execute('SELECT exp FROM users WHERE id = %s', (update.message.from_user.id,))
         babki = cursor.fetchone()
         update.message.reply_text(f'У тебя {babki[0]} монет!')
@@ -416,7 +416,7 @@ def babki(update, context):
 def tip(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
-    if '0' in banned[0]:
+    if '0' in str(banned[0]):
         try:
             target = update.message.reply_to_message.from_user.id
             ids = update.message.from_user.id
@@ -458,7 +458,7 @@ def tip(update, context):
 def button(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
-    if '0' in banned[0]:
+    if '0' in str(banned[0]):
         query = update.callback_query
         data = query.data.split()
         gId = data[2]
@@ -519,7 +519,7 @@ def button(update, context):
 def echo(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
-    if '0' in banned[0]:
+    if '0' in str(banned[0]):
         try:
             cur_time = int(time.time())
             ids = update.message.from_user.id
@@ -632,7 +632,7 @@ def echo(update, context):
 def qHelp(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
-    if '0' in banned[0]:
+    if '0' in str(banned[0]):
         update.message.reply_text('''Список доступных команд:
 
 /krokodil - Игра в угадать слово.
