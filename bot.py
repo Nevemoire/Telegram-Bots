@@ -38,6 +38,9 @@ conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], pa
 cursor = conn.cursor()
 
 LIST_OF_ADMINS = [391206263]
+channel_username = '@theclownfiesta'
+memberz = 'creator, administrator, member'
+memberslist = memberz.split(', ')
 
 
 def restricted(func):
@@ -244,7 +247,6 @@ def bets(update, context):
     cursor.execute('SELECT id FROM users')
     members = cursor.fetchall()
     if str(ids) in str(members):
-        """Echo the user message."""
         cursor.execute('SELECT exp, bet FROM users WHERE id = %s', (update.message.from_user.id,))
         betinfo = cursor.fetchone()
         balance = int(betinfo[0])
@@ -274,15 +276,20 @@ def setBet(update, context):
     cursor.execute('SELECT id FROM users')
     members = cursor.fetchall()
     if str(ids) in str(members):
+        member = context.bot.get_chat_member(channel_username, ids)
+        if member.status in memberslist:
+            maxBet = 10000
+        else:
+            maxBet = 1000
         user_says = context.args
         try:
             bet = int(user_says[0])
-            if (bet >= 10) and (bet <= 1000):
+            if (bet >= 10) and (bet <= maxBet):
                 cursor.execute('UPDATE users SET bet = %s WHERE id = %s', (bet, ids,))
                 conn.commit()
                 update.message.reply_text('Готово! Чтобы сделать ставку, пришли в чат этот эмодзи: 🎲')
             else:
-                update.message.reply_text('Недопустимое значение!\nМин. ставка: 10 монет\nМакс. ставка: 1000 монет')
+                update.message.reply_text(f'Недопустимое значение!\nМин. ставка: 10 монет\nМакс. ставка: 1000 монет или 10.000 монет для подписчиков: {channel_username}')
         except:
             update.message.reply_text('Пришли мне команду в формате:\n/bet <ЧИСЛО>,\n\nгде <ЧИСЛО> - сумма ставки.')
     else:
@@ -352,6 +359,11 @@ def tip(update, context):
         cursor.execute('SELECT id FROM users')
         members = cursor.fetchall()
         if (str(ids) in str(members)) and (str(target) in str(members)):
+            member = context.bot.get_chat_member(channel_username, ids)
+            if member.status in memberslist:
+                maxTip = 10000
+            else:
+                maxTip = 1000
             user_says = context.args
             try:
                 amount = int(user_says[0])
@@ -360,13 +372,13 @@ def tip(update, context):
                 return
             cursor.execute('SELECT exp FROM users WHERE id = %s', (ids,))
             balance = cursor.fetchone()
-            if (amount < 10) or (amount > 1000):
-                update.message.reply_text('Ошибка!\nМин. перевод: 10 монет, макс. перевод: 1000 монет за раз.')
+            if (amount < 10) or (amount > maxTip):
+                update.message.reply_text(f'Ошибка!\nМин. перевод: 10 монет, макс. перевод: 1000 монет или 10.000 монет для подписчиков: {channel_username} за раз.')
             elif str(ids) in str(target):
                 update.message.reply_text('Очень смешно. 🤨')
             elif amount > int(balance[0]):
                 update.message.reply_text('Недостаточно средств!')
-            elif ((amount >= 10) and (amount <= 1000)) and amount <= int(balance[0]):
+            elif ((amount >= 10) and (amount <= maxTip)) and amount <= int(balance[0]):
                 cursor.execute('UPDATE users SET exp = exp - %s, total_tipped = total_tipped + %s WHERE id = %s', (amount, amount, ids,))
                 cursor.execute('UPDATE users SET exp = exp + %s, total_recieved = total_recieved + %s WHERE id = %s', (amount, amount, target,))
                 conn.commit()
@@ -374,7 +386,7 @@ def tip(update, context):
         else:
             update.message.reply_text('Ошибка! Перевод возможен только если оба пользователя присутствуют в базе данных.')
     except:
-        update.message.reply_text('Ошибка! Удостоверься, что ты отвечаешь на сообщение, а не на команду, медиа файл и т.п.')
+        update.message.reply_text('Ошибка! Удостоверься, что ты отвечаешь на сообщение, а не на фото, видео и т.п.')
 
 
 def button(update, context):
@@ -446,7 +458,8 @@ def echo(update, context):
         if str(ids) in str(members):
             cursor.execute('UPDATE users SET lastmsg = %s WHERE id = %s', (cur_time, ids,))
         else:
-            cursor.execute('INSERT INTO users (id, name, lastmsg) VALUES (%s, %s, %s)', (ids, name, cur_time,))
+            registered = time.strftime('%d.%m.%y')
+            cursor.execute('INSERT INTO users (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (ids, name, cur_time, registered,))
             conn.commit()
             logger.info(f'New user {update.message.from_user.full_name}!')
         if str(chatid) in str(chats):
@@ -465,7 +478,7 @@ def echo(update, context):
             elif (int(pcount[0]) > 0) and (int(pcount[0]) < 5):
                 update.message.reply_text(f'Кстати, ты - пидор чата. Уже {int(pcount[0])+1} раз.')
             else:
-                update.message.reply_text(f'Может хватит?! 😡\nТы пидор чата уже {int(pcount[0])+1} раз.')
+                update.message.reply_text(f'Может хватит?! 😡\nТы пидор чата уже в {int(pcount[0])+1} раз.')
             cursor.execute('UPDATE users SET exp = exp + 5, pidor = pidor + 1 WHERE id = %s', (ids,))
             cursor.execute('UPDATE chats SET pidor_last = %s, pidor_time = %s, pidor_total = pidor_total + 1 WHERE id = %s', (name, cur_time, chatid,))
             context.chat_data['pidor'] = update.message.from_user.full_name
@@ -478,9 +491,14 @@ def echo(update, context):
             cursor.execute('SELECT state FROM games WHERE chatid = %s', (update.message.chat_id,))
             state = cursor.fetchone()
             if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])) and ('1' in str(state[0])):
-                update.message.reply_text('Ты угадал(-а)! Держи 5 монет за правильный ответ.\n\nНачать заново - /krokodil')
+                member = context.bot.get_chat_member(channel_username, ids)
+                if member.status in memberslist:
+                    krokoWin = 10
+                else:
+                    krokoWin = 5
+                update.message.reply_text(f'Ты угадал(-а)! Держи {krokoWin} монет за правильный ответ.\n\nНачать заново - /krokodil')
                 context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
-                cursor.execute('UPDATE users SET exp = exp + 5 WHERE id = %s', (ids,))
+                cursor.execute('UPDATE users SET exp = exp + %s WHERE id = %s', (krokoWin, ids,))
                 cursor.execute('UPDATE games SET state = 0 WHERE chatid = %s', (chatid,))
                 job = context.chat_data['kroko_job']
                 job.enabled=False
@@ -511,22 +529,28 @@ def echo(update, context):
 
 
 # def gop(update, context):
-#     user_says = context.args[0]
 #     try:
-#         gopstop = int(user_says)
+#         target = update.message.reply_to_message.from_user.id
+#         ids = update.message.from_user.id
+#         cursor.execute('SELECT id FROM users')
+#         members = cursor.fetchall()
+#         if (str(ids) in str(members)) and (str(target) in str(members)):
+#             user_says = context.args[0]
+#             try:
+#                 amount = int(user_says)
+#             except:
+#                 return
+#             ids = update.message.from_user.id
+#             cursor.execute('SELECT exp FROM users WHERE id = %s', (ids,))
+#             balance = cursor.fetchone()
+#             exp = int(balance[0])
+#             gMin = 10
+#             gMax = exp*2
+#             risk = amount/gMax*1000
+#             result = random.randint(0, 1100)
+#             if result > risk:
 #     except:
-#         return
-#     cGop = 1000/(gopstop+1)
-#     if (gopstop >= 0) and (gopstop <= 10):
-#         cButilka = 100
-#     elif (gopstop > 10) and (gopstop <= 25):
-#         cButilka = 250
-#     elif (gopstop > 25) and (gopstop <= 50):
-#         cButilka = 500
-#     elif (gopstop > 50) and (gopstop <= 100):
-#         cButilka = 990
-#     else:
-#         cButilka = 999
+#         update.message.reply_text('Ошибка! Удостоверься, что ты отвечаешь на сообщение, а не на фото, видео и т.п.')
 
 
 def error(update, context):
