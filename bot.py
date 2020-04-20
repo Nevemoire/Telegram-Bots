@@ -456,10 +456,10 @@ def tip(update, context):
 
 
 def button(update, context):
-    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+    query = update.callback_query
+    cursor.execute('SELECT banned FROM users WHERE id = %s', (query.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
-        query = update.callback_query
         data = query.data.split()
         gId = data[2]
         cursor.execute('SELECT total FROM games WHERE chatid = %s', (query.message.chat_id,))
