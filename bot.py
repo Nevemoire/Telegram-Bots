@@ -360,17 +360,20 @@ def pidor(update, context):
 
 
 def pidor_toggle(update, context):
-    cursor.execute('SELECT pidor_state FROM chats WHERE id = %s', (update.message.chat_id,))
-    pState = cursor.fetchone()
-    if '1' in str(pState[0]):
-        cursor.execute('UPDATE chats SET pidor_state = 0 WHERE id = %s', (update.message.chat_id,))
-        update.message.reply_text('Пидор чата: выкл.')
-    elif '0' in str(pState[0]):
-        cursor.execute('UPDATE chats SET pidor_state = 1 WHERE id = %s', (update.message.chat_id,))
-        update.message.reply_text('Пидор чата: вкл.')
-    else:
+    try:
+        cursor.execute('SELECT pidor_state FROM chats WHERE id = %s', (update.message.chat_id,))
+        pState = cursor.fetchone()
+        if '1' in str(pState[0]):
+            cursor.execute('UPDATE chats SET pidor_state = 0 WHERE id = %s', (update.message.chat_id,))
+            update.message.reply_text('Пидор чата: выкл.')
+        elif '0' in str(pState[0]):
+            cursor.execute('UPDATE chats SET pidor_state = 1 WHERE id = %s', (update.message.chat_id,))
+            update.message.reply_text('Пидор чата: вкл.')
+        else:
+            update.message.reply_text('Произошла ошибка!')
+        conn.commit()
+    except:
         update.message.reply_text('Произошла ошибка!')
-    conn.commit()
 
 
 def krokodil(update, context):
