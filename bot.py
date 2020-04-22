@@ -359,6 +359,20 @@ def pidor(update, context):
         pass
 
 
+def pidor_toggle(update, context):
+    cursor.execute('SELECT pidor_state FROM chats WHERE id = %s', (update.message.chat_id,))
+    pState = cursor.fetchone()
+    if '1' in str(pState[0]):
+        cursor.execute('UPDATE chats SET pidor_state = 0 WHERE id = %s', (update.message.chat_id,))
+        update.message.reply_text('Пидор чата: выкл.')
+    elif '0' in str(pState[0]):
+        cursor.execute('UPDATE chats SET pidor_state = 1 WHERE id = %s', (update.message.chat_id,))
+        update.message.reply_text('Пидор чата: вкл.')
+    else:
+        update.message.reply_text('Произошла ошибка!')
+    conn.commit()
+
+
 def krokodil(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
@@ -518,93 +532,93 @@ def button(update, context):
 
 def echo(update, context):
     try:
+        cur_time = int(time.time())
+        ids = update.message.from_user.id
+        chatid = update.message.chat_id
+        name = update.message.from_user.full_name
+        cursor.execute('SELECT id FROM users')
+        members = cursor.fetchall()
+        cursor.execute('SELECT id FROM chats')
+        chats = cursor.fetchall()
+        if str(ids) in str(members):
+            cursor.execute('UPDATE users SET lastmsg = %s WHERE id = %s', (cur_time, ids,))
+        else:
+            registered = time.strftime('%d.%m.%y')
+            cursor.execute('INSERT INTO users (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (ids, name, cur_time, registered,))
+            conn.commit()
+            logger.info(f'New user {update.message.from_user.full_name}!')
+        if str(chatid) in str(chats):
+            pass
+        else:
+            cursor.execute('INSERT INTO chats (id) VALUES (%s)', (chatid,))
+            conn.commit()
+            logger.info(f'New chat {update.message.chat_id}!')
         cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
         banned = cursor.fetchone()
         if '0' in str(banned[0]):
-            try:
-                cur_time = int(time.time())
-                ids = update.message.from_user.id
-                chatid = update.message.chat_id
-                name = update.message.from_user.full_name
-                cursor.execute('SELECT id FROM users')
-                members = cursor.fetchall()
-                cursor.execute('SELECT id FROM chats')
-                chats = cursor.fetchall()
-                if str(ids) in str(members):
-                    cursor.execute('UPDATE users SET lastmsg = %s WHERE id = %s', (cur_time, ids,))
-                else:
-                    registered = time.strftime('%d.%m.%y')
-                    cursor.execute('INSERT INTO users (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (ids, name, cur_time, registered,))
-                    conn.commit()
-                    logger.info(f'New user {update.message.from_user.full_name}!')
-                if str(chatid) in str(chats):
-                    pass
-                else:
-                    cursor.execute('INSERT INTO chats (id) VALUES (%s)', (chatid,))
-                    conn.commit()
-                    logger.info(f'New chat {update.message.chat_id}!')
-                chance = random.randint(0, 1000)
-                logger.info(f'Random: {chance}')
-                if chance <= 5:
-                    cursor.execute('SELECT pidor FROM users WHERE id = %s', (ids,))
-                    pcount = cursor.fetchone()
-                    if int(pcount[0]) == 0:
-                        update.message.reply_text('Поздравляем! Ты впервые стал(-а) пидором чата! 🥳')
-                    elif (int(pcount[0]) > 0) and (int(pcount[0]) < 5):
-                        update.message.reply_text(f'Кстати, ты - пидор чата. Уже {int(pcount[0])+1} раз.')
-                    else:
-                        update.message.reply_text(f'Может хватит?! 😡\nТы пидор чата уже в {int(pcount[0])+1} раз.')
-                    cursor.execute('UPDATE users SET exp = exp + 5, pidor = pidor + 1 WHERE id = %s', (ids,))
-                    cursor.execute('UPDATE chats SET pidor_last = %s, pidor_time = %s, pidor_total = pidor_total + 1 WHERE id = %s', (name, cur_time, chatid,))
-                    context.chat_data['pidor'] = update.message.from_user.full_name
-                else:
-                    pass
-                if 'krokoword' in context.chat_data:
-                    msg = update.message.text
-                    wrd = context.chat_data['krokoword']
-                    message = context.chat_data['message']
-                    cursor.execute('SELECT state FROM games WHERE chatid = %s', (update.message.chat_id,))
-                    state = cursor.fetchone()
-                    if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])) and ('1' in str(state[0])):
-                        member = context.bot.get_chat_member(channel_username, ids)
-                        if member.status in memberslist:
-                            krokoWin = 10
-                        else:
-                            krokoWin = 5
-                        update.message.reply_text(f'Ты угадал(-а)! Держи {krokoWin} монет за правильный ответ.\n\nНачать заново - /krokodil')
-                        context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
-                        cursor.execute('UPDATE users SET exp = exp + %s WHERE id = %s', (krokoWin, ids,))
-                        cursor.execute('UPDATE games SET state = 0 WHERE chatid = %s', (chatid,))
-                        job = context.chat_data['kroko_job']
-                        job.enabled=False
-                        job.schedule_removal()
-                        del context.chat_data['krokoword']
-                        del context.chat_data['kroko_job']
-                        del context.chat_data['kroko_inv']
-                        del context.chat_data['kroko_iname']
-                        del context.chat_data['message']
-                    elif (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])) and ('1' not in str(state[0])):
-                        update.message.reply_text('Ты угадал(-а)! Только игра уже закончилась:(\n\nНачать заново - /krokodil')
-                        context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
-                        del context.chat_data['krokoword']
-                        del context.chat_data['kroko_job']
-                        del context.chat_data['kroko_inv']
-                        del context.chat_data['kroko_iname']
-                        del context.chat_data['message']
-                    else:
-                        pass
-                else:
-                    pass
-                cursor.execute('UPDATE chats SET messages = messages + 1 WHERE id = %s', (update.message.chat_id,))
-                conn.commit()
-            except AttributeError as error:
-                return
-            except:
-                update.message.reply_text('Произошла оши-и-и-б... (System Error)')
+            pass
+        else:
+            return
+        chance = random.randint(0, 1000)
+        cursor.execute('SELECT pidor_state, pidor_time FROM chats WHERE id = %s', (update.message.chat_id,))
+        pState = cursor.fetchall()
+        logger.info(f'Random: {chance}')
+        if (chance <= 5) and ('1' in str(pState[0])) and ((cur_time-14400) >= int(pState[1])):
+            cursor.execute('SELECT pidor FROM users WHERE id = %s', (ids,))
+            pcount = cursor.fetchone()
+            if int(pcount[0]) == 0:
+                update.message.reply_text('Поздравляем! Ты впервые стал(-а) пидором чата! 🥳')
+            elif (int(pcount[0]) > 0) and (int(pcount[0]) < 5):
+                update.message.reply_text(f'Кстати, ты - пидор чата. Уже {int(pcount[0])+1} раз.')
+            else:
+                update.message.reply_text(f'Может хватит?! 😡\nТы пидор чата уже в {int(pcount[0])+1} раз.')
+            cursor.execute('UPDATE users SET exp = exp + 5, pidor = pidor + 1 WHERE id = %s', (ids,))
+            cursor.execute('UPDATE chats SET pidor_last = %s, pidor_time = %s, pidor_total = pidor_total + 1 WHERE id = %s', (name, cur_time, chatid,))
+            context.chat_data['pidor'] = update.message.from_user.full_name
         else:
             pass
+        if 'krokoword' in context.chat_data:
+            msg = update.message.text
+            wrd = context.chat_data['krokoword']
+            message = context.chat_data['message']
+            cursor.execute('SELECT state FROM games WHERE chatid = %s', (update.message.chat_id,))
+            state = cursor.fetchone()
+            if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])) and ('1' in str(state[0])):
+                member = context.bot.get_chat_member(channel_username, ids)
+                if member.status in memberslist:
+                    krokoWin = 10
+                else:
+                    krokoWin = 5
+                update.message.reply_text(f'Ты угадал(-а)! Держи {krokoWin} монет за правильный ответ.\n\nНачать заново - /krokodil')
+                context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
+                cursor.execute('UPDATE users SET exp = exp + %s WHERE id = %s', (krokoWin, ids,))
+                cursor.execute('UPDATE games SET state = 0 WHERE chatid = %s', (chatid,))
+                job = context.chat_data['kroko_job']
+                job.enabled=False
+                job.schedule_removal()
+                del context.chat_data['krokoword']
+                del context.chat_data['kroko_job']
+                del context.chat_data['kroko_inv']
+                del context.chat_data['kroko_iname']
+                del context.chat_data['message']
+            elif (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])) and ('1' not in str(state[0])):
+                update.message.reply_text('Ты угадал(-а)! Только игра уже закончилась:(\n\nНачать заново - /krokodil')
+                context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
+                del context.chat_data['krokoword']
+                del context.chat_data['kroko_job']
+                del context.chat_data['kroko_inv']
+                del context.chat_data['kroko_iname']
+                del context.chat_data['message']
+            else:
+                pass
+        else:
+            pass
+        cursor.execute('UPDATE chats SET messages = messages + 1 WHERE id = %s', (update.message.chat_id,))
+        conn.commit()
+    except AttributeError as error:
+        return
     except:
-        pass
+        update.message.reply_text('Произошла оши-и-и-б... (System Error)')
 
 
 # def gop(update, context):
@@ -678,6 +692,7 @@ def main():
     dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_user))
     dp.add_handler(CommandHandler('krokodil', krokodil, pass_job_queue=True, pass_chat_data=True))
     dp.add_handler(CommandHandler('pidor', pidor))
+    dp.add_handler(CommandHandler('pidor_toggle', pidor_toggle))
     dp.add_handler(CommandHandler('fbi', fbi))
     dp.add_handler(CommandHandler('nya', showPussy))
     dp.add_handler(CommandHandler('memepls', showMemes))
