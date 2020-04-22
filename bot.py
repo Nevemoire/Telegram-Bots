@@ -113,6 +113,11 @@ def stats(update, context):
     update.message.reply_text(f'Всего чатов: {info[0]}\nВсего участников: {info[1]}\nАктивных участников: {users[0]}')
 
 
+def get_admin_ids(bot, chat_id):
+    """Returns a list of admin IDs for a given chat. Results are cached for 1 hour."""
+    return [admin.user.id for admin in bot.get_chat_administrators(chat_id)]
+
+
 def get_word(fname):
     lines = open(fname).read().splitlines()
     return random.choice(lines)
@@ -126,6 +131,16 @@ def new_user(update, context):
             hgif = cursor.fetchall()
             hello = hgif[0]
             context.bot.send_animation(chat_id=update.message.chat_id, animation=hello[0], caption=f'Здарова, {update.message.from_user.full_name}!')
+        elif member.id == context.bot.get_me().id:
+            update.message.reply_text("""
+Всем пис в этом чатике!
+С этого момента я буду вас развлекать.
+
+Список всех команд: /help
+Новости, розыгрыши и т.п. здесь: @theclownfiesta
+""")
+        else:
+            pass
 
 
 def set_exp(context):
@@ -286,21 +301,24 @@ def bets(update, context):
             balance = int(betinfo[0])
             bet = int(betinfo[1])
             dice = update.message.dice.value
-            if balance >= bet:
-                if dice <= 3:
-                    update.message.reply_text(f'Проигрыш! (-{bet} монет)\nРезультат: {dice}')
-                    cursor.execute('UPDATE users SET exp = exp - %s WHERE id = %s', (bet, ids,))
-                    conn.commit()
-                elif dice > 3:
-                    update.message.reply_text(f'Выигрыш! (+{bet} монет)\nРезультат: {dice}')
-                    cursor.execute('UPDATE users SET exp = exp + %s WHERE id = %s', (bet, ids,))
-                    conn.commit()
+            if bet == 0:
+                pass
+            else:
+                if balance >= bet:
+                    if dice <= 3:
+                        update.message.reply_text(f'Проигрыш! (-{bet} монет)\nРезультат: {dice}')
+                        cursor.execute('UPDATE users SET exp = exp - %s WHERE id = %s', (bet, ids,))
+                        conn.commit()
+                    elif dice > 3:
+                        update.message.reply_text(f'Выигрыш! (+{bet} монет)\nРезультат: {dice}')
+                        cursor.execute('UPDATE users SET exp = exp + %s WHERE id = %s', (bet, ids,))
+                        conn.commit()
+                    else:
+                        update.message.reply_text('Произошла ошибка, попробуй позже!')
+                elif balance < bet:
+                    update.message.reply_text('Недостаточно монет!')
                 else:
                     update.message.reply_text('Произошла ошибка, попробуй позже!')
-            elif balance < bet:
-                update.message.reply_text('Недостаточно монет!')
-            else:
-                update.message.reply_text('Произошла ошибка, попробуй позже!')
         else:
             update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
     else:
@@ -323,14 +341,14 @@ def setBet(update, context):
             user_says = context.args
             try:
                 bet = int(user_says[0])
-                if (bet >= 10) and (bet <= maxBet):
+                if (bet == 0) or (bet >= 10) and (bet <= maxBet):
                     cursor.execute('UPDATE users SET bet = %s WHERE id = %s', (bet, ids,))
                     conn.commit()
                     update.message.reply_text('Готово! Чтобы сделать ставку, пришли в чат этот эмодзи: 🎲')
                 else:
-                    update.message.reply_text(f'Недопустимое значение!\nМин. ставка: 10 монет\nМакс. ставка: 1000 монет или 10.000 монет для подписчиков: {channel_username}')
+                    update.message.reply_text(f'Недопустимое значение!\nМин. ставка: 10 монет\nМакс. ставка: 1000 монет или 10.000 монет для подписчиков: {channel_username}\nЧтобы отключить ставки, напиши: /bet 0')
             except:
-                update.message.reply_text('Пришли мне команду в формате:\n/bet <ЧИСЛО>,\n\nгде <ЧИСЛО> - сумма ставки.')
+                update.message.reply_text('Пришли мне команду в формате:\n/bet <ЧИСЛО>,\n\nгде <ЧИСЛО> - сумма ставки.\nОтключить ставки: /bet 0')
         else:
             update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
     else:
@@ -361,17 +379,20 @@ def pidor(update, context):
 
 def pidor_toggle(update, context):
     try:
-        cursor.execute('SELECT pidor_state FROM chats WHERE id = %s', (update.message.chat_id,))
-        pState = cursor.fetchone()
-        if '1' in str(pState[0]):
-            cursor.execute('UPDATE chats SET pidor_state = 0 WHERE id = %s', (update.message.chat_id,))
-            update.message.reply_text('Пидор чата: выкл.')
-        elif '0' in str(pState[0]):
-            cursor.execute('UPDATE chats SET pidor_state = 1 WHERE id = %s', (update.message.chat_id,))
-            update.message.reply_text('Пидор чата: вкл.')
+        if update.effective_user.id in get_admin_ids(context.bot, update.message.chat_id):
+            cursor.execute('SELECT pidor_state FROM chats WHERE id = %s', (update.message.chat_id,))
+            pState = cursor.fetchone()
+            if '1' in str(pState[0]):
+                cursor.execute('UPDATE chats SET pidor_state = 0 WHERE id = %s', (update.message.chat_id,))
+                update.message.reply_text('Пидор чата: выкл.')
+            elif '0' in str(pState[0]):
+                cursor.execute('UPDATE chats SET pidor_state = 1 WHERE id = %s', (update.message.chat_id,))
+                update.message.reply_text('Пидор чата: вкл.')
+            else:
+                update.message.reply_text('Произошла ошибка!')
+            conn.commit()
         else:
-            update.message.reply_text('Произошла ошибка!')
-        conn.commit()
+            update.message.reply_text('Кажется, ты не являешься админом этого чата.')
     except:
         update.message.reply_text('Произошла ошибка!')
 
@@ -536,6 +557,7 @@ def button(update, context):
 def echo(update, context):
     try:
         cur_time = int(time.time())
+        pidor_time = cur_time - 14400
         ids = update.message.from_user.id
         chatid = update.message.chat_id
         name = update.message.from_user.full_name
@@ -563,21 +585,28 @@ def echo(update, context):
         else:
             return
         chance = random.randint(0, 1000)
-        cursor.execute('SELECT pidor_state, pidor_time FROM chats WHERE id = %s', (update.message.chat_id,))
-        pState = cursor.fetchall()
+        cursor.execute('SELECT pidor_state FROM chats WHERE id = %s', (update.message.chat_id,))
+        pState = cursor.fetchone()
+        cursor.execute('SELECT pidor_time FROM chats WHERE id = %s', (update.message.chat_id,))
+        pTime = cursor.fetchone()
         logger.info(f'Random: {chance}')
-        if (chance <= 5) and ('1' in str(pState[0])) and ((cur_time-14400) >= int(pState[1])):
-            cursor.execute('SELECT pidor FROM users WHERE id = %s', (ids,))
-            pcount = cursor.fetchone()
-            if int(pcount[0]) == 0:
-                update.message.reply_text('Поздравляем! Ты впервые стал(-а) пидором чата! 🥳')
-            elif (int(pcount[0]) > 0) and (int(pcount[0]) < 5):
-                update.message.reply_text(f'Кстати, ты - пидор чата. Уже {int(pcount[0])+1} раз.')
+        if (chance <= 5) and ('1' in str(pState[0])):
+            if (pidor_time >= int(pTime[0])):
+                logger.info('New pidor.')
+                cursor.execute('SELECT pidor FROM users WHERE id = %s', (ids,))
+                pcount = cursor.fetchone()
+                if int(pcount[0]) == 0:
+                    update.message.reply_text('Поздравляем! Ты впервые стал(-а) пидором чата! 🥳')
+                elif (int(pcount[0]) > 0) and (int(pcount[0]) < 5):
+                    update.message.reply_text(f'Кстати, ты - пидор чата. Уже {int(pcount[0])+1} раз.')
+                else:
+                    update.message.reply_text(f'Может хватит?! 😡\nТы пидор чата уже в {int(pcount[0])+1} раз.')
+                cursor.execute('UPDATE users SET exp = exp + 5, pidor = pidor + 1 WHERE id = %s', (ids,))
+                cursor.execute('UPDATE chats SET pidor_last = %s, pidor_time = %s, pidor_total = pidor_total + 1 WHERE id = %s', (name, cur_time, chatid,))
+                context.chat_data['pidor'] = update.message.from_user.full_name
             else:
-                update.message.reply_text(f'Может хватит?! 😡\nТы пидор чата уже в {int(pcount[0])+1} раз.')
-            cursor.execute('UPDATE users SET exp = exp + 5, pidor = pidor + 1 WHERE id = %s', (ids,))
-            cursor.execute('UPDATE chats SET pidor_last = %s, pidor_time = %s, pidor_total = pidor_total + 1 WHERE id = %s', (name, cur_time, chatid,))
-            context.chat_data['pidor'] = update.message.from_user.full_name
+                logger.info('Almost new pidor.')
+                pass
         else:
             pass
         if 'krokoword' in context.chat_data:
