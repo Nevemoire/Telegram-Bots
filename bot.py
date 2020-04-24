@@ -133,7 +133,7 @@ def new_user(update, context):
             name = update.message.chat.title
             chatid = update.message.chat_id
             cursor.execute('SELECT id FROM chats')
-            chats = cursor.fetchone()
+            chats = cursor.fetchall()
             if str(chatid) in str(chats):
                 update.message.reply_text('Мне кажется, или я уже был в этом чате? Осуждаю.\n\nЛадно, ладно. Я не злопамятный, можем начать всё с чистого листа.')
                 cursor.execute('UPDATE chats SET name = %s, users = %s, unable = 0 WHERE id = %s', (name, userscount, chatid,))
