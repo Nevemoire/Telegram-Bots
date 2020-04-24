@@ -619,6 +619,7 @@ def echo(update, context):
             cursor.execute('SELECT state FROM games WHERE chatid = %s', (update.message.chat_id,))
             state = cursor.fetchone()
             if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) in str(context.chat_data['kroko_inv'])) and ('1' in str(state[0])):
+                context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
                 update.message.reply_text('Ты же понимаешь, что так играть не честно?\nМне пришлось оштрафовать тебя на 50 монет и преждевременно закончить игру.\n\nНачать заново - /krokodil')
                 cursor.execute('UPDATE users SET exp = exp - 50 WHERE id = %s', (ids,))
                 cursor.execute('UPDATE games SET state = 0 WHERE chatid = %s', (chatid,))
