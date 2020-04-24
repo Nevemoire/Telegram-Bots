@@ -72,29 +72,16 @@ def unban(update, context):
 
 @restricted
 def message(update, context):
+    keyboard = [[InlineKeyboardButton("Обсудить 🙋", url="t.me/clownfiestachat")], [InlineKeyboardButton("Новости и обновления", url="t.me/theclownfiesta")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
     s = update.message.text
     cursor.execute('SELECT id FROM chats')
     ids = cursor.fetchall()
     for chats in ids:
         try:
-            context.bot.send_message(chat_id=chats[0], text=s.split(' ', 1)[1])
+            context.bot.send_message(chat_id=chats[0], text=s.split(' ', 1)[1], reply_markup=reply_markup)
         except:
             cursor.execute("UPDATE chats SET unable = 1 WHERE id = %s", (chats[0],))
-
-
-@restricted
-def updateUsers(update, context):
-    cursor.execute('SELECT id from chats')
-    ids = cursor.fetchall() 
-    for chats in ids:
-        try:
-            users = context.bot.get_chat_members_count(chats[0])
-            cursor.execute('UPDATE chats SET users = %s WHERE id = %s', (users, chats[0],))
-            conn.commit()
-        except:
-            cursor.execute('UPDATE chats SET unable = 1 WHERE id = %s', (chats[0],))
-            conn.commit()
-    update.message.reply_text('Кол-во пользователей в чатах обновлено до настоящего момента.')
 
 
 @restricted
@@ -106,11 +93,21 @@ def compensate(update, context):
 
 @restricted
 def stats(update, context):
+    cursor.execute('SELECT id from chats')
+    ids = cursor.fetchall() 
+    for chats in ids:
+        try:
+            chatUsers = context.bot.get_chat_members_count(chats[0])
+            cursor.execute('UPDATE chats SET users = %s WHERE id = %s', (chatUsers, chats[0],))
+            conn.commit()
+        except:
+            cursor.execute('UPDATE chats SET unable = 2 WHERE id = %s', (chats[0],))
+            conn.commit()
     cursor.execute('SELECT COUNT(id) FROM users')
-    users = cursor.fetchone()
+    allUsers = cursor.fetchone()
     cursor.execute('SELECT COUNT(id), SUM(users) FROM chats')
     info = cursor.fetchone()
-    update.message.reply_text(f'Всего чатов: {info[0]}\nВсего участников: {info[1]}\nАктивных участников: {users[0]}')
+    update.message.reply_text(f'Всего чатов: {info[0]}\nВсего участников: {info[1]}\nАктивных участников: {allUsers[0]}')
 
 
 def get_admin_ids(bot, chat_id):
@@ -132,13 +129,25 @@ def new_user(update, context):
             hello = hgif[0]
             context.bot.send_animation(chat_id=update.message.chat_id, animation=hello[0], caption=f'Здарова, {update.message.from_user.full_name}!')
         elif member.id == context.bot.get_me().id:
-            update.message.reply_text("""
+            userscount = context.bot.get_chat_members_count(update.message.chat.id)
+            name = update.message.chat.title
+            chatid = update.message.chat_id
+            cursor.execute('SELECT id FROM chats')
+            chats = cursor.fetchone()
+            if str(chatid) in str(chats):
+                update.message.reply_text('Мне кажется, или я уже был в этом чате? Осуждаю.\n\nЛадно, ладно. Я не злопамятный, можем начать всё с чистого листа.')
+                cursor.execute('UPDATE chats SET name = %s, users = %s, unable = 0 WHERE id = %s', (name, userscount, chatid,))
+                context.bot.send_message(chat_id=391206263, text=f'Бота снова добавили в {name} ({userscount})!')
+            elif str(chatid) not in str(chats)::        
+                update.message.reply_text("""
 Всем пис в этом чатике!
 С этого момента я буду вас развлекать.
 
 Список всех команд: /help
-Новости, розыгрыши и т.п. здесь: @theclownfiesta
-""")
+Новости, розыгрыши и т.п. здесь: @theclownfiesta""")
+                cursor.execute('INSERT INTO chats (id, users, name) VALUES (%s, %s)', (chatid, userscount, name,))
+                context.bot.send_message(chat_id=391206263, text=f'Бота добавили в {name} ({userscount})!')
+            conn.commit()
         else:
             pass
 
@@ -152,7 +161,7 @@ def set_exp(context):
 
 
 def krokodie(context):
-    context.bot.send_message(chat_id=context.job.context, text='Время истекло!\nНикто не смог отгадать слово.')
+    context.bot.send_message(chat_id=context.job.context, text='Время истекло!\nНачать игру заново - /krokodil')
     cursor.execute('UPDATE games SET state = 2 WHERE chatid = %s', (context.job.context,))
     conn.commit()
 
@@ -566,18 +575,12 @@ def echo(update, context):
         cursor.execute('SELECT id FROM chats')
         chats = cursor.fetchall()
         if str(ids) in str(members):
-            cursor.execute('UPDATE users SET lastmsg = %s WHERE id = %s', (cur_time, ids,))
+            cursor.execute('UPDATE users SET name = %s, lastmsg = %s WHERE id = %s', (name, cur_time, ids,))
         else:
             registered = time.strftime('%d.%m.%y')
             cursor.execute('INSERT INTO users (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (ids, name, cur_time, registered,))
             conn.commit()
             logger.info(f'New user {update.message.from_user.full_name}!')
-        if str(chatid) in str(chats):
-            pass
-        else:
-            cursor.execute('INSERT INTO chats (id) VALUES (%s)', (chatid,))
-            conn.commit()
-            logger.info(f'New chat {update.message.chat_id}!')
         cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
         banned = cursor.fetchone()
         if '0' in str(banned[0]):
@@ -615,7 +618,19 @@ def echo(update, context):
             message = context.chat_data['message']
             cursor.execute('SELECT state FROM games WHERE chatid = %s', (update.message.chat_id,))
             state = cursor.fetchone()
-            if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])) and ('1' in str(state[0])):
+            if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) in str(context.chat_data['kroko_inv'])) and ('1' in str(state[0])):
+                update.message.reply_text('Ты же понимаешь, что так играть не честно?\nМне пришлось оштрафовать тебя на 50 монет и преждевременно закончить игру.\n\nНачать заново - /krokodil')
+                cursor.execute('UPDATE users SET exp = exp - 50 WHERE id = %s', (ids,))
+                cursor.execute('UPDATE games SET state = 0 WHERE chatid = %s', (chatid,))
+                job = context.chat_data['kroko_job']
+                job.enabled=False
+                job.schedule_removal()
+                del context.chat_data['krokoword']
+                del context.chat_data['kroko_job']
+                del context.chat_data['kroko_inv']
+                del context.chat_data['kroko_iname']
+                del context.chat_data['message']
+            elif (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])) and ('1' in str(state[0])):
                 member = context.bot.get_chat_member(channel_username, ids)
                 if member.status in memberslist:
                     krokoWin = 10
@@ -729,7 +744,6 @@ def main():
     dp.add_handler(CommandHandler('nya', showPussy))
     dp.add_handler(CommandHandler('memepls', showMemes))
     dp.add_handler(CommandHandler('balance', babki))
-    dp.add_handler(CommandHandler('update', updateUsers))
     dp.add_handler(CommandHandler('stats', stats))
     dp.add_handler(CommandHandler('ban', ban))
     dp.add_handler(CommandHandler('unban', unban))
