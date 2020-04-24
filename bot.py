@@ -138,7 +138,7 @@ def new_user(update, context):
                 update.message.reply_text('Мне кажется, или я уже был в этом чате? Осуждаю.\n\nЛадно, ладно. Я не злопамятный, можем начать всё с чистого листа.')
                 cursor.execute('UPDATE chats SET name = %s, users = %s, unable = 0 WHERE id = %s', (name, userscount, chatid,))
                 context.bot.send_message(chat_id=391206263, text=f'Бота снова добавили в {name} ({userscount})!')
-            elif str(chatid) not in str(chats)::        
+            elif str(chatid) not in str(chats):
                 update.message.reply_text("""
 Всем пис в этом чатике!
 С этого момента я буду вас развлекать.
