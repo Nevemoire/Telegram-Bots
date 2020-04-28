@@ -267,7 +267,7 @@ def checkquery(update, context):
         possible_chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
         check_hash = ''.join(random.choice(possible_chars) for x in range(10))
         context.bot_data[ids] = check_hash
-        keyboard = [[InlineKeyboardButton("Активировать", callback=f'cheque {check_hash} {query.from_user.id} {query.query}')]]
+        keyboard = [[InlineKeyboardButton("Активировать", callback_data=f'cheque {check_hash} {query.from_user.id} {query.query}')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         text = query.query
         cursor.execute('SELECT exp FROM users WHERE id = %s', (query.from_user.id,))
