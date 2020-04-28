@@ -572,7 +572,8 @@ def button(update, context):
                 query.answer('Нельзя активировать собственный чек!', show_alert=True)
             else:
                 query.answer('Произошла ошибка.', show_alert=True)
-        else
+        else:
+            query.answer('Произошла ошибка.', show_alert=True)
     else:
         query.answer('Извини, но ты забанен(-а).', show_alert=True)
 
