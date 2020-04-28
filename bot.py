@@ -568,8 +568,11 @@ def button(update, context):
                         query.answer('Ошибка!', show_alert=True)
                 else:
                     query.answer('Сперва нужно зарегестрироваться!', show_alert=True)
-            elif (str(query.from_user.id) not in query.data):
+            elif (str(query.from_user.id) in query.data):
                 query.answer('Нельзя активировать собственный чек!', show_alert=True)
+            else:
+                query.answer('Произошла ошибка.', show_alert=True)
+        else
     else:
         query.answer('Извини, но ты забанен(-а).', show_alert=True)
 
