@@ -39,7 +39,7 @@ conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], pa
 #                         host='ec2-79-125-23-20.eu-west-1.compute.amazonaws.com')
 cursor = conn.cursor()
 
-all_user_data = dict()
+all_user_data = set()
 
 LIST_OF_ADMINS = [391206263]
 channel_username = '@theclownfiesta'
@@ -266,42 +266,53 @@ def checkquery(update, context):
     cursor.execute('SELECT id FROM users')
     members = cursor.fetchall()
     if str(ids) in str(members):
-        possible_chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
-        check_hash = ''.join(random.choice(possible_chars) for x in range(10))
-        all_user_data[ids] = check_hash
-        keyboard = [[InlineKeyboardButton("Активировать", callback_data=f'cheque {check_hash} {query.from_user.id} {query.query}')]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        text = query.query
-        cursor.execute('SELECT exp FROM users WHERE id = %s', (query.from_user.id,))
-        balance = cursor.fetchone()
-        try:
-            if int(query.query) > int(balance[0]):
+        if str(ids) not in all_user_data:
+            possible_chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
+            check_hash = ''.join(random.choice(possible_chars) for x in range(10))
+            # all_user_data = check_hash
+            all_user_data.add(ids)
+            keyboard = [[InlineKeyboardButton("Активировать", callback_data=f'cheque {check_hash} {query.from_user.id} {query.query}')]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            text = query.query
+            cursor.execute('SELECT exp FROM users WHERE id = %s', (query.from_user.id,))
+            balance = cursor.fetchone()
+            try:
+                if int(query.query) > int(balance[0]):
+                    results = [
+                        InlineQueryResultArticle(
+                            id=uuid4(),
+                            title="Недостаточно средств",
+                            description="Жаль, но не получится выписать чек на эту сумму:(",
+                            thumb_url="https://i.pinimg.com/originals/49/0d/c0/490dc04a6916f957f560297b919b330a.jpg",
+                            input_message_content=InputTextMessageContent('Недостаточно средств :('))]
+                else:
+                    results = [
+                        InlineQueryResultArticle(
+                            id=uuid4(),
+                            title=f"Чек на сумму {query.query} монет.",
+                            description=f"Баланс после списания: {int(balance[0])-int(query.query)} монет.",
+                            thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
+                            reply_markup=reply_markup,
+                            input_message_content=InputTextMessageContent(f'От: {name}\nЧек на: {query.query} монет.'))]
+            except:
                 results = [
-                    InlineQueryResultArticle(
-                        id=uuid4(),
-                        title="Недостаточно средств",
-                        description="Жаль, но не получится выписать чек на эту сумму:(",
-                        thumb_url="https://i.pinimg.com/originals/49/0d/c0/490dc04a6916f957f560297b919b330a.jpg",
-                        input_message_content=InputTextMessageContent('Недостаточно средств :('))]
-            else:
-                results = [
-                    InlineQueryResultArticle(
-                        id=uuid4(),
-                        title=f"Чек на сумму {query.query} монет.",
-                        description=f"Баланс после списания: {int(balance[0])-int(query.query)} монет.",
-                        thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
-                        reply_markup=reply_markup,
-                        input_message_content=InputTextMessageContent(f'От: {name}\nЧек на: {query.query} монет.'))]
-        except:
-            results = [
-                    InlineQueryResultArticle(
-                        id=uuid4(),
-                        title=f"Укажите сумму чека",
-                        description=f"Баланс: {balance[0]} монет.",
-                        thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
-                        input_message_content=InputTextMessageContent('Привет! Как дела?)'))]
+                        InlineQueryResultArticle(
+                            id=uuid4(),
+                            title=f"Укажите сумму чека",
+                            description=f"Баланс: {balance[0]} монет.",
+                            thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
+                            input_message_content=InputTextMessageContent('Привет! Как дела?)'))]
 
-        query.answer(results, cache_time=0, is_personal=True)
+            query.answer(results, cache_time=0, is_personal=True)
+        elif str(ids) in all_user_data:
+            results = [
+                        InlineQueryResultArticle(
+                            id=uuid4(),
+                            title=f"Нельзя создавать больше одного чека одновременно.",
+                            description=f"Баланс: {balance[0]} монет.",
+                            thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
+                            input_message_content=InputTextMessageContent('Привет! Как дела?)'))]
+            query.answer(results, cache_time=0, is_personal=True)
 
 
 def bets(update, context):
@@ -550,7 +561,7 @@ def button(update, context):
                     qAmount = data[3]
                     qTime = int(time.time())
                     if qInvoker in all_user_data:
-                        del all_user_data[qInvoker]
+                        all_user_data.remove(qInvoker)
                         logger.info(f'From: {qInvoker}, Hash: {qHash}, SUMM: {qAmount}')
                         cursor.execute('SELECT exp FROM users WHERE id = %s', (qInvoker,))
                         balance = cursor.fetchone()
