@@ -39,6 +39,8 @@ conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], pa
 #                         host='ec2-79-125-23-20.eu-west-1.compute.amazonaws.com')
 cursor = conn.cursor()
 
+all_user_data = dict()
+
 LIST_OF_ADMINS = [391206263]
 channel_username = '@theclownfiesta'
 memberz = 'creator, administrator, member'
@@ -266,7 +268,7 @@ def checkquery(update, context):
     if str(ids) in str(members):
         possible_chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
         check_hash = ''.join(random.choice(possible_chars) for x in range(10))
-        context.bot_data[ids] = check_hash
+        all_user_data[ids] = check_hash
         keyboard = [[InlineKeyboardButton("Активировать", callback_data=f'cheque {check_hash} {query.from_user.id} {query.query}')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         text = query.query
@@ -547,8 +549,8 @@ def button(update, context):
                     qInvoker = data[2]
                     qAmount = data[3]
                     qTime = int(time.time())
-                    if qInvoker in context.chat_data:
-                        del context.chat_data[qInvoker]
+                    if qInvoker in all_user_data:
+                        del all_user_data[qInvoker]
                         logger.info(f'From: {qInvoker}, Hash: {qHash}, SUMM: {qAmount}')
                         cursor.execute('SELECT exp FROM users WHERE id = %s', (qInvoker,))
                         balance = cursor.fetchone()
@@ -562,7 +564,7 @@ def button(update, context):
                             query.answer('Чек успешно активирован!', show_alert=True)
                         else:
                             query.answer('Ошибка!', show_alert=True)
-                    elif qInvoker not in context.chat_data:
+                    elif qInvoker not in all_user_data:
                         query.answer('Кажется, этот чек уже активировали.', show_alert=True)
                     else:
                         query.answer('Ошибка!', show_alert=True)
