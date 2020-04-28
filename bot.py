@@ -266,7 +266,7 @@ def checkquery(update, context):
     if str(ids) in str(members):
         possible_chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
         check_hash = ''.join(random.choice(possible_chars) for x in range(10))
-        context.chat_data[ids] = check_hash
+        context.bot_data[ids] = check_hash
         keyboard = [[InlineKeyboardButton("Активировать", callback_data=f'cheque {check_hash} {query.from_user.id} {query.query}')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         text = query.query
