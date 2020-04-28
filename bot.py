@@ -19,6 +19,8 @@ import random
 import psycopg2
 import os
 import time
+import string
+from uuid import uuid4
 from functools import wraps
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
@@ -254,47 +256,50 @@ def start(update, context):
         pass
 
 
-# def checkquery(update, context):
-#     """Handle the inline query."""
-#     query = update.inline_query
-#     cursor.execute('SELECT id FROM users')
-#     members = cursor.fetchall()
-#     if str(ids) in str(members):
-#         possible_chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
-#         check_hash = ''.join(random.choice(possible_chars) for x in range(10))
-#         keyboard = [[InlineKeyboardButton("Активировать", callback=f'cheque {check_hash} {query.from_user.id} {query.query}')]]
-#         reply_markup = InlineKeyboardMarkup(keyboard)
-#         text = query.query
-#         cursor.execute('SELECT exp FROM users WHERE id = %s', (query.from_user.id,))
-#         balance = cursor.fetchone()
-#         try:
-#             if int(query.query) > int(balance[0]):
-#                 results = [
-#                     InlineQueryResultArticle(
-#                         id=uuid4(),
-#                         title=f"Недостаточно средств",
-#                         description=f"Вы не можете выписать чек на эту сумму",
-#                         thumb_url="https://i.pinimg.com/originals/49/0d/c0/490dc04a6916f957f560297b919b330a.jpg",
-#                         input_message_content=InputTextMessageContent('Недостаточно средств :('))]
-#             else:
-#                 results = [
-#                     InlineQueryResultArticle(
-#                         id=uuid4(),
-#                         title=f"Чек на сумму {query.query} монет.",
-#                         description=f"Баланс после списания: {int(balance[0])-int(query.query)} монет.",
-#                         thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
-#                         reply_markup=reply_markup,
-#                         input_message_content=InputTextMessageContent(f'{query.from_user.full_name} выписал(-a) чек на сумму {query.query} монет.'))]
-#         except:
-#             results = [
-#                     InlineQueryResultArticle(
-#                         id=uuid4(),
-#                         title=f"Укажите сумму чека",
-#                         description=f"Баланс: {balance[0]} монет.",
-#                         thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
-#                         input_message_content=InputTextMessageContent('Привет! Как дела?)'))]
+def checkquery(update, context):
+    """Handle the inline query."""
+    query = update.inline_query
+    name = update.inline_query.from_user.full_name
+    ids = update.inline_query.from_user.id
+    cursor.execute('SELECT id FROM users')
+    members = cursor.fetchall()
+    if str(ids) in str(members):
+        possible_chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
+        check_hash = ''.join(random.choice(possible_chars) for x in range(10))
+        context.bot_data[ids] = check_hash
+        keyboard = [[InlineKeyboardButton("Активировать", callback=f'cheque {check_hash} {query.from_user.id} {query.query}')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        text = query.query
+        cursor.execute('SELECT exp FROM users WHERE id = %s', (query.from_user.id,))
+        balance = cursor.fetchone()
+        try:
+            if int(query.query) > int(balance[0]):
+                results = [
+                    InlineQueryResultArticle(
+                        id=uuid4(),
+                        title="Недостаточно средств",
+                        description="Жаль, но не получится выписать чек на эту сумму:(",
+                        thumb_url="https://i.pinimg.com/originals/49/0d/c0/490dc04a6916f957f560297b919b330a.jpg",
+                        input_message_content=InputTextMessageContent('Недостаточно средств :('))]
+            else:
+                results = [
+                    InlineQueryResultArticle(
+                        id=uuid4(),
+                        title=f"Чек на сумму {query.query} монет.",
+                        description=f"Баланс после списания: {int(balance[0])-int(query.query)} монет.",
+                        thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
+                        reply_markup=reply_markup,
+                        input_message_content=InputTextMessageContent(f'От: {name}\nЧек на: {query.query} монет.'))]
+        except:
+            results = [
+                    InlineQueryResultArticle(
+                        id=uuid4(),
+                        title=f"Укажите сумму чека",
+                        description=f"Баланс: {balance[0]} монет.",
+                        thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
+                        input_message_content=InputTextMessageContent('Привет! Как дела?)'))]
 
-#         query.answer(results, cache_time=0, is_personal=True)
+        query.answer(results, cache_time=0, is_personal=True)
 
 
 def bets(update, context):
@@ -507,60 +512,66 @@ def button(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (query.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
-        data = query.data.split()
-        gId = data[2]
-        cursor.execute('SELECT total FROM games WHERE chatid = %s', (query.message.chat_id,))
-        gameid = cursor.fetchone()
-        if str(gId) == str(gameid[0]):
-            if ('krokoword' in query.data) and (str(query.from_user.id) in query.data):
-                query.answer(f'{context.chat_data["krokoword"]}', show_alert=True)
-            elif ('krokochange' in query.data) and (str(query.from_user.id) in query.data):
-                logger.info('yes')
-                cursor.execute('SELECT exp FROM users WHERE  id = %s', (query.from_user.id,))
-                balancez = cursor.fetchone()
-                balance = int(balancez[0])
-                if balance >= 5:
-                    logger.info('byes')
-                    context.chat_data['krokoword'] = (get_word('russian.txt'))
-                    query.answer(f'Новое слово: {context.chat_data["krokoword"]}', show_alert=True)
-                    cursor.execute('UPDATE users SET exp = exp - 5 WHERE id = %s', (query.from_user.id,))
-                    conn.commit()
+        if ('krokoword' in query.data) or ('krokochange' in query.data):
+            data = query.data.split()
+            gId = data[2]
+            cursor.execute('SELECT total FROM games WHERE chatid = %s', (query.message.chat_id,))
+            gameid = cursor.fetchone()
+            if str(gId) == str(gameid[0]):
+                if ('krokoword' in query.data) and (str(query.from_user.id) in query.data):
+                    query.answer(f'{context.chat_data["krokoword"]}', show_alert=True)
+                elif ('krokochange' in query.data) and (str(query.from_user.id) in query.data):
+                    logger.info('yes')
+                    cursor.execute('SELECT exp FROM users WHERE  id = %s', (query.from_user.id,))
+                    balancez = cursor.fetchone()
+                    balance = int(balancez[0])
+                    if balance >= 5:
+                        logger.info('byes')
+                        context.chat_data['krokoword'] = (get_word('russian.txt'))
+                        query.answer(f'Новое слово: {context.chat_data["krokoword"]}', show_alert=True)
+                        cursor.execute('UPDATE users SET exp = exp - 5 WHERE id = %s', (query.from_user.id,))
+                        conn.commit()
+                    else:
+                        query.answer('Недостаточно монет!', show_alert=True)
+                elif str(query.from_user.id) not in query.data:
+                    query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data["kroko_iname"]}', show_alert=True)
+            else:
+                query.answer('Эта игра уже закончилась!', show_alert=True)
+        elif 'cheque' in query.data:
+            if (str(query.from_user.id) not in query.data):
+                cursor.execute('SELECT id FROM users')
+                members = cursor.fetchall()
+                if str(query.from_user.id) in str(members):
+                    data = query.data.split()
+                    qHash = data[1]
+                    qInvoker = data[2]
+                    qAmount = data[3]
+                    qTime = int(time.time())
+                    if qInvoker in context.bot_data:
+                        del context.bot_data[qInvoker]
+                        logger.info(f'From: {qInvoker}, Hash: {qHash}, SUMM: {qAmount}')
+                        cursor.execute('SELECT exp FROM users WHERE id = %s', (qInvoker,))
+                        balance = cursor.fetchone()
+                        if int(qAmount) <= int(balance[0]):
+                            # query.edit_message_text()
+                            # cursor.execute('INSERT INTO cheques (hash, invoker, reciever, amount, ttime) VALUES (%s, %s, %s, %s, %s)', (qHash, qInvoker, query.from_user.id, qAmount, qTime,))
+                            cursor.execute('UPDATE users SET balance = balance - %s WHERE id = %s', (qAmount, qInvoker,))
+                            cursor.execute('UPDATE users SET balance = balance + %s WHERE id = %s', (qAmount, query.from_user.id,))
+                            conn.commit()
+                            logger.info('Transaction done!')
+                            query.answer('Чек успешно активирован!', show_alert=True)
+                        else:
+                            query.answer('Ошибка!', show_alert=True)
+                    elif qInvoker not in context.bot_data:
+                        query.answer('Кажется, этот чек уже активировали.', show_alert=True)
+                    else:
+                        query.answer('Ошибка!', show_alert=True)
                 else:
-                    query.answer('Недостаточно монет!', show_alert=True)
-            elif str(query.from_user.id) not in query.data:
-                query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data["kroko_iname"]}', show_alert=True)
-        else:
-            query.answer('Эта игра уже закончилась!', show_alert=True)
+                    query.answer('Сперва нужно зарегестрироваться!', show_alert=True)
+            elif (str(query.from_user.id) not in query.data):
+                query.answer('Нельзя активировать собственный чек!', show_alert=True)
     else:
-        pass
-    # elif 'cheque' in query.data and:
-    #     if (str(query.from_user.id) not in query.data):
-    #         cursor.execute('SELECT id FROM users')
-    #         members = cursor.fetchall()
-    #         if str(query.from_user.id) in str(members):
-    #             data = query.data.split()
-    #             qHash = data[1]
-    #             qInvoker = data[2]
-    #             qAmount = data[3]
-    #             qTime = int(time.time())
-    #             if qHash not in context.bot_data:
-    #                 context.bot_data[qHash] = qHash
-    #                 logger.info(f'New cheque: {qHash}')
-    #                 cursor.execute('SELECT exp FROM users WHERE id = %s', (qInvoker,))
-    #                 balance = cursor.fetchone()
-    #                 if int(qAmount) <= int(balance[0]):
-    #                     # query.edit_message_text()
-    #                     cursor.execute('INSERT INTO cheques (hash, invoker, reciever, amount, ttime) VALUES (%s, %s, %s, %s, %s)', (qHash, qInvoker, query.from_user.id, qAmount, qTime,))
-    #                     cursor.execute('UPDATE users SET balance = balance - %s WHERE id = %s', (qInvoker, qAmount,))
-    #                     cursor.execute('UPDATE users SET balance = balance + %s WHERE id = %s', (query.from_user.id, qAmount,))
-    #                     conn.commit()
-    #                     logger.info('Transaction done!')
-    #             elif qHash in context.bot_data:
-    #                 query.answer('Этот чек уже использовали!', show_alert=True)
-    #             else:
-    #                 query.answer('Ошибка!', show_alert=True)
-    #     elif (str(query.from_user.id) not in query.data):
-    #         query.answer('Нельзя использовать свой чек!', show_alert=True)
+        query.answer('Извини, но ты забанен(-а).', show_alert=True)
 
 
 def echo(update, context):
@@ -754,7 +765,7 @@ def main():
     dp.add_handler(CommandHandler('bet', setBet, pass_args=True))
     dp.add_handler(CommandHandler('tip', tip, pass_args=True))
     dp.add_handler(CommandHandler('help', qHelp))
-    # dp.add_handler(InlineQueryHandler(checkquery))
+    dp.add_handler(InlineQueryHandler(checkquery))
     # dp.add_handler(CommandHandler("gop", gop, pass_args=True))
     dp.add_handler(MessageHandler(Filters.group, echo))
     dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte")), pussy))
