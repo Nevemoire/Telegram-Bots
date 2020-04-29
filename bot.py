@@ -569,8 +569,8 @@ def button(update, context):
                         if int(qAmount) <= int(balance[0]):
                             # query.edit_message_text()
                             # cursor.execute('INSERT INTO cheques (hash, invoker, reciever, amount, ttime) VALUES (%s, %s, %s, %s, %s)', (qHash, qInvoker, query.from_user.id, qAmount, qTime,))
-                            cursor.execute('UPDATE users SET balance = balance - %s, total_tipped = total_tipped + %s WHERE id = %s', (qAmount, qAmount, qInvoker,))
-                            cursor.execute('UPDATE users SET balance = balance + %s, total_recieved = total_recieved + %s WHERE id = %s', (qAmount, qAmount, query.from_user.id,))
+                            cursor.execute('UPDATE users SET exp = exp - %s, total_tipped = total_tipped + %s WHERE id = %s', (qAmount, qAmount, qInvoker,))
+                            cursor.execute('UPDATE users SET exp = exp + %s, total_recieved = total_recieved + %s WHERE id = %s', (qAmount, qAmount, query.from_user.id,))
                             conn.commit()
                             logger.info('Transaction done!')
                             query.answer('Чек успешно активирован!', show_alert=True)
