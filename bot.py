@@ -566,7 +566,7 @@ def button(update, context):
                         logger.info(f'From: {qInvoker}, Hash: {qHash}, SUMM: {qAmount}')
                         cursor.execute('SELECT exp FROM users WHERE id = %s', (qInvoker,))
                         balance = cursor.fetchone()
-                        if int(qAmount) <= int(balance[0]):
+                        if (int(qAmount) >= int(balance[0])*-1) and (int(qAmount) <= int(balance[0])):
                             # query.edit_message_text()
                             # cursor.execute('INSERT INTO cheques (hash, invoker, reciever, amount, ttime) VALUES (%s, %s, %s, %s, %s)', (qHash, qInvoker, query.from_user.id, qAmount, qTime,))
                             cursor.execute('UPDATE users SET exp = exp - %s, total_tipped = total_tipped + %s WHERE id = %s', (qAmount, qAmount, qInvoker,))
