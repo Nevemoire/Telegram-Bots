@@ -286,6 +286,14 @@ def checkquery(update, context):
                         description="Жаль, но не получится выписать чек на эту сумму:(",
                         thumb_url="https://i.pinimg.com/originals/49/0d/c0/490dc04a6916f957f560297b919b330a.jpg",
                         input_message_content=InputTextMessageContent('Недостаточно средств :('))]
+            elif int(query.query) < 100:
+                results = [
+                    InlineQueryResultArticle(
+                        id=uuid4(),
+                        title="Мин. сумма чека: 100 монет",
+                        description="Жаль, но не получится выписать чек на эту сумму:(",
+                        thumb_url="https://i.pinimg.com/originals/49/0d/c0/490dc04a6916f957f560297b919b330a.jpg",
+                        input_message_content=InputTextMessageContent('Упс, ошибка :('))]
             else:
                 results = [
                     InlineQueryResultArticle(
@@ -566,7 +574,7 @@ def button(update, context):
                         logger.info(f'From: {qInvoker}, Hash: {qHash}, SUMM: {qAmount}')
                         cursor.execute('SELECT exp FROM users WHERE id = %s', (qInvoker,))
                         balance = cursor.fetchone()
-                        if (int(qAmount)*-1 <= int(balance[0])) and (int(qAmount) <= int(balance[0])):
+                        if int(qAmount) <= int(balance[0]):
                             # query.edit_message_text()
                             # cursor.execute('INSERT INTO cheques (hash, invoker, reciever, amount, ttime) VALUES (%s, %s, %s, %s, %s)', (qHash, qInvoker, query.from_user.id, qAmount, qTime,))
                             cursor.execute('UPDATE users SET exp = exp - %s, total_tipped = total_tipped + %s WHERE id = %s', (qAmount, qAmount, qInvoker,))
