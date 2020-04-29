@@ -305,15 +305,15 @@ def checkquery(update, context):
                             input_message_content=InputTextMessageContent('Привет! Как дела?)'))]
 
             query.answer(results, cache_time=0, is_personal=True)
-        elif ids in all_user_data:
-            results = [
-                        InlineQueryResultArticle(
-                            id=uuid4(),
-                            title=f"Нельзя создавать больше одного чека одновременно.",
-                            description=f"Баланс: {balance[0]} монет.",
-                            thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
-                            input_message_content=InputTextMessageContent('Привет! Как дела?)'))]
-            query.answer(results, cache_time=0, is_personal=True)
+        # elif ids in all_user_data:
+        #     results = [
+        #                 InlineQueryResultArticle(
+        #                     id=uuid4(),
+        #                     title=f"Нельзя создавать больше одного чека одновременно.",
+        #                     description=f"Баланс: {balance[0]} монет.",
+        #                     thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
+        #                     input_message_content=InputTextMessageContent('Привет! Как дела?)'))]
+        #     query.answer(results, cache_time=0, is_personal=True)
 
 
 def bets(update, context):
