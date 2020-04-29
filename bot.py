@@ -262,11 +262,12 @@ def checkquery(update, context):
     """Handle the inline query."""
     query = update.inline_query
     name = update.inline_query.from_user.full_name
-    ids = update.inline_query.from_user.id
+    id_int = update.inline_query.from_user.id
+    ids = str(id_int)
     cursor.execute('SELECT id FROM users')
     members = cursor.fetchall()
-    if str(ids) in str(members):
-        if str(ids) not in all_user_data:
+    if ids in str(members):
+        if ids not in all_user_data:
             possible_chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
             check_hash = ''.join(random.choice(possible_chars) for x in range(10))
             # all_user_data = check_hash
@@ -304,7 +305,7 @@ def checkquery(update, context):
                             input_message_content=InputTextMessageContent('Привет! Как дела?)'))]
 
             query.answer(results, cache_time=0, is_personal=True)
-        elif str(ids) in all_user_data:
+        elif ids in all_user_data:
             results = [
                         InlineQueryResultArticle(
                             id=uuid4(),
