@@ -114,6 +114,23 @@ def stats(update, context):
     update.message.reply_text(f'Всего чатов: {info[0]}\nВсего участников: {info[1]}\nАктивных участников: {allUsers[0]}')
 
 
+# def raffle(update, context):
+#     user_says = context.args
+#     try:
+#         prize = int(user_says[0])
+#     except:
+#         update.message.reply_text('Ошибка.')
+#     keyboard = [[InlineKeyboardButton("Участвую!", callback_data="giveaway")]]
+#     reply_markup = InlineKeyboardMarkup(keyboard)
+#     cursor.execute('SELECT id FROM chats')
+#     ids = cursor.fetchall()
+#     for chats in ids:
+#         try:
+#             context.bot.send_message(chat_id=chats[0], text=f'Всем привет!\nМы тут решили провести розыгрыш на {prize} монет!\n\nЕсть всего 1 условие - подписаться на официальный канал: @theclownfiesta.\nСписок победителей появится там же, удачи!', reply_markup=reply_markup)
+#         except:
+#             cursor.execute("UPDATE chats SET unable = 1 WHERE id = %s", (chats[0],))
+
+
 def get_admin_ids(bot, chat_id):
     """Returns a list of admin IDs for a given chat. Results are cached for 1 hour."""
     return [admin.user.id for admin in bot.get_chat_administrators(chat_id)]
@@ -125,33 +142,39 @@ def get_word(fname):
 
 
 def new_user(update, context):
-    logger.info('hey')
     for member in update.message.new_chat_members:
         if member.id != context.bot.get_me().id:
+            logger.info('hey user')
             cursor.execute('SELECT id FROM hello ORDER BY random() LIMIT 1')
             hgif = cursor.fetchall()
             hello = hgif[0]
             context.bot.send_animation(chat_id=update.message.chat_id, animation=hello[0], caption=f'Здарова, {update.message.from_user.full_name}!')
         elif member.id == context.bot.get_me().id:
+            logger.info('hey chat')
             userscount = context.bot.get_chat_members_count(update.message.chat.id)
             name = update.message.chat.title
             chatid = update.message.chat_id
             cursor.execute('SELECT id FROM chats')
             chats = cursor.fetchall()
             if str(chatid) in str(chats):
+                logger.info('here we go again...')
                 update.message.reply_text('Мне кажется, или я уже был в этом чате? Осуждаю.\n\nЛадно, ладно. Я не злопамятный, можем начать всё с чистого листа.')
                 cursor.execute('UPDATE chats SET name = %s, users = %s, unable = 0 WHERE id = %s', (name, userscount, chatid,))
                 context.bot.send_message(chat_id=391206263, text=f'Бота снова добавили в {name} ({userscount})!')
+                conn.commit()
             elif str(chatid) not in str(chats):
+                logger.info('hola amigos')
+                cursor.execute('INSERT INTO chats (id, users, name) VALUES (%s, %s, %s)', (chatid, userscount, name,))
+                context.bot.send_message(chat_id=391206263, text=f'Бота добавили в {name} ({userscount})!')
                 update.message.reply_text("""
 Всем пис в этом чатике!
 С этого момента я буду вас развлекать.
 
 Список всех команд: /help
 Новости, розыгрыши и т.п. здесь: @theclownfiesta""")
-                cursor.execute('INSERT INTO chats (id, users, name) VALUES (%s, %s)', (chatid, userscount, name,))
-                context.bot.send_message(chat_id=391206263, text=f'Бота добавили в {name} ({userscount})!')
-            conn.commit()
+                conn.commit()
+            else:
+                update.message.reply_text('Произошла ошибка.')
         else:
             pass
 
@@ -594,6 +617,20 @@ def button(update, context):
                 query.answer('Нельзя активировать собственный чек!', show_alert=True)
             else:
                 query.answer('Произошла ошибка.', show_alert=True)
+        # elif 'giveaway' in query.data:
+        #     cursor.execute('SELECT id FROM users')
+        #     members = cursor.fetchall()
+        #     if str(query.from_user.id) in str(members):
+        #         cursor.execute('SELECT raffle FROM users WHERE id = %s', (query.from_user.id,))
+        #         raffle = cursor.fetchone()
+        #         if '0' in str(raffle[0]):
+        #             cursor.execute('UPDATE users SET raffle = 1 WHERE id = %s', (query.from_user.id,))
+        #             conn.commit()
+        #             query.answer('Ты теперь участвуешь в розыгрыше!', show_alert=True)
+        #             logger.info(f'New raffle participant: {query.from_user.full_name}')
+        #         else:
+        #             query.answer('Ошибка, ты уже участвуешь в розыгрыше!', show_alert=True)
+        #             logger.info(f'Raffle denied: {query.from_user.full_name}')
         else:
             query.answer('Произошла ошибка.', show_alert=True)
     else:
@@ -775,6 +812,7 @@ def main():
     # log all errors
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_user))
+    # dp.add_handler(CommandHandler('raffle', raffle, filters=(Filters.user(username="@daaetoya") | Filters.user(username='@bhyout'))))
     dp.add_handler(CommandHandler('krokodil', krokodil, pass_job_queue=True, pass_chat_data=True))
     dp.add_handler(CommandHandler('pidor', pidor))
     dp.add_handler(CommandHandler('pidor_toggle', pidor_toggle))
