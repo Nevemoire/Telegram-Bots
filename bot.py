@@ -171,6 +171,7 @@ def new_user(update, context):
                 logger.info('2')
                 context.bot.send_message(chat_id=391206263, text=f'Бота добавили в {name} ({userscount})!')
             conn.commit()
+            logger.info('3')
         else:
             pass
 
