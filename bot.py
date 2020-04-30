@@ -166,8 +166,8 @@ def new_user(update, context):
 
 Список всех команд: /help
 Новости, розыгрыши и т.п. здесь: @theclownfiesta""")
-                cursor.execute('INSERT INTO chats (id, users, name) VALUES (%s, %s, %s)', (chatid, userscount, name,))
-                # context.bot.send_message(chat_id=391206263, text=f'Бота добавили в {name} ({userscount})!')
+                cursor.execute('INSERT INTO chats (id, users, name) VALUES (%s, %s, %s)', (str(chatid), str(userscount), str(name),))
+                context.bot.send_message(chat_id=391206263, text=f'Бота добавили в {name} ({userscount})!')
             conn.commit()
         else:
             pass
