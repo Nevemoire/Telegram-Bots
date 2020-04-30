@@ -160,16 +160,16 @@ def new_user(update, context):
                 cursor.execute('UPDATE chats SET name = %s, users = %s, unable = 0 WHERE id = %s', (name, userscount, chatid,))
                 context.bot.send_message(chat_id=391206263, text=f'Бота снова добавили в {name} ({userscount})!')
             elif str(chatid) not in str(chats):
+                logger.info('1')
+                cursor.execute('INSERT INTO chats (id, users, name) VALUES (%s, %s, %s)', (chatid, userscount, name,))
+                logger.info('2')
+                context.bot.send_message(chat_id=391206263, text=f'Бота добавили в {name} ({userscount})!')
                 update.message.reply_text("""
 Всем пис в этом чатике!
 С этого момента я буду вас развлекать.
 
 Список всех команд: /help
 Новости, розыгрыши и т.п. здесь: @theclownfiesta""")
-                logger.info('1')
-                cursor.execute('INSERT INTO chats (id, users, name) VALUES (%s, %s, %s)', (chatid, userscount, name,))
-                logger.info('2')
-                context.bot.send_message(chat_id=391206263, text=f'Бота добавили в {name} ({userscount})!')
             conn.commit()
             logger.info('3')
         else:
