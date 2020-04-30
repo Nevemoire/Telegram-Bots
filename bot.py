@@ -142,27 +142,29 @@ def get_word(fname):
 
 
 def new_user(update, context):
-    logger.info('hey')
     for member in update.message.new_chat_members:
         if member.id != context.bot.get_me().id:
+            logger.info('hey user')
             cursor.execute('SELECT id FROM hello ORDER BY random() LIMIT 1')
             hgif = cursor.fetchall()
             hello = hgif[0]
             context.bot.send_animation(chat_id=update.message.chat_id, animation=hello[0], caption=f'Здарова, {update.message.from_user.full_name}!')
         elif member.id == context.bot.get_me().id:
+            logger.info('hey chat')
             userscount = context.bot.get_chat_members_count(update.message.chat.id)
             name = update.message.chat.title
             chatid = update.message.chat_id
             cursor.execute('SELECT id FROM chats')
             chats = cursor.fetchall()
             if str(chatid) in str(chats):
+                logger.info('here we go again...')
                 update.message.reply_text('Мне кажется, или я уже был в этом чате? Осуждаю.\n\nЛадно, ладно. Я не злопамятный, можем начать всё с чистого листа.')
                 cursor.execute('UPDATE chats SET name = %s, users = %s, unable = 0 WHERE id = %s', (name, userscount, chatid,))
                 context.bot.send_message(chat_id=391206263, text=f'Бота снова добавили в {name} ({userscount})!')
+                conn.commit()
             elif str(chatid) not in str(chats):
-                logger.info('1')
+                logger.info('hola amigos')
                 cursor.execute('INSERT INTO chats (id, users, name) VALUES (%s, %s, %s)', (chatid, userscount, name,))
-                logger.info('2')
                 context.bot.send_message(chat_id=391206263, text=f'Бота добавили в {name} ({userscount})!')
                 update.message.reply_text("""
 Всем пис в этом чатике!
@@ -170,8 +172,9 @@ def new_user(update, context):
 
 Список всех команд: /help
 Новости, розыгрыши и т.п. здесь: @theclownfiesta""")
-            conn.commit()
-            logger.info('3')
+                conn.commit()
+            else:
+                update.message.reply_text('Произошла ошибка.')
         else:
             pass
 
