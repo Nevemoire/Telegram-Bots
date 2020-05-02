@@ -740,7 +740,7 @@ def echo(update, context):
     except AttributeError as error:
         return
     except:
-        update.message.reply_text('Произошла оши-и-и-б... (System Error)')
+        pass
 
 
 # def gop(update, context):
