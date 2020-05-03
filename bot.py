@@ -642,7 +642,9 @@ def button(update, context):
                         logger.info(f'New raffle participant: {query.from_user.full_name}')
                         cursor.execute('SELECT participants, date_end, chat_id, message_id FROM raffles WHERE id = %s', (data[1],))
                         info = cursor.fetchall()
-                        context.bot.edit_message_text(chat_id=info[2], message_id=info[3], text=f'...\nПобедители будут выбраны {info[1]}\nУчастников: {info[0]}')
+                        chID = int(info[2])
+                        mID = int(info[3])
+                        context.bot.edit_message_text(chat_id=chID, message_id=mID, text=f'...\nПобедители будут выбраны {info[1]}\nУчастников: {info[0]}')
                     else:
                         query.answer('Ты уже участвуешь в розыгрыше! 🙃', show_alert=True)
                         logger.info(f'Raffle denied: {query.from_user.full_name}')
