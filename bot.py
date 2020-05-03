@@ -635,16 +635,19 @@ def button(update, context):
                     raffle = cursor.fetchone()
                     if '0' in str(raffle[0]):
                         data = query.data.split()
+                        chData = data[1]
                         cursor.execute('UPDATE users SET raffle = 1 WHERE id = %s', (query.from_user.id,))
-                        cursor.execute('UPDATE raffles SET participants = participants + 1 WHERE id = %s', (data[1],))
+                        cursor.execute('UPDATE raffles SET participants = participants + 1 WHERE id = %s', (chData,))
                         conn.commit()
                         query.answer('Теперь ты участвуешь в розыгрыше!', show_alert=True)
                         logger.info(f'New raffle participant: {query.from_user.full_name}')
-                        cursor.execute('SELECT participants, date_end, chat_id, message_id FROM raffles WHERE id = %s', (data[1],))
-                        info = cursor.fetchall()
+                        cursor.execute('SELECT participants, date_end, chat_id, message_id FROM raffles WHERE id = %s', (chData,))
+                        info = cursor.fetchone()
+                        pNum = info[0]
+                        date = info[1]
                         chID = int(info[2])
                         mID = int(info[3])
-                        context.bot.edit_message_text(chat_id=chID, message_id=mID, text=f'...\nПобедители будут выбраны {info[1]}\nУчастников: {info[0]}')
+                        context.bot.edit_message_text(chat_id=chID, message_id=mID, text=f'...\nПобедители будут выбраны {date}\nУчастников: {pNum}')
                     else:
                         query.answer('Ты уже участвуешь в розыгрыше! 🙃', show_alert=True)
                         logger.info(f'Raffle denied: {query.from_user.full_name}')
