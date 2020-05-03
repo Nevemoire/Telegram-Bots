@@ -23,7 +23,7 @@ import string
 from uuid import uuid4
 from functools import wraps
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle, InputTextMessageContent
+from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import Updater, CommandHandler, MessageHandler, InlineQueryHandler, CallbackQueryHandler, Filters
 
 # Enable logging
@@ -43,6 +43,8 @@ all_user_data = set()
 
 LIST_OF_ADMINS = [391206263]
 channel_username = '@theclownfiesta'
+ch1 = '@theclownfiesta'
+ch2 = '@rsmgram'
 memberz = 'creator, administrator, member'
 memberslist = memberz.split(', ')
 
@@ -114,21 +116,27 @@ def stats(update, context):
     update.message.reply_text(f'Всего чатов: {info[0]}\nВсего участников: {info[1]}\nАктивных участников: {allUsers[0]}')
 
 
-# def raffle(update, context):
-#     user_says = context.args
-#     try:
-#         prize = int(user_says[0])
-#     except:
-#         update.message.reply_text('Ошибка.')
-#     keyboard = [[InlineKeyboardButton("Участвую!", callback_data="giveaway")]]
-#     reply_markup = InlineKeyboardMarkup(keyboard)
-#     cursor.execute('SELECT id FROM chats')
-#     ids = cursor.fetchall()
-#     for chats in ids:
-#         try:
-#             context.bot.send_message(chat_id=chats[0], text=f'Всем привет!\nМы тут решили провести розыгрыш на {prize} монет!\n\nЕсть всего 1 условие - подписаться на официальный канал: @theclownfiesta.\nСписок победителей появится там же, удачи!', reply_markup=reply_markup)
-#         except:
-#             cursor.execute("UPDATE chats SET unable = 1 WHERE id = %s", (chats[0],))
+def raffle(update, context):
+    date = context.args
+    context.bot.send_message(chat_id=-437611665, text=f'Всем привет!\nМы тут решили провести розыгрыш, пока вы скучаете дома!\n\nПризовой фонд:\n1. Блабла\n2. Блабла\n3. Блабла\n\nДля участия нужно подписаться на:\n@theclownfiesta\n@rsmgram\nи нажать кнопку "Участвую!"')
+    context.user_data['raffle'] = context.bot.send_message(chat_id=-437611665, text=f'...\nПобедители будут выбраны {date[0]}\nУчастников: 0', reply_markup=reply_markup)
+    mID = context.user_data['raffle'].message_id
+    cursor.execute('UPDATE users SET raffle = 0')
+    cursor.execute('INSERT INTO raffles (id, participants, date_end, message_id) VALUES (%s, 0, %s, %s)', (update.message.from_user.id, date[0], message_id,))
+    conn.commit()
+    keyboard = [[InlineKeyboardButton("Участвую!", callback_data=f"giveaway {update.message.from_user.id}")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+
+def raffleWinners(update, context):
+    cursor.execute('SELECT id, name FROM users WHERE raffle = 1 ORDER BY random() LIMIT 3')
+    info = cursor.fetchone()
+    tex = 'Победители:\n\n'
+    num = 0
+    for winner in info:
+        num = num + 1
+        text += (f'<a href = "tg://user?id={winner[0]}">{num}) {winner[1]}</a>')
+    update.message.reply_text(text, parse_mode='HTML')
 
 
 def get_admin_ids(bot, chat_id):
@@ -366,11 +374,11 @@ def bets(update, context):
                 if balance >= bet:
                     if dice <= 3:
                         update.message.reply_text(f'Проигрыш! (-{bet} монет)\nРезультат: {dice}')
-                        cursor.execute('UPDATE users SET exp = exp - %s WHERE id = %s', (bet, ids,))
+                        cursor.execute('UPDATE users SET exp = exp - %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
                         conn.commit()
                     elif dice > 3:
                         update.message.reply_text(f'Выигрыш! (+{bet} монет)\nРезультат: {dice}')
-                        cursor.execute('UPDATE users SET exp = exp + %s WHERE id = %s', (bet, ids,))
+                        cursor.execute('UPDATE users SET exp = exp + %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
                         conn.commit()
                     else:
                         update.message.reply_text('Произошла ошибка, попробуй позже!')
@@ -617,20 +625,32 @@ def button(update, context):
                 query.answer('Нельзя активировать собственный чек!', show_alert=True)
             else:
                 query.answer('Произошла ошибка.', show_alert=True)
-        # elif 'giveaway' in query.data:
-        #     cursor.execute('SELECT id FROM users')
-        #     members = cursor.fetchall()
-        #     if str(query.from_user.id) in str(members):
-        #         cursor.execute('SELECT raffle FROM users WHERE id = %s', (query.from_user.id,))
-        #         raffle = cursor.fetchone()
-        #         if '0' in str(raffle[0]):
-        #             cursor.execute('UPDATE users SET raffle = 1 WHERE id = %s', (query.from_user.id,))
-        #             conn.commit()
-        #             query.answer('Ты теперь участвуешь в розыгрыше!', show_alert=True)
-        #             logger.info(f'New raffle participant: {query.from_user.full_name}')
-        #         else:
-        #             query.answer('Ошибка, ты уже участвуешь в розыгрыше!', show_alert=True)
-        #             logger.info(f'Raffle denied: {query.from_user.full_name}')
+        elif 'giveaway' in query.data:
+            cursor.execute('SELECT id FROM users')
+            members = cursor.fetchall()
+            if str(query.from_user.id) in str(members):
+                member1 = context.bot.get_chat_member(ch1, query.from_user.id)
+                member2 = context.bot.get_chat_member(ch2, query.from_user.id)
+                if (member1.status in memberslist) and (member2.status in memberslist):
+                    cursor.execute('SELECT raffle FROM users WHERE id = %s', (query.from_user.id,))
+                    raffle = cursor.fetchone()
+                    if '0' in str(raffle[0]):
+                        data = query.data.split()
+                        cursor.execute('UPDATE users SET raffle = 1 WHERE id = %s', (query.from_user.id,))
+                        cursor.execute('UPDATE raffles SET participants = participants + 1 WHERE id = %s', (data[1],))
+                        conn.commit()
+                        query.answer('Теперь ты участвуешь в розыгрыше!', show_alert=True)
+                        logger.info(f'New raffle participant: {query.from_user.full_name}')
+                        cursor.execute('SELECT participants, date_end, chat_id, message_id FROM raffles WHERE id = %s', (data[1],))
+                        info = cursor.fetchall()
+                        context.bot.edit_message_text(chat_id=info[2], message_id=info[3], text=f'...\nПобедители будут выбраны {info[1]}\nУчастников: {info[0]}')
+                    else:
+                        query.answer('Ты уже участвуешь в розыгрыше! 🙃', show_alert=True)
+                        logger.info(f'Raffle denied: {query.from_user.full_name}')
+                else:
+                    query.answer('Ты не подписан(-а) на @theclownfiesta!', show_alert=True)
+            else:
+                    query.answer('Сперва нужно зарегестрироваться!', show_alert=True)
         else:
             query.answer('Произошла ошибка.', show_alert=True)
     else:
@@ -812,7 +832,8 @@ def main():
     # log all errors
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_user))
-    # dp.add_handler(CommandHandler('raffle', raffle, filters=(Filters.user(username="@daaetoya") | Filters.user(username='@bhyout'))))
+    dp.add_handler(CommandHandler('raffle', raffle, filters=(Filters.user(username="@daaetoya") | Filters.user(username='@bhyout'))))
+    dp.add_handler(CommandHandler('winners', raffleWinners, filters=(Filters.user(username="@daaetoya") | Filters.user(username='@bhyout'))))
     dp.add_handler(CommandHandler('krokodil', krokodil, pass_job_queue=True, pass_chat_data=True))
     dp.add_handler(CommandHandler('pidor', pidor))
     dp.add_handler(CommandHandler('pidor_toggle', pidor_toggle))
