@@ -124,7 +124,7 @@ def raffle(update, context):
     context.user_data['raffle'] = context.bot.send_message(chat_id=-437611665, text=f'...\nПобедители будут выбраны {date[0]}\nУчастников: 0', reply_markup=reply_markup)
     mID = context.user_data['raffle'].message_id
     cursor.execute('UPDATE users SET raffle = 0')
-    cursor.execute('INSERT INTO raffles (id, participants, date_end, message_id) VALUES (%s, 0, %s, %s)', (update.message.from_user.id, date[0], message_id,))
+    cursor.execute('INSERT INTO raffles (id, participants, date_end, message_id) VALUES (%s, 0, %s, %s)', (update.message.from_user.id, date[0], mID,))
     conn.commit()
 
 
