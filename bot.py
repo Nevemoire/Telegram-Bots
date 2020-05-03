@@ -636,6 +636,8 @@ def button(update, context):
                     if '0' in str(raffle[0]):
                         data = query.data.split()
                         chData = data[1]
+                        keyboard = [[InlineKeyboardButton("Участвую!", callback_data=f"giveaway {chData}")]]
+                        reply_markup = InlineKeyboardMarkup(keyboard)
                         cursor.execute('UPDATE users SET raffle = 1 WHERE id = %s', (query.from_user.id,))
                         cursor.execute('UPDATE raffles SET participants = participants + 1 WHERE id = %s', (chData,))
                         conn.commit()
@@ -647,7 +649,7 @@ def button(update, context):
                         date = info[1]
                         chID = int(info[2])
                         mID = int(info[3])
-                        context.bot.edit_message_text(chat_id=chID, message_id=mID, text=f'...\nПобедители будут выбраны {date}\nУчастников: {pNum}')
+                        context.bot.edit_message_text(chat_id=chID, message_id=mID, text=f'...\nПобедители будут выбраны {date}\nУчастников: {pNum}', reply_markup=reply_markup)
                     else:
                         query.answer('Ты уже участвуешь в розыгрыше! 🙃', show_alert=True)
                         logger.info(f'Raffle denied: {query.from_user.full_name}')
