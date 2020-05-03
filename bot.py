@@ -123,8 +123,9 @@ def raffle(update, context):
     context.bot.send_message(chat_id=-437611665, text=f'Всем привет!\nМы тут решили провести розыгрыш, пока вы скучаете дома!\n\nПризовой фонд:\n1. Блабла\n2. Блабла\n3. Блабла\n\nДля участия нужно подписаться на:\n@theclownfiesta\n@rsmgram\nи нажать кнопку "Участвую!"')
     context.user_data['raffle'] = context.bot.send_message(chat_id=-437611665, text=f'...\nПобедители будут выбраны {date[0]}\nУчастников: 0', reply_markup=reply_markup)
     mID = context.user_data['raffle'].message_id
+    chID = context.user_data['raffle'].chat_id
     cursor.execute('UPDATE users SET raffle = 0')
-    cursor.execute('INSERT INTO raffles (id, participants, date_end, message_id) VALUES (%s, 0, %s, %s)', (update.message.from_user.id, date[0], mID,))
+    cursor.execute('INSERT INTO raffles (id, participants, date_end, message_id, chat_id) VALUES (%s, 0, %s, %s)', (update.message.from_user.id, date[0], mID, chID,))
     conn.commit()
 
 
