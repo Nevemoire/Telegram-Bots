@@ -134,7 +134,7 @@ def raffleWinners(update, context):
     info = cursor.fetchone()
     for winner in info:
         num += 1
-        text += f'{num})'
+        text += f'{num}) <a href="tg://user?id={str(winner[0])}">{winner[1]}</a>\n'
     update.message.reply_text(text, parse_mode='HTML')
 
 
