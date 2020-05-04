@@ -134,7 +134,7 @@ def raffleWinners(update, context):
         cursor.execute('SELECT id, name FROM users WHERE raffle = 1 ORDER BY random()')
         info = cursor.fetchone()
         num += 1
-        text += f'{num}) <a href="tg://user?id={info[0]}"{info[1]}</a>\n'
+        text += f'{num}) <a href="tg://user?id={info[0]}">{info[1]}</a>\n'
     update.message.reply_text(text, parse_mode='HTML')
 
 
