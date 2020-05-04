@@ -130,11 +130,11 @@ def raffle(update, context):
 def raffleWinners(update, context):
     text = 'Победители:\n\n'
     num = 0
-    for winner in range(3):
-        cursor.execute('SELECT id, name FROM users WHERE raffle = 1 ORDER BY random() LIMIT 1')
-        info = cursor.fetchone()
+    cursor.execute('SELECT id, name FROM users WHERE raffle = 1 ORDER BY random() LIMIT 3')
+    info = cursor.fetchone()
+    for winner in info:
         num += 1
-        text += (f'<a href = "tg://user?id={winner[0]}">{num}) {winner[1]}</a>')
+        text += f'{str(num)}) <a href = "tg://user?id={winner[0]}">{winner[1]}</a>'
     update.message.reply_text(text, parse_mode='HTML')
 
 
