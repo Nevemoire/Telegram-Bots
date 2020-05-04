@@ -129,10 +129,12 @@ def raffle(update, context):
 
 def raffleWinners(update, context):
     text = 'Победители:\n'
+    num = 0
     cursor.execute('SELECT id, name FROM users WHERE raffle = 1 ORDER BY random() LIMIT 3')
     info = cursor.fetchone()
     for winner in info:
-        text += f'<a href = "tg://user?id={winner[0]}">{winner[1]}</a>'
+        num += 1
+        text += f'{num})'
     update.message.reply_text(text, parse_mode='HTML')
 
 
@@ -837,7 +839,7 @@ def main():
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_user))
     dp.add_handler(CommandHandler('raffle', raffle, filters=(Filters.user(username="@daaetoya") | Filters.user(username='@bhyout'))))
-    dp.add_handler(CommandHandler('winners', raffleWinners, filters=(Filters.user(username="@daaetoya") | Filters.user(username='@bhyout'))))
+    dp.add_handler(CommandHandler('winners', raffleWinners, filters=Filters.user(username="@daaetoya")))
     dp.add_handler(CommandHandler('krokodil', krokodil, pass_job_queue=True, pass_chat_data=True))
     dp.add_handler(CommandHandler('pidor', pidor))
     dp.add_handler(CommandHandler('pidor_toggle', pidor_toggle))
