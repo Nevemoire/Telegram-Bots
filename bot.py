@@ -130,7 +130,7 @@ def raffle(update, context):
 def raffleWinners(update, context):
     cursor.execute('SELECT id, name FROM users WHERE raffle = 1 ORDER BY random() LIMIT 3')
     info = cursor.fetchone()
-    tex = 'Победители:\n\n'
+    text = 'Победители:\n\n'
     num = 0
     for winner in info:
         num = num + 1
