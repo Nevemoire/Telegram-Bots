@@ -44,7 +44,7 @@ all_user_data = set()
 LIST_OF_ADMINS = [391206263]
 channel_username = '@theclownfiesta'
 ch1 = '@theclownfiesta'
-ch2 = '@rsmgram'
+# ch2 = '@rsmgram'
 memberz = 'creator, administrator, member'
 memberslist = memberz.split(', ')
 
@@ -120,8 +120,8 @@ def raffle(update, context):
     keyboard = [[InlineKeyboardButton("Участвую!", callback_data=f"giveaway {update.message.from_user.id}")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     date = context.args[0]
-    context.bot.send_message(chat_id=-437611665, text=f'Всем привет!\nМы тут решили провести розыгрыш, пока вы скучаете дома!\n\nПризовой фонд:\n1. Блабла\n2. Блабла\n3. Блабла\n\nДля участия нужно подписаться на:\n@theclownfiesta\n@rsmgram\nи нажать кнопку "Участвую!"')
-    context.user_data['raffle'] = context.bot.send_message(chat_id=-437611665, text=f'...\nПобедители будут выбраны {date}\nУчастников: 0', reply_markup=reply_markup)
+    # context.bot.send_message(chat_id=-437611665, text=f'Всем привет!\nМы тут решили провести розыгрыш, пока вы скучаете дома!\n\nПризовой фонд:\n1. Блабла\n2. Блабла\n3. Блабла\n\nДля участия нужно подписаться на:\n@theclownfiesta\n@rsmgram\nи нажать кнопку "Участвую!"')
+    context.user_data['raffle'] = context.bot.send_message(chat_id='@theclownfiesta', text=f'...\nПобедители будут выбраны {date}\nУчастников: 0', reply_markup=reply_markup)
     cursor.execute('UPDATE users SET raffle = 0')
     cursor.execute('INSERT INTO raffles (id, participants, date_end, message_id, chat_id) VALUES (%s, 0, %s, %s, %s)', (update.message.from_user.id, date, context.user_data['raffle'].message_id, context.user_data['raffle'].chat_id,))
     conn.commit()
@@ -133,6 +133,8 @@ def raffleWinners(update, context):
     for winner in range(3):
         cursor.execute('SELECT id, name FROM users WHERE raffle = 1 ORDER BY random()')
         info = cursor.fetchone()
+        cursor.execute('UPDATE users SET raffle = 2 WHERE id = %s', (info[0],))
+        conn.commit()
         num += 1
         text += f'{num}) <a href="tg://user?id={info[0]}">{info[1]}</a>\n'
     update.message.reply_text(text, parse_mode='HTML')
@@ -629,8 +631,9 @@ def button(update, context):
             members = cursor.fetchall()
             if str(query.from_user.id) in str(members):
                 member1 = context.bot.get_chat_member(ch1, query.from_user.id)
-                member2 = context.bot.get_chat_member(ch2, query.from_user.id)
-                if (member1.status in memberslist) and (member2.status in memberslist):
+                # member2 = context.bot.get_chat_member(ch2, query.from_user.id)
+                if (member1.status in memberslist):
+                # if (member1.status in memberslist) and (member2.status in memberslist):
                     cursor.execute('SELECT raffle FROM users WHERE id = %s', (query.from_user.id,))
                     raffle = cursor.fetchone()
                     if '0' in str(raffle[0]):
