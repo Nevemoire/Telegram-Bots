@@ -819,6 +819,11 @@ def qHelp(update, context):
         pass
 
 
+def donate(update, context):
+    update.message.reply_text('Реквизиты для доната:\nСбер: 5469 3800 8674 8745\nЯ.Соберу: yasobe.ru/na/Nevermore\n\nПрикрепите ваш UserID к донату чтобы получить 1000 монет за каждые 10 руб. доната :)')
+    update.message.reply_text(f'Ваш UserID: {update.message.from_user.id}')
+
+
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
@@ -847,6 +852,7 @@ def main():
     dp.add_handler(CommandHandler('pidor', pidor))
     dp.add_handler(CommandHandler('pidor_toggle', pidor_toggle))
     dp.add_handler(CommandHandler('fbi', fbi))
+    dp.add_handler(CommandHandler('donate', donate))
     dp.add_handler(CommandHandler('nya', showPussy))
     dp.add_handler(CommandHandler('memepls', showMemes))
     dp.add_handler(CommandHandler('balance', babki))
