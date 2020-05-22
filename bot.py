@@ -705,7 +705,7 @@ def echo(update, context):
                 cursor.execute('SELECT pidor FROM users WHERE id = %s', (ids,))
                 pcount = cursor.fetchone()
                 if int(pcount[0]) == 0:
-                    update.message.reply_text('Есть 2 новости:\n1. У тебя был личный контакт с Биллом Гейтсом, поздравляем!\n2. Тебя чипировали.')
+                    update.message.reply_text('Есть 2 новости:\n1. У тебя был личный контакт с Билом Гейтсом, поздравляем!\n2. Тебя чипировали.')
                 else:
                     update.message.reply_text(f'Chipization time! Прошивка твоего чипа обновляется уже {int(pcount[0])+1} раз.')
                 cursor.execute('UPDATE users SET exp = exp + 5, pidor = pidor + 1 WHERE id = %s', (ids,))
@@ -805,13 +805,14 @@ def qHelp(update, context):
         update.message.reply_text('''Список доступных команд:
 
 /krokodil - Игра в угадать слово.
-/pidor - Напомнить кто является лучшим человеком чата.
+/chipization - Посмотреть кто стал последней жертвой Била Гейтса.
+/chipization_toggle - Вкл./Выкл. (Только для админов чата)
 /nya - Котики и другая живность.
-/memepls - Мемчики.
+/memepls - Мемные картинки.
 /fbi - На случай важных переговоров.
-/balance - Узнать свой баланс.
+/balance - Посмотреть баланс.
 
-/tip <SUMM> - Перевести денежку (пишется в ответ на сообщение получателя).
+/tip <SUMM> - Перевести денежку (Пишется в ответ на сообщение получателя).
 /bet <SUMM> - Указать сумму ставки.
 
 Вместо <SUMM> указываем число от 10 до 1000 (10.000 для подписчиков @theclownfiesta).''')
@@ -850,8 +851,8 @@ def main():
     dp.add_handler(CommandHandler('raffle', raffle, filters=(Filters.user(username="@daaetoya") | Filters.user(username='@bhyout'))))
     dp.add_handler(CommandHandler('winners', raffleWinners, filters=Filters.user(username="@daaetoya")))
     dp.add_handler(CommandHandler('krokodil', krokodil, pass_job_queue=True, pass_chat_data=True))
-    dp.add_handler(CommandHandler('pidor', pidor))
-    dp.add_handler(CommandHandler('pidor_toggle', pidor_toggle))
+    dp.add_handler(CommandHandler('chipization', pidor))
+    dp.add_handler(CommandHandler('chipization_toggle', pidor_toggle))
     dp.add_handler(CommandHandler('fbi', fbi))
     dp.add_handler(CommandHandler('donate', donate))
     dp.add_handler(CommandHandler('nya', showPussy))
