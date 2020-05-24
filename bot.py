@@ -302,7 +302,7 @@ def start(update, context):
             else:
                 update.message.reply_text('Вы уже получали монеты за это задание!')
         elif text == 'theclownfiesta':
-            cursor.execute('SELECT vt FROM users WHERE id = %s', (ids,))
+            cursor.execute('SELECT thecf FROM users WHERE id = %s', (ids,))
             subscribed = cursor.fetchone()
             if none in str(subscribed[0]):
                 try:
@@ -319,7 +319,7 @@ def start(update, context):
             else:
                 update.message.reply_text('Вы уже получали монеты за это задание!')
         elif text == 'mem_hunter':
-            cursor.execute('SELECT vt FROM users WHERE id = %s', (ids,))
+            cursor.execute('SELECT mh FROM users WHERE id = %s', (ids,))
             subscribed = cursor.fetchone()
             if none in str(subscribed[0]):
                 try:
