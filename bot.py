@@ -278,6 +278,7 @@ def start(update, context):
     ids = update.message.from_user.id
     cursor.execute('SELECT id FROM users')
     all_users = cursor.fetchall()
+    none = 'None'
     if str(ids) in str(all_users):
         try:
             text = context.args[0]
@@ -286,7 +287,7 @@ def start(update, context):
         if text == 'vsratwitch':
             cursor.execute('SELECT vt FROM users WHERE id = %s', (ids,))
             subscribed = cursor.fetchone()
-            if '0' in str(subscribed[0]):
+            if none in str(subscribed[0]):
                 try:
                     member = context.bot.get_chat_member(-1001415515636, ids)
                     if member.status in memberslist:
@@ -303,7 +304,7 @@ def start(update, context):
         elif text == 'theclownfiesta':
             cursor.execute('SELECT vt FROM users WHERE id = %s', (ids,))
             subscribed = cursor.fetchone()
-            if '0' in str(subscribed[0]):
+            if none in str(subscribed[0]):
                 try:
                     member = context.bot.get_chat_member('@theclownfiesta', ids)
                     if member.status in memberslist:
@@ -320,7 +321,7 @@ def start(update, context):
         elif text == 'mem_hunter':
             cursor.execute('SELECT vt FROM users WHERE id = %s', (ids,))
             subscribed = cursor.fetchone()
-            if '0' in str(subscribed[0]):
+            if none in str(subscribed[0]):
                 try:
                     member = context.bot.get_chat_member('@mem_hunter', ids)
                     if member.status in memberslist:
