@@ -873,9 +873,14 @@ def qHelp(update, context):
 
 
 def freecoins(update, context):
-    update.message.reply_text('''1. Подписка на <a href="https://t.me/joinchat/AAAAAFRfDfSuEFKo3t7PEQ">@vsratwitch</a>: 1000 монет. <a href="https://t.me/clownfiestabot?start=vsratwitch">Проверить</a>
-2. Подписка на @theclownfiesta: 1000 монет + повышеный лимит (до 10к) на переводы и ставки. <a href="https://t.me/clownfiestabot?start=theclownfiesta">Проверить</a>
-3. Подписка на @mem_hunter: 1000 монет. <a href="https://t.me/clownfiestabot?start=mem_hunter">Проверить</a>''', parse_mode='HTML', disable_web_page_preview=True)
+    update.message.reply_text('''1. Подписка на <a href="https://t.me/joinchat/AAAAAFRfDfSuEFKo3t7PEQ">@vsratwitch</a>: 1000 монет.
+<a href="https://t.me/clownfiestabot?start=vsratwitch">Проверить</a>
+
+2. Подписка на @theclownfiesta: 1000 монет + повышеный лимит (до 10к) на переводы и ставки.
+<a href="https://t.me/clownfiestabot?start=theclownfiesta">Проверить</a>
+
+3. Подписка на @mem_hunter: 1000 монет.
+<a href="https://t.me/clownfiestabot?start=mem_hunter">Проверить</a>''', parse_mode='HTML', disable_web_page_preview=True)
 
 
 def substats(update, context):
