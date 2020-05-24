@@ -291,7 +291,7 @@ def start(update, context):
                 try:
                     member = context.bot.get_chat_member(-1001415515636, ids)
                     if member.status in memberslist:
-                        cursor.execute('UPDATE users SET exp = exp + 1000, vt = 1 WHERE id = %s', (ids,))
+                        cursor.execute('UPDATE users SET exp = exp + 1000, vt = %s WHERE id = %s', (ids, ids,))
                         conn.commit()
                         update.message.reply_text('Задание выполнено! (+1000 монет)')
                         logger.info('Sub vsratwitch')
@@ -308,7 +308,7 @@ def start(update, context):
                 try:
                     member = context.bot.get_chat_member('@theclownfiesta', ids)
                     if member.status in memberslist:
-                        cursor.execute('UPDATE users SET exp = exp + 1000, thecf = 1 WHERE id = %s', (ids,))
+                        cursor.execute('UPDATE users SET exp = exp + 1000, thecf = %s WHERE id = %s', (ids, ids,))
                         conn.commit()
                         update.message.reply_text('Задание выполнено! (+1000 монет)')
                         logger.info('Sub theclownfiesta')
@@ -325,7 +325,7 @@ def start(update, context):
                 try:
                     member = context.bot.get_chat_member('@mem_hunter', ids)
                     if member.status in memberslist:
-                        cursor.execute('UPDATE users SET exp = exp + 1000, mh = 1 WHERE id = %s', (ids,))
+                        cursor.execute('UPDATE users SET exp = exp + 1000, mh = %s WHERE id = %s', (ids, ids,))
                         conn.commit()
                         update.message.reply_text('Задание выполнено! (+1000 монет)')
                         logger.info('Sub mem_hunter')
