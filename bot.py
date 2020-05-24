@@ -274,20 +274,70 @@ def showMemes(update, context):
 
 
 def start(update, context):
-    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
-    banned = cursor.fetchone()
-    if '0' in str(banned[0]):
-    # args = context.args
-    # if len(args) == 0:
-    #     update.message.reply_text('Meow')
-    #     meow = update.message.chat_id
-    #     logger.info(f'Meow: {meow}')
-    # else:
-    #     check_hash = args[0]
-    #     update.message.reply_text(check_hash)
-        update.message.reply_text('Meow')
-    else:
-        pass
+    """Send a message when the command /start is issued."""
+    ids = update.message.from_user.id
+    cursor.execute('SELECT id FROM users')
+    all_users = cursor.fetchall()
+    if str(ids) in str(all_users):
+        try:
+            text = context.args[0]
+        except:
+            update.message.reply_text('Meow')
+        if text == 'vsratwitch':
+            cursor.execute('SELECT vt FROM users WHERE id = %s', (ids,))
+            subscribed = cursor.fetchone()
+            if '0' in str(subscribed[0]):
+                try:
+                    member = context.bot.get_chat_member(-1001415515636, ids)
+                    if member.status in memberslist:
+                        cursor.execute('UPDATE users SET exp = exp + 1000, vt = 1 WHERE id = %s', (ids,))
+                        conn.commit()
+                        update.message.reply_text('Задание выполнено! (+1000 монет)')
+                        logger.info('Sub vsratwitch')
+                    else:
+                        update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                except:
+                    update.message.reply_text('Что-то пошло не так.')
+            else:
+                update.message.reply_text('Вы уже получали монеты за это задание!')
+        elif text == 'theclownfiesta':
+            cursor.execute('SELECT vt FROM users WHERE id = %s', (ids,))
+            subscribed = cursor.fetchone()
+            if '0' in str(subscribed[0]):
+                try:
+                    member = context.bot.get_chat_member('@theclownfiesta', ids)
+                    if member.status in memberslist:
+                        cursor.execute('UPDATE users SET exp = exp + 1000, thecf = 1 WHERE id = %s', (ids,))
+                        conn.commit()
+                        update.message.reply_text('Задание выполнено! (+1000 монет)')
+                        logger.info('Sub theclownfiesta')
+                    else:
+                        update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                except:
+                    update.message.reply_text('Что-то пошло не так.')
+            else:
+                update.message.reply_text('Вы уже получали монеты за это задание!')
+        elif text == 'mem_hunter':
+            cursor.execute('SELECT vt FROM users WHERE id = %s', (ids,))
+            subscribed = cursor.fetchone()
+            if '0' in str(subscribed[0]):
+                try:
+                    member = context.bot.get_chat_member('@mem_hunter', ids)
+                    if member.status in memberslist:
+                        cursor.execute('UPDATE users SET exp = exp + 1000, mh = 1 WHERE id = %s', (ids,))
+                        conn.commit()
+                        update.message.reply_text('Задание выполнено! (+1000 монет)')
+                        logger.info('Sub mem_hunter')
+                    else:
+                        update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                except:
+                    update.message.reply_text('Что-то пошло не так.')
+            else:
+                update.message.reply_text('Вы уже получали монеты за это задание!')
+        else:
+            update.message.reply_text('Meow')
+    elif str(ids) not in str(all_users):
+        update.message.reply_text('Сперва нужно зарегестрироваться, для этого напишите хотя бы одно сообщение в чате где присутствует @clownfiestabot!', parse_mode='HTML')
 
 
 def checkquery(update, context):
@@ -821,6 +871,18 @@ def qHelp(update, context):
         pass
 
 
+def freecoins(update, context):
+    update.message.reply_text('''1. Подписка на <a href="https://t.me/joinchat/AAAAAFRfDfSuEFKo3t7PEQ">@vsratwitch</a>: 1000 монет. <a href="https://t.me/clownfiestabot?start=vsratwitch">Проверить</a>
+2. Подписка на @theclownfiesta: 1000 монет + повышеный лимит (до 10к) на переводы и ставки. <a href="https://t.me/clownfiestabot?start=theclownfiesta">Проверить</a>
+3. Подписка на @mem_hunter: 1000 монет. <a href="https://t.me/clownfiestabot?start=mem_hunter">Проверить</a>''', parse_mode='HTML', disable_web_page_preview=True)
+
+
+def substats(update, context):
+    cursor.execute('SELECT COUNT(DISTINCT vt), COUNT(DISTINCT thecf), COUNT(DISTINCT mh) FROM users')
+    subs = cursor.fetchone()
+    update.message.reply_text(f'Кол-во привлечённых подписчиков:\n<a href="https://t.me/joinchat/AAAAAFRfDfSuEFKo3t7PEQ">@vsratwitch</a>: {subs[0]}\n@theclownfiesta: {subs[1]}\n@mem_hunter: {subs[2]}', parse_mode='HTML', disable_web_page_preview=True)
+
+
 def donate(update, context):
     update.message.reply_text('Реквизиты для доната:\nСбер: 5469 3800 8674 8745\nЯ.Соберу: yasobe.ru/na/Nevermore\n\nПрикрепите ваш UserID к донату чтобы получить 1000 монет за каждые 10 руб. доната :)')
     update.message.reply_text(f'Ваш UserID: {update.message.from_user.id}')
@@ -861,7 +923,8 @@ def main():
     dp.add_handler(CommandHandler('stats', stats))
     dp.add_handler(CommandHandler('ban', ban))
     dp.add_handler(CommandHandler('unban', unban))
-    dp.add_handler(CommandHandler('compensate', compensate))
+    dp.add_handler(CommandHandler('freecoins', freecoins))
+    dp.add_handler(CommandHandler('substats', substats, filters=Filters.user(username="@daaetoya")))
     dp.add_handler(CommandHandler('message', message))
     # dp.add_handler(MessageHandler((Filters.dice & (~Filters.forwarded)), bets))
     dp.add_handler(CommandHandler('bet', setBet, pass_args=True))
