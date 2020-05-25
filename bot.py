@@ -273,6 +273,26 @@ def showMemes(update, context):
         pass
 
 
+def twitch(update, context):
+    fID = update.message.video.file_id
+    update.message.reply_text(fID)
+    cursor.execute('INSERT INTO clips (id) VALUES (%s)', (fID,))
+    conn.commit()
+
+
+def showTwitch(update, context):
+    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+    banned = cursor.fetchone()
+    if '0' in str(banned[0]):
+        link = '<a href="https://t.me/joinchat/AAAAAFRfDfSuEFKo3t7PEQ">@vsratwitch</a>'
+        fCap = f"Лучшие моменты <b>Twitch</b>'a: {link}"
+        cursor.execute('SELECT id FROM clips ORDER BY random() LIMIT 1')
+        clip = cursor.fetchone()
+        context.bot.send_video(chat_id=update.message.chat_id, video=clip[0], caption=fCap, parse_mode='HTML')
+    else:
+        pass
+
+
 def start(update, context):
     """Send a message when the command /start is issued."""
     ids = update.message.from_user.id
@@ -329,6 +349,23 @@ def start(update, context):
                         conn.commit()
                         update.message.reply_text('Задание выполнено! (+1000 монет)')
                         logger.info('Sub mem_hunter')
+                    else:
+                        update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                except:
+                    update.message.reply_text('Что-то пошло не так.')
+            else:
+                update.message.reply_text('Вы уже получали монеты за это задание!')
+        elif text == 'nvmrstuff':
+            cursor.execute('SELECT nvmr FROM users WHERE id = %s', (ids,))
+            subscribed = cursor.fetchone()
+            if none in str(subscribed[0]):
+                try:
+                    member = context.bot.get_chat_member('@nvmrstuff', ids)
+                    if member.status in memberslist:
+                        cursor.execute('UPDATE users SET exp = exp + 1000, nvmr = %s WHERE id = %s', (ids, ids,))
+                        conn.commit()
+                        update.message.reply_text('Задание выполнено! (+1000 монет)')
+                        logger.info('Sub nvmr')
                     else:
                         update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
                 except:
@@ -578,7 +615,9 @@ def tip(update, context):
     if '0' in str(banned[0]):
         try:
             target = update.message.reply_to_message.from_user.id
+            tName = update.message.reply_to_message.from_user.full_name
             ids = update.message.from_user.id
+            iName = update.message.from_user.full_name
             cursor.execute('SELECT id FROM users')
             members = cursor.fetchall()
             if (str(ids) in str(members)) and (str(target) in str(members)):
@@ -605,7 +644,7 @@ def tip(update, context):
                     cursor.execute('UPDATE users SET exp = exp - %s, total_tipped = total_tipped + %s WHERE id = %s', (amount, amount, ids,))
                     cursor.execute('UPDATE users SET exp = exp + %s, total_recieved = total_recieved + %s WHERE id = %s', (amount, amount, target,))
                     conn.commit()
-                    update.message.reply_text('Перевод успешно выполнен!')
+                    update.message.reply_text(f'<code>{iName}</code> успешно переводит <code>{tName}</code> <b>{amount}</b> монет.', parse_mode='HTML')
             else:
                 update.message.reply_text('Ошибка! Перевод возможен только если оба пользователя присутствуют в базе данных.')
         except:
@@ -880,13 +919,16 @@ def freecoins(update, context):
 <a href="https://t.me/clownfiestabot?start=theclownfiesta">Проверить</a>
 
 3. Подписка на @mem_hunter: 1000 монет.
-<a href="https://t.me/clownfiestabot?start=mem_hunter">Проверить</a>''', parse_mode='HTML', disable_web_page_preview=True)
+<a href="https://t.me/clownfiestabot?start=mem_hunter">Проверить</a>
+
+4. Подписка на личный канал разработчика @nvmrstuff: 1000 монет.
+<a href="https://t.me/clownfiestabot?start=nvmrstuff">Проверить</a>''', parse_mode='HTML', disable_web_page_preview=True)
 
 
 def substats(update, context):
-    cursor.execute('SELECT COUNT(DISTINCT vt), COUNT(DISTINCT thecf), COUNT(DISTINCT mh) FROM users')
+    cursor.execute('SELECT COUNT(DISTINCT vt), COUNT(DISTINCT thecf), COUNT(DISTINCT mh), COUNT(DISTINCT nvmr) FROM users')
     subs = cursor.fetchone()
-    update.message.reply_text(f'Кол-во привлечённых подписчиков:\n<a href="https://t.me/joinchat/AAAAAFRfDfSuEFKo3t7PEQ">@vsratwitch</a>: {subs[0]}\n@theclownfiesta: {subs[1]}\n@mem_hunter: {subs[2]}', parse_mode='HTML', disable_web_page_preview=True)
+    update.message.reply_text(f'Кол-во привлечённых подписчиков:\n<a href="https://t.me/joinchat/AAAAAFRfDfSuEFKo3t7PEQ">@vsratwitch</a>: {subs[0]}\n@theclownfiesta: {subs[1]}\n@mem_hunter: {subs[2]}\n@nvmrstuff: {subs[3]}', parse_mode='HTML', disable_web_page_preview=True)
 
 
 def donate(update, context):
@@ -925,6 +967,7 @@ def main():
     dp.add_handler(CommandHandler('donate', donate))
     dp.add_handler(CommandHandler('nya', showPussy))
     dp.add_handler(CommandHandler('memepls', showMemes))
+    dp.add_handler(CommandHandler('vsratwitch', showTwitch))
     dp.add_handler(CommandHandler('balance', babki))
     dp.add_handler(CommandHandler('stats', stats))
     dp.add_handler(CommandHandler('ban', ban))
@@ -941,6 +984,7 @@ def main():
     dp.add_handler(MessageHandler(Filters.group, echo))
     dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte")), pussy))
     dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@balak_in") | Filters.user(username="@aotkh")), memes))
+    dp.add_handler(MessageHandler(Filters.video & (~Filters.group) & Filters.user(username="@daaetoya"), twitch))
     dp.add_handler(MessageHandler(Filters.document & (~Filters.group) & Filters.user(username="@daaetoya"), hGif))
     dp.add_handler(CallbackQueryHandler(button))
     dp.add_error_handler(error)
