@@ -284,8 +284,7 @@ def showTwitch(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
-        link = '<a href="https://t.me/joinchat/AAAAAFRfDfSuEFKo3t7PEQ">@vsratwitch</a>'
-        fCap = f"Лучшие моменты <b>Twitch</b>'a: {link}"
+        fCap = "Лучшие моменты <b>Twitch</b>'a: @vsratwitch"
         cursor.execute('SELECT id FROM clips ORDER BY random() LIMIT 1')
         clip = cursor.fetchone()
         context.bot.send_video(chat_id=update.message.chat_id, video=clip[0], caption=fCap, parse_mode='HTML')
@@ -912,7 +911,7 @@ def qHelp(update, context):
 
 
 def freecoins(update, context):
-    update.message.reply_text('''1. Подписка на <a href="https://t.me/joinchat/AAAAAFRfDfSuEFKo3t7PEQ">@vsratwitch</a>: 1000 монет.
+    update.message.reply_text('''1. Подписка на @vsratwitch: 1000 монет.
 <a href="https://t.me/clownfiestabot?start=vsratwitch">Проверить</a>
 
 2. Подписка на @theclownfiesta: 1000 монет + повышеный лимит (до 10к) на переводы и ставки.
@@ -928,7 +927,7 @@ def freecoins(update, context):
 def substats(update, context):
     cursor.execute('SELECT COUNT(DISTINCT vt), COUNT(DISTINCT thecf), COUNT(DISTINCT mh), COUNT(DISTINCT nvmr) FROM users')
     subs = cursor.fetchone()
-    update.message.reply_text(f'Кол-во привлечённых подписчиков:\n<a href="https://t.me/joinchat/AAAAAFRfDfSuEFKo3t7PEQ">@vsratwitch</a>: {subs[0]}\n@theclownfiesta: {subs[1]}\n@mem_hunter: {subs[2]}\n@nvmrstuff: {subs[3]}', parse_mode='HTML', disable_web_page_preview=True)
+    update.message.reply_text(f'Кол-во привлечённых подписчиков:\n@vsratwitch: {subs[0]}\n@theclownfiesta: {subs[1]}\n@mem_hunter: {subs[2]}\n@nvmrstuff: {subs[3]}', parse_mode='HTML', disable_web_page_preview=True)
 
 
 def donate(update, context):
