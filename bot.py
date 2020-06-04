@@ -284,7 +284,7 @@ def showTwitch(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
-        fCap = "Лучшие моменты <b>Twitch</b>'a: @vsratwitch"
+        fCap = "Лучшие моменты <b>Twitch</b>'a: @osuzhdaiu"
         cursor.execute('SELECT id FROM clips ORDER BY random() LIMIT 1')
         clip = cursor.fetchone()
         context.bot.send_video(chat_id=update.message.chat_id, video=clip[0], caption=fCap, parse_mode='HTML')
@@ -303,7 +303,7 @@ def start(update, context):
             text = context.args[0]
         except:
             update.message.reply_text('Meow')
-        if text == 'vsratwitch':
+        if text == 'osuzhdaiu':
             cursor.execute('SELECT vt FROM users WHERE id = %s', (ids,))
             subscribed = cursor.fetchone()
             if none in str(subscribed[0]):
@@ -313,7 +313,7 @@ def start(update, context):
                         cursor.execute('UPDATE users SET exp = exp + 1000, vt = %s WHERE id = %s', (ids, ids,))
                         conn.commit()
                         update.message.reply_text('Задание выполнено! (+1000 монет)')
-                        logger.info('Sub vsratwitch')
+                        logger.info('Sub osuzhdaiu')
                     else:
                         update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
                 except:
@@ -911,8 +911,8 @@ def qHelp(update, context):
 
 
 def freecoins(update, context):
-    update.message.reply_text('''1. Подписка на @vsratwitch: 1000 монет.
-<a href="https://t.me/clownfiestabot?start=vsratwitch">Проверить</a>
+    update.message.reply_text('''1. Подписка на @osuzhdaiu: 1000 монет.
+<a href="https://t.me/clownfiestabot?start=osuzhdaiu">Проверить</a>
 
 2. Подписка на @theclownfiesta: 1000 монет + повышеный лимит (до 10к) на переводы и ставки.
 <a href="https://t.me/clownfiestabot?start=theclownfiesta">Проверить</a>
@@ -927,7 +927,7 @@ def freecoins(update, context):
 def substats(update, context):
     cursor.execute('SELECT COUNT(DISTINCT vt), COUNT(DISTINCT thecf), COUNT(DISTINCT mh), COUNT(DISTINCT nvmr) FROM users')
     subs = cursor.fetchone()
-    update.message.reply_text(f'Кол-во привлечённых подписчиков:\n@vsratwitch: {subs[0]}\n@theclownfiesta: {subs[1]}\n@mem_hunter: {subs[2]}\n@nvmrstuff: {subs[3]}', parse_mode='HTML', disable_web_page_preview=True)
+    update.message.reply_text(f'Кол-во привлечённых подписчиков:\n@osuzhdaiu: {subs[0]}\n@theclownfiesta: {subs[1]}\n@mem_hunter: {subs[2]}\n@nvmrstuff: {subs[3]}', parse_mode='HTML', disable_web_page_preview=True)
 
 
 def donate(update, context):
@@ -966,7 +966,7 @@ def main():
     dp.add_handler(CommandHandler('donate', donate))
     dp.add_handler(CommandHandler('nya', showPussy))
     dp.add_handler(CommandHandler('memepls', showMemes))
-    dp.add_handler(CommandHandler('vsratwitch', showTwitch))
+    dp.add_handler(CommandHandler('osuzhdaiu', showTwitch))
     dp.add_handler(CommandHandler('balance', babki))
     dp.add_handler(CommandHandler('stats', stats))
     dp.add_handler(CommandHandler('ban', ban))
