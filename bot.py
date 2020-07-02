@@ -44,15 +44,24 @@ def cancel(update, context):
     return ConversationHandler.END
 
 
+def delete(update, context):
+    cursor.execute('DELETE FROM users WHERE id = %s', (update.message.from_user.id,))
+    conn.commit()
+    update.message.reply_text('Готово.')
+
+
 def start(update, context):
     ids = update.message.from_user.id
-    try:
+    cursor.execute('SELECT id FROM users')
+    users = cursor.fetchall()
+    if str(ids) in str(users):
+        pass
+        logger.info('reg pass')
+    else:
         name = update.message.from_user.full_name
         cursor.execute('INSERT INTO users (id, name) VALUES (%s, %s)', (ids, name,))
         conn.commit()
         logger.info(f'New user: {name}')
-    except:
-        pass
     date = pst_now.strftime("%d.%m.%Y")
     cursor.execute('SELECT last_date FROM users WHERE id = %s', (ids,))
     lastDate = cursor.fetchone()
@@ -62,7 +71,7 @@ def start(update, context):
         update.message.reply_text(
         'Привет! Участвуешь в челлендже?\nТогда ответь на несколько вопросов :) 👇\n\n'
         '<b>Вопрос #1.</b> Сколько метров ты сегодня проплыл(-а)?\n-----------------------\n'
-        f'Дата прохождения: <b>{date}</b>\n\n/skip - Пропустить вопрос.\n/cancel - Отмена.\n\n'
+        f'Дата прохождения: <b>{date}</b>\n\n/skip - Пропустить вопрос (тренировки не было).\n/cancel - Отмена (заполню позже).\n\n'
         'В случае ошибки, отмени диалог с ботом и начни заново - /start.', parse_mode='HTML')
         logger.info(f'{date} - {lastDate}')
 
@@ -145,7 +154,7 @@ def run_prove(update, context):
     update.message.reply_text(f'Отлично! 👌\nВаш результат: <code>{result}</code> ⭐', parse_mode='HTML')
     context.bot.forward_message(chat_id='@mission226contest', from_chat_id=update.message.chat_id, message_id=update.message.message_id)
     context.bot.send_message(chat_id='@mission226contest', text=f'🏃‍♂️🏃‍♀️: <b>{update.message.from_user.full_name}</b>\nРезультат: <code>{result}</code> ⭐', parse_mode='HTML')
-    cursor.execute('UPDATE users SET pts = pts + %s, last_date = %s', (result, date,))
+    cursor.execute('UPDATE users SET pts = pts + %s, last_date = %s WHERE id = %s', (result, date, update.message.from_user.id,))
     conn.commit()
 
     return ConversationHandler.END
@@ -160,18 +169,21 @@ def skip_run(update, context):
     date = pst_now.strftime("%d.%m.%Y")
     update.message.reply_text(f'Пропускаем :(\n\nВаш результат: {result}.')
     context.bot.send_message(chat_id='@mission226contest', text=f'🏃‍♂️🏃‍♀️: <b>{update.message.from_user.full_name}</b>\nРезультат: <code>{result}</code> ⭐', parse_mode='HTML')
-    cursor.execute('UPDATE users SET pts = pts + %s, last_date = %s', (result, date,))
+    cursor.execute('UPDATE users SET pts = pts + %s, last_date = %s WHERE id = %s', (result, date, update.message.from_user.id,))
     conn.commit()
 
     return ConversationHandler.END
 
 
 def info(update, context):
-	cursor.execute('SELECT pts, last_date, rank() OVER (ORDER BY pts DESC) FROM users WHERE id = %s', (update.message.from_user.id,))
-	info = cursor.fetchone()
-	cursor.execute('SELECT COUNT(*) FROM users')
-	users = cursor.fetchone()
-	update.message.reply_text(f'⭐ Результат: {info[0]}\n📅 Последняя запись: {info[1]}\n🌐 Позиция в рейтинге: {info[2]} из {users[0]}')
+    try:
+        cursor.execute('SELECT pts, last_date, rank() OVER (ORDER BY pts DESC) FROM users WHERE id = %s', (update.message.from_user.id,))
+        info = cursor.fetchone()
+        cursor.execute('SELECT COUNT(*) FROM users')
+        users = cursor.fetchone()
+        update.message.reply_text(f'⭐ Результат: {info[0]}\n📅 Последняя запись: {info[1]}\n🌐 Позиция в рейтинге: {info[2]} из {users[0]}')
+    except:
+        update.message.reply_text('Пользователь отсутствует в базе данных.')
 
 
 def main():
@@ -209,6 +221,7 @@ def main():
 
     dp.add_handler(conv_handler)
 
+    dp.add_handler(CommandHandler('del', delete))
     dp.add_handler(CommandHandler('info', info))
 
     # Start the Bot
