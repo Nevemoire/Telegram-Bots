@@ -14,10 +14,17 @@ bot.
 """
 
 import logging
+import datetime
+import pytz
+import psycopg2
 
-from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
+
+from telegram import ParseMode
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
+
+utc_now = pytz.utc.localize(datetime.datetime.utcnow())
+pst_now = utc_now.astimezone(pytz.timezone("Europe/Moscow"))
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -27,6 +34,8 @@ logger = logging.getLogger(__name__)
 
 SWIM, RUN, BIKE, SWIM_PROVE, RUN_PROVE, BIKE_PROVE, = range(6)
 
+conn = psycopg2.connect(dbname = 'daqpsemmol11kn', user = 'fnwjyuhqrjdbcv', password = '4ae63588868e2423ddb7cc3bd4e71ae5892179b86dca5a90272b747aa933bac9', host = 'ec2-46-137-75-170.eu-west-1.compute.amazonaws.com')
+cursor = conn.cursor()
 
 
 def cancel(update, context):
@@ -36,12 +45,31 @@ def cancel(update, context):
 
 
 def start(update, context):
-    update.message.reply_text(
+    ids = update.message.from_user.id
+    cursor.execute('SELECT id FROM users')
+    users = cursor.fetchone()
+    if str(ids) in str(users):
+        pass
+        logger.info('reg pass')
+    else:
+        name = update.message.from_user.full_name
+        cursor.execute('INSERT INTO users (id, name) VALUES (%s, %s)', (ids, name,))
+        conn.commit()
+        logger.info(f'New user: {name}')
+    date = pst_now.strftime("%d.%m.%Y")
+    cursor.execute('SELECT last_date FROM users WHERE id = %s', (ids,))
+    lastDate = cursor.fetchone()
+    if str(date) in str(lastDate):
+        update.message.reply_text('Ты уже участвовал(-а) сегодня! Возвращайся завтра.')
+    else:
+        update.message.reply_text(
         'Привет! Участвуешь в челлендже?\nТогда ответь на несколько вопросов :) 👇\n\n'
-        'Вопрос #1. Сколько метров ты сегодня проплыл(-а)?\n\n/skip - если ты сегодня не плавал(-а).\n\n'
-        'В случае ошибки, нажми /cancel для отмены и начни заново (/start).')
+        '<b>Вопрос #1.</b> Сколько метров ты сегодня проплыл(-а)?\n-----------------------\n'
+        f'Дата прохождения: <b>{date}</b>\n\n/skip - Пропустить вопрос.\n/cancel - Отмена.\n\n'
+        'В случае ошибки, отмени диалог с ботом и начни заново - /start.', parse_mode='HTML')
+        logger.info(f'{date} - {lastDate}')
 
-    return SWIM
+        return SWIM
 
 
 def swim(update, context):
@@ -58,8 +86,15 @@ def swim(update, context):
 
 
 def swim_prove(update, context):
-    update.message.reply_text('Запомнили! 👌\nВопрос #2. Сколько метров ты сегодня накрутил(-а) на велосипеде?\n\n/skip - если ты сегодня не ездил(-а) на велосипеде.')
+    update.message.reply_text('Запомнили! 👌\n<b>Вопрос #2.</b> Сколько метров ты сегодня накрутил(-а) на велосипеде?\n-----------------------\n/skip - Пропустить вопрос.\n/cancel - Отмена.', parse_mode='HTML')
     context.bot.forward_message(chat_id='@mission226contest', from_chat_id=update.message.chat_id, message_id=update.message.message_id)
+
+    return BIKE
+
+
+def skip_swim(update, context):
+    update.message.reply_text('Пропускаем :(\n\n<b>Вопрос #2.</b> Сколько метров ты сегодня накрутил(-а) на велосипеде?\n-----------------------\n/skip - Пропустить вопрос.\n/cancel - Отмена.', parse_mode='HTML')
+    context.user_data['swim'] = 0
 
     return BIKE
 
@@ -78,8 +113,15 @@ def bike(update, context):
 
 
 def bike_prove(update, context):
-    update.message.reply_text('Запомнили! 👌\nВопрос #3. Сколько метров ты сегодня пробежал(-а)?\n\n/skip - если ты сегодня не бегал(-а).')
+    update.message.reply_text('Запомнили! 👌\n<b>Вопрос #3.</b> Сколько метров ты сегодня пробежал(-а)?\n-----------------------\n/skip - Пропустить вопрос.\n/cancel - Отмена.', parse_mode='HTML')
     context.bot.forward_message(chat_id='@mission226contest', from_chat_id=update.message.chat_id, message_id=update.message.message_id)
+
+    return RUN
+
+
+def skip_bike(update, context):
+    update.message.reply_text('Пропускаем :(\n\n<b>Вопрос #3.</b> Сколько метров ты сегодня пробежал(-а)?\n-----------------------\n/skip - Пропустить вопрос.\n/cancel - Отмена.', parse_mode='HTML')
+    context.user_data['bike'] = 0
 
     return RUN
 
@@ -102,25 +144,14 @@ def run_prove(update, context):
     run = context.user_data['run']
     bike = context.user_data['bike']
     result = int(swim) * 6 + int(run) * 2 + int(bike)
-    update.message.reply_text(f'Отлично! 👌\nВаш результат: {result} ⭐')
+    date = pst_now.strftime("%d.%m.%Y")
+    update.message.reply_text(f'Отлично! 👌\nВаш результат: <code>{result}</code> ⭐', parse_mode='HTML')
     context.bot.forward_message(chat_id='@mission226contest', from_chat_id=update.message.chat_id, message_id=update.message.message_id)
-    context.bot.send_message(chat_id='@mission226contest', text=f'Пользователь {update.message.from_user.full_name} показывает результат {result} ⭐')
+    context.bot.send_message(chat_id='@mission226contest', text=f'🏃‍♂️🏃‍♀️: <b>{update.message.from_user.full_name}</b>\nРезультат: <code>{result}</code> ⭐', parse_mode='HTML')
+    cursor.execute('UPDATE users SET pts = pts + %s, last_date = %s', (result, date,))
+    conn.commit()
 
     return ConversationHandler.END
-
-
-def skip_swim(update, context):
-    update.message.reply_text('Пропускаем :(\nВопрос #2. Сколько метров ты сегодня накрутил(-а) на велосипеде?\n\n/skip - если ты сегодня не ездил(-а) на велосипеде.')
-    context.user_data['swim'] = 0
-
-    return BIKE
-
-
-def skip_bike(update, context):
-    update.message.reply_text('Пропускаем :(\nВопрос #3. Сколько метров ты сегодня пробежал(-а)?\n\n/skip - если ты сегодня не бегал(-а).')
-    context.user_data['bike'] = 0
-
-    return RUN
 
 
 def skip_run(update, context):
@@ -129,10 +160,21 @@ def skip_run(update, context):
     run = context.user_data['run']
     bike = context.user_data['bike']
     result = int(swim) * 6 + int(run) * 2 + int(bike)
-    update.message.reply_text(f'Пропускаем :(\nВаш результат: {result}.')
-    context.bot.send_message(chat_id='@mission226contest', text=f'Пользователь {update.message.from_user.full_name} показывает результат {result} ⭐')
+    date = pst_now.strftime("%d.%m.%Y")
+    update.message.reply_text(f'Пропускаем :(\n\nВаш результат: {result}.')
+    context.bot.send_message(chat_id='@mission226contest', text=f'🏃‍♂️🏃‍♀️: <b>{update.message.from_user.full_name}</b>\nРезультат: <code>{result}</code> ⭐', parse_mode='HTML')
+    cursor.execute('UPDATE users SET pts = pts + %s, last_date = %s', (result, date,))
+    conn.commit()
 
     return ConversationHandler.END
+
+
+def info(update, context):
+	cursor.execute('SELECT pts, last_date, rank() OVER (ORDER BY pts DESC) FROM users WHERE id = %s', (update.message.from_user.id,))
+	info = cursor.fetchone()
+	cursor.execute('SELECT COUNT(*) FROM users')
+	users = cursor.fetchone()
+	update.message.reply_text(f'⭐ Результат: {info[0]}\n📅 Последняя запись: {info[1]}\n🌐 Позиция в рейтинге: {info[2]} из {users[0]}')
 
 
 def main():
@@ -169,6 +211,8 @@ def main():
     )
 
     dp.add_handler(conv_handler)
+
+    dp.add_handler(CommandHandler('info', info))
 
     # Start the Bot
     updater.start_polling()
