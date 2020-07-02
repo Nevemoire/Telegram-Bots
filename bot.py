@@ -46,16 +46,13 @@ def cancel(update, context):
 
 def start(update, context):
     ids = update.message.from_user.id
-    cursor.execute('SELECT id FROM users')
-    users = cursor.fetchone()
-    if str(ids) in str(users):
-        pass
-        logger.info('reg pass')
-    else:
+    try:
         name = update.message.from_user.full_name
         cursor.execute('INSERT INTO users (id, name) VALUES (%s, %s)', (ids, name,))
         conn.commit()
         logger.info(f'New user: {name}')
+    except:
+        pass
     date = pst_now.strftime("%d.%m.%Y")
     cursor.execute('SELECT last_date FROM users WHERE id = %s', (ids,))
     lastDate = cursor.fetchone()
