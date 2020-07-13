@@ -443,73 +443,72 @@ def checkquery(update, context):
         #     query.answer(results, cache_time=0, is_personal=True)
 
 
-# def bets(update, context):
-#     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
-#     banned = cursor.fetchone()
-#     if '0' in str(banned[0]):
-#         ids = update.message.from_user.id
-#         cursor.execute('SELECT id FROM users')
-#         members = cursor.fetchall()
-#         if str(ids) in str(members):
-#             cursor.execute('SELECT exp, bet FROM users WHERE id = %s', (update.message.from_user.id,))
-#             betinfo = cursor.fetchone()
-#             balance = int(betinfo[0])
-#             bet = int(betinfo[1])
-#             dice = update.message.dice.value
-#             if bet == 0:
-#                 pass
-#             else:
-#                 if balance >= bet:
-#                     if dice <= 3:
-#                         update.message.reply_text(f'Проигрыш! (-{bet} монет)\nРезультат: {dice}')
-#                         cursor.execute('UPDATE users SET exp = exp - %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
-#                         conn.commit()
-#                     elif dice > 3:
-#                         update.message.reply_text(f'Выигрыш! (+{bet} монет)\nРезультат: {dice}')
-#                         cursor.execute('UPDATE users SET exp = exp + %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
-#                         conn.commit()
-#                     else:
-#                         update.message.reply_text('Произошла ошибка, попробуй позже!')
-#                 elif balance < bet:
-#                     update.message.reply_text('Недостаточно монет!')
-#                 else:
-#                     update.message.reply_text('Произошла ошибка, попробуй позже!')
-#         else:
-#             update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
-#     else:
+def bets(update, context):
+    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+    banned = cursor.fetchone()
+    if '0' in str(banned[0]):
+        ids = update.message.from_user.id
+        cursor.execute('SELECT id FROM users')
+        members = cursor.fetchall()
+        if str(ids) in str(members):
+            cursor.execute('SELECT exp, bet FROM users WHERE id = %s', (update.message.from_user.id,))
+            betinfo = cursor.fetchone()
+            balance = int(betinfo[0])
+            bet = int(betinfo[1])
+            dice = update.message.dice.value
+            if bet == 0:
+                pass
+            else:
+                if balance >= bet:
+                    if dice <= 3:
+                        update.message.reply_text(f'Проигрыш! (-{bet} монет)\nРезультат: {dice}')
+                        cursor.execute('UPDATE users SET exp = exp - %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
+                        conn.commit()
+                    elif dice > 3:
+                        update.message.reply_text(f'Выигрыш! (+{bet} монет)\nРезультат: {dice}')
+                        cursor.execute('UPDATE users SET exp = exp + %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
+                        conn.commit()
+                    else:
+                        update.message.reply_text('Произошла ошибка, попробуй позже!')
+                elif balance < bet:
+                    update.message.reply_text('Недостаточно монет!')
+                else:
+                    update.message.reply_text('Произошла ошибка, попробуй позже!')
+        else:
+            update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
+    else:
 #         pass
 
 
 def setBet(update, context):
-    update.message.reply_text('Ставки больше недоступны! Скоро будет анонс замены, следите за новостями здесь: @theClownfiesta')
-    # update.message.reply_text('Ставки и всё что с ними связано теперь здесь: @NevermoreBets.\nСовершенно новый, уникальный, неповторимый экспириенс в телеграмме, залетайте!')
-    # cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
-    # banned = cursor.fetchone()
-    # if '0' in str(banned[0]):
-    #     ids = update.message.from_user.id
-    #     cursor.execute('SELECT id FROM users')
-    #     members = cursor.fetchall()
-    #     if str(ids) in str(members):
-    #         member = context.bot.get_chat_member(channel_username, ids)
-    #         if member.status in memberslist:
-    #             maxBet = 10000
-    #         else:
-    #             maxBet = 1000
-    #         user_says = context.args
-    #         try:
-    #             bet = int(user_says[0])
-    #             if (bet == 0) or (bet >= 10) and (bet <= maxBet):
-    #                 cursor.execute('UPDATE users SET bet = %s WHERE id = %s', (bet, ids,))
-    #                 conn.commit()
-    #                 update.message.reply_text('Готово! Чтобы сделать ставку, пришли в чат этот эмодзи: 🎲')
-    #             else:
-    #                 update.message.reply_text(f'Недопустимое значение!\nМин. ставка: 10 монет\nМакс. ставка: 1000 монет или 10.000 монет для подписчиков: {channel_username}\nЧтобы отключить ставки, напиши: /bet 0')
-    #         except:
-    #             update.message.reply_text('Пришли мне команду в формате:\n/bet <ЧИСЛО>,\n\nгде <ЧИСЛО> - сумма ставки.\nОтключить ставки: /bet 0')
-    #     else:
-    #         update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
-    # else:
-    #     pass
+    update.message.reply_text('Ставки и всё что с ними связано теперь здесь: @NevermoreBets.\nСовершенно новый, уникальный, неповторимый экспириенс в телеграмме, залетайте!')
+    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+    banned = cursor.fetchone()
+    if '0' in str(banned[0]):
+        ids = update.message.from_user.id
+        cursor.execute('SELECT id FROM users')
+        members = cursor.fetchall()
+        if str(ids) in str(members):
+            member = context.bot.get_chat_member(channel_username, ids)
+            if member.status in memberslist:
+                maxBet = 10000
+            else:
+                maxBet = 1000
+            user_says = context.args
+            try:
+                bet = int(user_says[0])
+                if (bet == 0) or (bet >= 10) and (bet <= maxBet):
+                    cursor.execute('UPDATE users SET bet = %s WHERE id = %s', (bet, ids,))
+                    conn.commit()
+                    update.message.reply_text('Готово! Чтобы сделать ставку, пришли в чат этот эмодзи: 🎲')
+                else:
+                    update.message.reply_text(f'Недопустимое значение!\nМин. ставка: 10 монет\nМакс. ставка: 1000 монет или 10.000 монет для подписчиков: {channel_username}\nЧтобы отключить ставки, напиши: /bet 0')
+            except:
+                update.message.reply_text('Пришли мне команду в формате:\n/bet <ЧИСЛО>,\n\nгде <ЧИСЛО> - сумма ставки.\nОтключить ставки: /bet 0')
+        else:
+            update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
+    else:
+        pass
 
 
 def pidor(update, context):
@@ -974,7 +973,7 @@ def main():
     dp.add_handler(CommandHandler('freecoins', freecoins))
     dp.add_handler(CommandHandler('substats', substats, filters=Filters.user(username="@daaetoya")))
     dp.add_handler(CommandHandler('message', message))
-    # dp.add_handler(MessageHandler((Filters.dice & (~Filters.forwarded)), bets))
+    dp.add_handler(MessageHandler((Filters.dice & (~Filters.forwarded)), bets))
     dp.add_handler(CommandHandler('bet', setBet, pass_args=True))
     dp.add_handler(CommandHandler('tip', tip, pass_args=True))
     dp.add_handler(CommandHandler('help', qHelp))
