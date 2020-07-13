@@ -477,7 +477,7 @@ def bets(update, context):
         else:
             update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
     else:
-#         pass
+        pass
 
 
 def setBet(update, context):
