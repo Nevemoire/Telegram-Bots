@@ -481,7 +481,7 @@ def bets(update, context):
 
 
 def setBet(update, context):
-    update.message.reply_text('Ставки и всё что с ними связано теперь здесь: @NevermoreBets.\nСовершенно новый, уникальный, неповторимый экспириенс в телеграмме, залетайте!')
+    # update.message.reply_text('Ставки и всё что с ними связано теперь здесь: @NevermoreBets.\nСовершенно новый, уникальный, неповторимый экспириенс в телеграмме, залетайте!')
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
