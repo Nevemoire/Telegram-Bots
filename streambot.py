@@ -81,13 +81,13 @@ def message(update, context):
     keyboard = [[InlineKeyboardButton("Обсудить 🙋", url="t.me/swtfchat")], [InlineKeyboardButton("Наш канал", url="t.me/streamerswtf")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     s = update.message.text
-    cursor.execute('SELECT id FROM chats')
+    cursor.execute('SELECT id FROM newChats')
     ids = cursor.fetchall()
-    for chats in ids:
+    for newChats in ids:
         try:
-            context.bot.send_message(chat_id=chats[0], text=s.split(' ', 1)[1], reply_markup=reply_markup)
+            context.bot.send_message(chat_id=newChats[0], text=s.split(' ', 1)[1], reply_markup=reply_markup)
         except:
-            cursor.execute("UPDATE chats SET unable = 1 WHERE id = %s", (chats[0],))
+            cursor.execute("UPDATE newChats SET unable = 1 WHERE id = %s", (newChats[0],))
 
 
 @restricted
@@ -99,19 +99,19 @@ def compensate(update, context):
 
 @restricted
 def stats(update, context):
-    cursor.execute('SELECT id from chats')
+    cursor.execute('SELECT id from newChats')
     ids = cursor.fetchall() 
-    for chats in ids:
+    for newChats in ids:
         try:
-            chatUsers = context.bot.get_chat_members_count(chats[0])
-            cursor.execute('UPDATE chats SET users = %s WHERE id = %s', (chatUsers, chats[0],))
+            chatUsers = context.bot.get_chat_members_count(newChats[0])
+            cursor.execute('UPDATE newChats SET users = %s WHERE id = %s', (chatUsers, newChats[0],))
             conn.commit()
         except:
-            cursor.execute('UPDATE chats SET unable = 2 WHERE id = %s', (chats[0],))
+            cursor.execute('UPDATE newChats SET unable = 2 WHERE id = %s', (newChats[0],))
             conn.commit()
     cursor.execute('SELECT COUNT(id) FROM users')
     allUsers = cursor.fetchone()
-    cursor.execute('SELECT COUNT(id), SUM(users) FROM chats')
+    cursor.execute('SELECT COUNT(id), SUM(users) FROM newChats')
     info = cursor.fetchone()
     update.message.reply_text(f'Всего чатов: {info[0]}\nВсего участников: {info[1]}\nАктивных участников: {allUsers[0]}')
 
@@ -154,26 +154,26 @@ def new_user(update, context):
     for member in update.message.new_chat_members:
         if member.id != context.bot.get_me().id:
             logger.info('hey user')
-            cursor.execute('SELECT id FROM hello ORDER BY random() LIMIT 1')
+            cursor.execute('SELECT id FROM newHello ORDER BY random() LIMIT 1')
             hgif = cursor.fetchall()
-            hello = hgif[0]
-            context.bot.send_animation(chat_id=update.message.chat_id, animation=hello[0], caption=f'Здарова, {update.message.from_user.full_name}!')
+            newHello = hgif[0]
+            context.bot.send_animation(chat_id=update.message.chat_id, animation=newHello[0], caption=f'Здарова, {update.message.from_user.full_name}!')
         elif member.id == context.bot.get_me().id:
             logger.info('hey chat')
             userscount = context.bot.get_chat_members_count(update.message.chat.id)
             name = update.message.chat.title
             chatid = update.message.chat_id
-            cursor.execute('SELECT id FROM chats')
-            chats = cursor.fetchall()
-            if str(chatid) in str(chats):
+            cursor.execute('SELECT id FROM newChats')
+            newChats = cursor.fetchall()
+            if str(chatid) in str(newChats):
                 logger.info('here we go again...')
                 update.message.reply_text('Мне кажется, или я уже был в этом чате? Осуждаю.\n\nЛадно, ладно. Я не злопамятный, можем начать всё с чистого листа.')
-                cursor.execute('UPDATE chats SET name = %s, users = %s, unable = 0 WHERE id = %s', (name, userscount, chatid,))
+                cursor.execute('UPDATE newChats SET name = %s, users = %s, unable = 0 WHERE id = %s', (name, userscount, chatid,))
                 context.bot.send_message(chat_id=391206263, text=f'Бота снова добавили в {name} ({userscount})!')
                 conn.commit()
-            elif str(chatid) not in str(chats):
+            elif str(chatid) not in str(newChats):
                 logger.info('hola amigos')
-                cursor.execute('INSERT INTO chats (id, users, name) VALUES (%s, %s, %s)', (chatid, userscount, name,))
+                cursor.execute('INSERT INTO newChats (id, users, name) VALUES (%s, %s, %s)', (chatid, userscount, name,))
                 context.bot.send_message(chat_id=391206263, text=f'Бота добавили в {name} ({userscount})!')
                 update.message.reply_text("""
 Всем пис в этом чатике!
@@ -210,44 +210,15 @@ def krokoreload(context):
 def hGif(update, context):
     fID = update.message.document.file_id
     update.message.reply_text(fID)
-    cursor.execute('INSERT INTO hello (id) VALUES (%s)', (fID,))
+    cursor.execute('INSERT INTO newHello (id) VALUES (%s)', (fID,))
     conn.commit()
     logger.info('New hi gif')
-
-
-def pussy(update, context):
-    try:
-        fID = update.message.photo[-1].file_id
-        fType = "photo"
-    except:
-        fID = update.message.document.file_id
-        fType = "gif"
-    update.message.reply_text(f'{fID} ({fType})')
-    cursor.execute('INSERT INTO pussy (id, type) VALUES (%s, %s)', (fID, fType,))
-    conn.commit()
-
-
-def showPussy(update, context):
-    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
-    banned = cursor.fetchone()
-    if '0' in str(banned[0]):
-        cursor.execute('SELECT id, type FROM pussy ORDER BY random() LIMIT 1')
-        pussy = cursor.fetchall()
-        pussies = pussy[0]
-        if pussies[1] == 'photo':
-            context.bot.send_photo(chat_id=update.message.chat_id, photo=pussies[0], caption='@streamerswtf')
-        elif pussies[1] == 'gif':
-            context.bot.send_animation(chat_id=update.message.chat_id, animation=pussies[0], caption='@streamerswtf')
-        else:
-            logger.info('GIF/PHOTO ERROR')
-    else:
-        pass
 
 
 def twitch(update, context):
     fID = update.message.video.file_id
     update.message.reply_text(fID)
-    cursor.execute('INSERT INTO clips (id) VALUES (%s)', (fID,))
+    cursor.execute('INSERT INTO newClips (id) VALUES (%s)', (fID,))
     conn.commit()
 
 
@@ -256,7 +227,7 @@ def showTwitch(update, context):
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         fCap = "Лучшие моменты <b>Twitch</b>'a: @osuzhdaiu"
-        cursor.execute('SELECT id FROM clips ORDER BY random() LIMIT 1')
+        cursor.execute('SELECT id FROM newClips ORDER BY random() LIMIT 1')
         clip = cursor.fetchone()
         context.bot.send_video(chat_id=update.message.chat_id, video=clip[0], caption=fCap, parse_mode='HTML')
     else:
@@ -487,7 +458,7 @@ def pidor(update, context):
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         try:
-            cursor.execute('SELECT pidor_total, pidor_last FROM chats WHERE id = %s', (update.message.chat_id,))
+            cursor.execute('SELECT pidor_total, pidor_last FROM newChats WHERE id = %s', (update.message.chat_id,))
             pInfo = cursor.fetchone()
             if 'pidor' in context.chat_data:
                 pidor = context.chat_data['pidor']
@@ -507,13 +478,13 @@ def pidor(update, context):
 def pidor_toggle(update, context):
     try:
         if update.effective_user.id in get_admin_ids(context.bot, update.message.chat_id):
-            cursor.execute('SELECT pidor_state FROM chats WHERE id = %s', (update.message.chat_id,))
+            cursor.execute('SELECT pidor_state FROM newChats WHERE id = %s', (update.message.chat_id,))
             pState = cursor.fetchone()
             if '1' in str(pState[0]):
-                cursor.execute('UPDATE chats SET pidor_state = 0 WHERE id = %s', (update.message.chat_id,))
+                cursor.execute('UPDATE newChats SET pidor_state = 0 WHERE id = %s', (update.message.chat_id,))
                 update.message.reply_text('Всем участникам чата роздано по шапочке из фольги!')
             elif '0' in str(pState[0]):
-                cursor.execute('UPDATE chats SET pidor_state = 1 WHERE id = %s', (update.message.chat_id,))
+                cursor.execute('UPDATE newChats SET pidor_state = 1 WHERE id = %s', (update.message.chat_id,))
                 update.message.reply_text('Шапочки из фольги закончились! Теперь любой из нас может быть чипирован!')
             else:
                 update.message.reply_text('Произошла ошибка!')
@@ -736,8 +707,8 @@ def echo(update, context):
         name = update.message.from_user.full_name
         cursor.execute('SELECT id FROM users')
         members = cursor.fetchall()
-        cursor.execute('SELECT id FROM chats')
-        chats = cursor.fetchall()
+        cursor.execute('SELECT id FROM newChats')
+        newChats = cursor.fetchall()
         if str(ids) in str(members):
             cursor.execute('UPDATE users SET name = %s, lastmsg = %s WHERE id = %s', (name, cur_time, ids,))
             conn.commit()
@@ -753,9 +724,9 @@ def echo(update, context):
         else:
             return
         chance = random.randint(0, 1000)
-        cursor.execute('SELECT pidor_state FROM chats WHERE id = %s', (update.message.chat_id,))
+        cursor.execute('SELECT pidor_state FROM newChats WHERE id = %s', (update.message.chat_id,))
         pState = cursor.fetchone()
-        cursor.execute('SELECT pidor_time FROM chats WHERE id = %s', (update.message.chat_id,))
+        cursor.execute('SELECT pidor_time FROM newChats WHERE id = %s', (update.message.chat_id,))
         pTime = cursor.fetchone()
         logger.info(f'Random: {chance}')
         if (chance <= 5) and ('1' in str(pState[0])):
@@ -768,7 +739,7 @@ def echo(update, context):
                 else:
                     update.message.reply_text(f'Chipization time! Прошивка твоего чипа обновляется уже {int(pcount[0])+1} раз.')
                 cursor.execute('UPDATE users SET exp = exp + 5, pidor = pidor + 1 WHERE id = %s', (ids,))
-                cursor.execute('UPDATE chats SET pidor_last = %s, pidor_time = %s, pidor_total = pidor_total + 1 WHERE id = %s', (name, cur_time, chatid,))
+                cursor.execute('UPDATE newChats SET pidor_last = %s, pidor_time = %s, pidor_total = pidor_total + 1 WHERE id = %s', (name, cur_time, chatid,))
                 context.chat_data['pidor'] = update.message.from_user.full_name
             else:
                 logger.info('Almost new pidor.')
@@ -824,7 +795,7 @@ def echo(update, context):
                 pass
         else:
             pass
-        cursor.execute('UPDATE chats SET messages = messages + 1 WHERE id = %s', (update.message.chat_id,))
+        cursor.execute('UPDATE newChats SET messages = messages + 1 WHERE id = %s', (update.message.chat_id,))
         conn.commit()
     except AttributeError as error:
         return
@@ -866,7 +837,6 @@ def qHelp(update, context):
 /krokodil - Игра в угадать слово.
 /chipization - Посмотреть кто стал последней жертвой Била Гейтса.
 /chipization_toggle - Вкл./Выкл. (Только для админов чата)
-/nya - Котики и другая живность.
 /fbi - На случай важных переговоров.
 /balance - Посмотреть баланс.
 /freecoins - Халявные монетки.
@@ -930,7 +900,7 @@ def main():
     dp.add_handler(CommandHandler('chipization_toggle', pidor_toggle))
     dp.add_handler(CommandHandler('fbi', fbi))
     # dp.add_handler(CommandHandler('donate', donate))
-    dp.add_handler(CommandHandler('nya', showPussy))
+    # dp.add_handler(CommandHandler('nya', showPussy))
     dp.add_handler(CommandHandler('osuzhdaiu', showTwitch))
     dp.add_handler(CommandHandler('balance', babki))
     dp.add_handler(CommandHandler('stats', stats))
@@ -946,7 +916,7 @@ def main():
     dp.add_handler(InlineQueryHandler(checkquery))
     # dp.add_handler(CommandHandler("gop", gop, pass_args=True))
     dp.add_handler(MessageHandler(Filters.group, echo))
-    dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte")), pussy))
+    # dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte")), pussy))
     dp.add_handler(MessageHandler(Filters.video & (~Filters.group) & Filters.user(username="@daaetoya"), twitch))
     dp.add_handler(MessageHandler(Filters.document & (~Filters.group) & Filters.user(username="@daaetoya"), hGif))
     dp.add_handler(CallbackQueryHandler(button))
