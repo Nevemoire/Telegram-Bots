@@ -403,7 +403,7 @@ def checkquery(update, context):
                         input_message_content=InputTextMessageContent('Привет! Как дела?)'))]
 
         query.answer(results, cache_time=0, is_personal=True)
-        elif ids in all_user_data:
+        # elif ids in all_user_data:
         #     results = [
         #                 InlineQueryResultArticle(
         #                     id=uuid4(),
