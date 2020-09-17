@@ -662,7 +662,7 @@ def button(update, context):
                     qInvoker = data[2]
                     qAmount = data[3]
                     qTime = int(time.time())
-                    # if qInvoker in all_user_data:
+                    if qInvoker in all_user_data:
                         all_user_data.remove(qInvoker)
                         logger.info(f'From: {qInvoker}, Hash: {qHash}, SUMM: {qAmount}')
                         cursor.execute('SELECT exp FROM users WHERE id = %s', (qInvoker,))
