@@ -242,78 +242,78 @@ def start(update, context):
     none = 'None'
     if str(ids) in str(all_users):
         try:
-            text = context.args[0]
+            text = context.args[0]  
+            if text == 'osuzhdaiu':
+                cursor.execute('SELECT vt FROM users WHERE id = %s', (ids,))
+                subscribed = cursor.fetchone()
+                if none in str(subscribed[0]):
+                    try:
+                        member = context.bot.get_chat_member(-1001415515636, ids)
+                        if member.status in memberslist:
+                            cursor.execute('UPDATE users SET exp = exp + 1000, vt = %s WHERE id = %s', (ids, ids,))
+                            conn.commit()
+                            update.message.reply_text('Задание выполнено! (+1000 монет)')
+                            logger.info('Sub osuzhdaiu')
+                        else:
+                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                    except:
+                        update.message.reply_text('Что-то пошло не так.')
+                else:
+                    update.message.reply_text('Вы уже получали монеты за это задание!')
+            elif text == 'streamerswtf':
+                cursor.execute('SELECT swtf FROM users WHERE id = %s', (ids,))
+                subscribed = cursor.fetchone()
+                if none in str(subscribed[0]):
+                    try:
+                        member = context.bot.get_chat_member('@streamerswtf', ids)
+                        if member.status in memberslist:
+                            cursor.execute('UPDATE users SET exp = exp + 1000, swtf = %s WHERE id = %s', (ids, ids,))
+                            conn.commit()
+                            update.message.reply_text('Задание выполнено! (+1000 монет)')
+                            logger.info('Sub streamerswtf')
+                        else:
+                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                    except:
+                        update.message.reply_text('Что-то пошло не так.')
+                else:
+                    update.message.reply_text('Вы уже получали монеты за это задание!')
+            elif text == 'glitchpeach':
+                cursor.execute('SELECT gp FROM users WHERE id = %s', (ids,))
+                subscribed = cursor.fetchone()
+                if none in str(subscribed[0]):
+                    try:
+                        member = context.bot.get_chat_member('@glitchpeach', ids)
+                        if member.status in memberslist:
+                            cursor.execute('UPDATE users SET exp = exp + 1000, gp = %s WHERE id = %s', (ids, ids,))
+                            conn.commit()
+                            update.message.reply_text('Задание выполнено! (+1000 монет)')
+                            logger.info('Sub glitchpeach')
+                        else:
+                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                    except:
+                        update.message.reply_text('Что-то пошло не так.')
+                else:
+                    update.message.reply_text('Вы уже получали монеты за это задание!')
+            elif text == 'nvmrstuff':
+                cursor.execute('SELECT nvmr FROM users WHERE id = %s', (ids,))
+                subscribed = cursor.fetchone()
+                if none in str(subscribed[0]):
+                    try:
+                        member = context.bot.get_chat_member('@nvmrstuff', ids)
+                        if member.status in memberslist:
+                            cursor.execute('UPDATE users SET exp = exp + 1000, nvmr = %s WHERE id = %s', (ids, ids,))
+                            conn.commit()
+                            update.message.reply_text('Задание выполнено! (+1000 монет)')
+                            logger.info('Sub nvmr')
+                        else:
+                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                    except:
+                        update.message.reply_text('Что-то пошло не так.')
+                else:
+                    update.message.reply_text('Вы уже получали монеты за это задание!')
+            else:
+                update.message.reply_text('Meow')
         except:
-            update.message.reply_text('Meow')
-        if text == 'osuzhdaiu':
-            cursor.execute('SELECT vt FROM users WHERE id = %s', (ids,))
-            subscribed = cursor.fetchone()
-            if none in str(subscribed[0]):
-                try:
-                    member = context.bot.get_chat_member(-1001415515636, ids)
-                    if member.status in memberslist:
-                        cursor.execute('UPDATE users SET exp = exp + 1000, vt = %s WHERE id = %s', (ids, ids,))
-                        conn.commit()
-                        update.message.reply_text('Задание выполнено! (+1000 монет)')
-                        logger.info('Sub osuzhdaiu')
-                    else:
-                        update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
-                except:
-                    update.message.reply_text('Что-то пошло не так.')
-            else:
-                update.message.reply_text('Вы уже получали монеты за это задание!')
-        elif text == 'streamerswtf':
-            cursor.execute('SELECT thecf FROM users WHERE id = %s', (ids,))
-            subscribed = cursor.fetchone()
-            if none in str(subscribed[0]):
-                try:
-                    member = context.bot.get_chat_member('@streamerswtf', ids)
-                    if member.status in memberslist:
-                        cursor.execute('UPDATE users SET exp = exp + 1000, thecf = %s WHERE id = %s', (ids, ids,))
-                        conn.commit()
-                        update.message.reply_text('Задание выполнено! (+1000 монет)')
-                        logger.info('Sub streamerswtf')
-                    else:
-                        update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
-                except:
-                    update.message.reply_text('Что-то пошло не так.')
-            else:
-                update.message.reply_text('Вы уже получали монеты за это задание!')
-        elif text == 'glitchpeach':
-            cursor.execute('SELECT mh FROM users WHERE id = %s', (ids,))
-            subscribed = cursor.fetchone()
-            if none in str(subscribed[0]):
-                try:
-                    member = context.bot.get_chat_member('@glitchpeach', ids)
-                    if member.status in memberslist:
-                        cursor.execute('UPDATE users SET exp = exp + 1000, mh = %s WHERE id = %s', (ids, ids,))
-                        conn.commit()
-                        update.message.reply_text('Задание выполнено! (+1000 монет)')
-                        logger.info('Sub glitchpeach')
-                    else:
-                        update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
-                except:
-                    update.message.reply_text('Что-то пошло не так.')
-            else:
-                update.message.reply_text('Вы уже получали монеты за это задание!')
-        elif text == 'nvmrstuff':
-            cursor.execute('SELECT nvmr FROM users WHERE id = %s', (ids,))
-            subscribed = cursor.fetchone()
-            if none in str(subscribed[0]):
-                try:
-                    member = context.bot.get_chat_member('@nvmrstuff', ids)
-                    if member.status in memberslist:
-                        cursor.execute('UPDATE users SET exp = exp + 1000, nvmr = %s WHERE id = %s', (ids, ids,))
-                        conn.commit()
-                        update.message.reply_text('Задание выполнено! (+1000 монет)')
-                        logger.info('Sub nvmr')
-                    else:
-                        update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
-                except:
-                    update.message.reply_text('Что-то пошло не так.')
-            else:
-                update.message.reply_text('Вы уже получали монеты за это задание!')
-        else:
             update.message.reply_text('Meow')
     elif str(ids) not in str(all_users):
         update.message.reply_text('Сперва нужно зарегестрироваться, для этого напишите хотя бы одно сообщение в чате где присутствует @kamenschikbot!', parse_mode='HTML')
@@ -865,7 +865,7 @@ def freecoins(update, context):
 
 
 def substats(update, context):
-    cursor.execute('SELECT COUNT(DISTINCT vt), COUNT(DISTINCT thecf), COUNT(DISTINCT mh), COUNT(DISTINCT nvmr) FROM users')
+    cursor.execute('SELECT COUNT(DISTINCT vt), COUNT(DISTINCT swtf), COUNT(DISTINCT gp), COUNT(DISTINCT nvmr) FROM users')
     subs = cursor.fetchone()
     update.message.reply_text(f'Кол-во привлечённых подписчиков:\n@osuzhdaiu: {subs[0]}\n@streamerswtf: {subs[1]}\n@glitchpeach: {subs[2]}\n@nvmrstuff: {subs[3]}', parse_mode='HTML', disable_web_page_preview=True)
 
