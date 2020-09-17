@@ -163,8 +163,6 @@ def new_user(update, context):
             userscount = context.bot.get_chat_members_count(update.message.chat.id)
             name = update.message.chat.title
             chatid = update.message.chat_id
-            cursor.execute('INSERT INTO newchats (id, users, name) VALUES (%s, %s, %s)', (chatid, userscount, name,))
-            conn.commit()
             cursor.execute('SELECT id FROM newchats')
             newchats = cursor.fetchall()
             if str(chatid) in str(newchats):
