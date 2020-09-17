@@ -164,6 +164,7 @@ def new_user(update, context):
             name = update.message.chat.title
             chatid = update.message.chat_id
             cursor.execute('UPDATE newChats SET name = %s, users = %s, unable = 0 WHERE id = %s', (name, userscount, chatid,))
+            conn.commit()
             cursor.execute('SELECT id FROM newChats')
             newChats = cursor.fetchall()
             if str(chatid) in str(newChats):
