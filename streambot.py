@@ -931,7 +931,6 @@ def main():
     dp.add_handler(CommandHandler('fbi', fbi))
     # dp.add_handler(CommandHandler('donate', donate))
     dp.add_handler(CommandHandler('nya', showPussy))
-    dp.add_handler(CommandHandler('memepls', showMemes))
     dp.add_handler(CommandHandler('osuzhdaiu', showTwitch))
     dp.add_handler(CommandHandler('balance', babki))
     dp.add_handler(CommandHandler('stats', stats))
