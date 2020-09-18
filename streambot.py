@@ -41,6 +41,7 @@ cursor = conn.cursor()
 
 all_user_data = set()
 
+privet = ['Салам алейкум', 'Hi', 'Merhaba', 'Hola', 'Прывитанне', 'Здравейте', 'Chao', 'Aloha', 'Гамарджоба', 'Shalom', 'Ave', 'Guten Tag', 'Привіт', 'Привет', 'Namaste', 'Bonjour', 'Konnichi wa']
 LIST_OF_ADMINS = [391206263]
 channel_username = '@streamerswtf'
 ch1 = '@streamerswtf'
@@ -157,7 +158,19 @@ def new_user(update, context):
             cursor.execute('SELECT id FROM newhello ORDER BY random() LIMIT 1')
             hgif = cursor.fetchall()
             newhello = hgif[0]
-            context.bot.send_animation(chat_id=update.message.chat_id, animation=newhello[0], caption=f'Здарова, {update.message.from_user.full_name}!')
+            context.bot.send_animation(chat_id=update.message.chat_id, animation=newhello[0], caption=f'{random.choice(privet)}, {update.message.from_user.full_name}!')
+            cursor.execute('SELECT id from users')
+            all_ids = cursor.fetchall() 
+            ids = update.message.from_user.id
+            if ids not in all_ids:
+                name = update.message.from_user.full_name
+                cur_time = int(time.time())
+                registered = time.strftime('%d.%m.%y')
+                cursor.execute('INSERT INTO users (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (ids, name, cur_time, registered,))
+                conn.commit()
+                logger.info(f'New invited user {update.message.from_user.full_name}!')
+            else:
+                pass
         elif member.id == context.bot.get_me().id:
             logger.info('hey chat')
             userscount = context.bot.get_chat_members_count(update.message.chat.id)
@@ -180,7 +193,8 @@ def new_user(update, context):
 С этого момента я буду вас развлекать.
 
 Список всех команд: /help
-Новости, розыгрыши и т.п. здесь: @streamerswtf""")
+Инструменты для продвижения стримеров: @streamerswtf
+Наш сайт: streamers.wtf""", disable_web_page_preview=True)
                 conn.commit()
             else:
                 update.message.reply_text('Произошла ошибка.')
@@ -193,7 +207,7 @@ def set_exp(context):
     exp_time = cur_time - 600
     cursor.execute('UPDATE users SET exp = exp + 10 WHERE lastmsg >= %s', (exp_time,))
     conn.commit()
-    logger.info('Set exp done!')
+    logger.info('Exp time!')
 
 
 def krokodie(context):
