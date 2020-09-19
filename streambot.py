@@ -156,9 +156,9 @@ def new_user(update, context):
         if member.id != context.bot.get_me().id:
             logger.info('hey user')
             cursor.execute('SELECT id, link FROM newhello ORDER BY random() LIMIT 1')
-            hgif = cursor.fetchone()
+            hgif = cursor.fetchall()
             newhello = hgif[0]
-            tLink = hgif[1]
+            tLink = newhello[1]
             context.bot.send_animation(chat_id=update.message.chat_id, animation=newhello[0], caption=f'{random.choice(privet)}, {update.message.from_user.full_name}!\n📸: <a href="twitch.tv/{tLink}">{tLink}</a>', parse_mode="HTML")
             cursor.execute('SELECT id from users')
             all_ids = cursor.fetchall() 
