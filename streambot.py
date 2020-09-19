@@ -223,8 +223,9 @@ def krokoreload(context):
 
 def hGif(update, context):
     fID = update.message.document.file_id
+    fLink = update.message.caption
     update.message.reply_text(fID)
-    cursor.execute('INSERT INTO newhello (id) VALUES (%s)', (fID,))
+    cursor.execute('INSERT INTO newhello (id, link) VALUES (%s, %s)', (fID, fLink,))
     conn.commit()
     logger.info('New hi gif')
 
