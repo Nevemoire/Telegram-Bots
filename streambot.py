@@ -64,7 +64,7 @@ def restricted(func):
 @restricted
 def ban(update, context):
     target = update.message.reply_to_message.from_user.id
-    cursor.execute('UPDATE users SET banned = 1 WHERE id = %s', (target,))
+    cursor.execute('UPDATE newusers SET banned = 1 WHERE id = %s', (target,))
     conn.commit()
     update.message.reply_text('Пользователь забанен.')
 
@@ -72,7 +72,7 @@ def ban(update, context):
 @restricted
 def unban(update, context):
     target = update.message.reply_to_message.from_user.id
-    cursor.execute('UPDATE users SET banned = 0 WHERE id = %s', (target,))
+    cursor.execute('UPDATE newusers SET banned = 0 WHERE id = %s', (target,))
     conn.commit()
     update.message.reply_text('Пользователь разбанен.')
 
@@ -93,7 +93,7 @@ def message(update, context):
 
 @restricted
 def compensate(update, context):
-    cursor.execute("UPDATE users SET exp = exp + 1000")
+    cursor.execute("UPDATE newusers SET exp = exp + 1000")
     conn.commit()
     update.message.reply_text('Готово!')
 
@@ -110,7 +110,7 @@ def stats(update, context):
         except:
             cursor.execute('UPDATE newchats SET unable = 2 WHERE id = %s', (newchats[0],))
             conn.commit()
-    cursor.execute('SELECT COUNT(id) FROM users')
+    cursor.execute('SELECT COUNT(id) FROM newusers')
     allUsers = cursor.fetchone()
     cursor.execute('SELECT COUNT(id), SUM(users) FROM newchats')
     info = cursor.fetchone()
@@ -123,7 +123,7 @@ def raffle(update, context):
     date = context.args[0]
     # context.bot.send_message(chat_id=-437611665, text=f'Всем привет!\nМы тут решили провести розыгрыш, пока вы скучаете дома!\n\nПризовой фонд:\n1. Блабла\n2. Блабла\n3. Блабла\n\nДля участия нужно подписаться на:\n@streamerswtf\n@rsmgram\nи нажать кнопку "Участвую!"')
     context.user_data['raffle'] = context.bot.send_message(chat_id='@streamerswtf', text=f'...\nПобедители будут выбраны {date}\nУчастников: 0', reply_markup=reply_markup)
-    cursor.execute('UPDATE users SET raffle = 0')
+    cursor.execute('UPDATE newusers SET raffle = 0')
     cursor.execute('INSERT INTO raffles (id, participants, date_end, message_id, chat_id) VALUES (%s, 0, %s, %s, %s)', (update.message.from_user.id, date, context.user_data['raffle'].message_id, context.user_data['raffle'].chat_id,))
     conn.commit()
 
@@ -132,9 +132,9 @@ def raffleWinners(update, context):
     text = 'Победители:\n'
     num = 0
     for winner in range(3):
-        cursor.execute('SELECT id, name FROM users WHERE raffle = 1 ORDER BY random()')
+        cursor.execute('SELECT id, name FROM newusers WHERE raffle = 1 ORDER BY random()')
         info = cursor.fetchone()
-        cursor.execute('UPDATE users SET raffle = 2 WHERE id = %s', (info[0],))
+        cursor.execute('UPDATE newusers SET raffle = 2 WHERE id = %s', (info[0],))
         conn.commit()
         num += 1
         text += f'{num}) <a href="tg://user?id={info[0]}">{info[1]}</a>\n'
@@ -160,13 +160,13 @@ def new_user(update, context):
             newhello = hgif[0]
             tLink = newhello[1]
             context.bot.send_animation(chat_id=update.message.chat_id, animation=newhello[0], caption=f'{random.choice(privet)}, {update.message.from_user.full_name}!\n📸: <a href="twitch.tv/{tLink}">{tLink}</a>', parse_mode="HTML")
-            cursor.execute('SELECT id from users')
+            cursor.execute('SELECT id from newusers')
             all_ids = cursor.fetchall()
             if str(member.id) not in str(all_ids):
                 name = update.message.from_user.full_name
                 cur_time = int(time.time())
                 registered = time.strftime('%d.%m.%y')
-                cursor.execute('INSERT INTO users (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (member.id, name, cur_time, registered,))
+                cursor.execute('INSERT INTO newusers (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (member.id, name, cur_time, registered,))
                 conn.commit()
                 logger.info(f'New invited user {update.message.from_user.full_name}!')
             else:
@@ -205,7 +205,7 @@ def new_user(update, context):
 def set_exp(context):
     cur_time = int(time.time())
     exp_time = cur_time - 600
-    cursor.execute('UPDATE users SET exp = exp + 10 WHERE lastmsg >= %s', (exp_time,))
+    cursor.execute('UPDATE newusers SET exp = exp + 10 WHERE lastmsg >= %s', (exp_time,))
     conn.commit()
     logger.info('Exp time!')
 
@@ -238,7 +238,7 @@ def twitch(update, context):
 
 
 def showTwitch(update, context):
-    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         fCap = "Лучшие моменты <b>Twitch</b>'a: @osuzhdaiu"
@@ -252,20 +252,20 @@ def showTwitch(update, context):
 def start(update, context):
     """Send a message when the command /start is issued."""
     ids = update.message.from_user.id
-    cursor.execute('SELECT id FROM users')
+    cursor.execute('SELECT id FROM newusers')
     all_users = cursor.fetchall()
     none = 'None'
     if str(ids) in str(all_users):
         try:
             text = context.args[0]  
             if text == 'osuzhdaiu':
-                cursor.execute('SELECT vt FROM users WHERE id = %s', (ids,))
+                cursor.execute('SELECT vt FROM newusers WHERE id = %s', (ids,))
                 subscribed = cursor.fetchone()
                 if none in str(subscribed[0]):
                     try:
                         member = context.bot.get_chat_member(-1001415515636, ids)
                         if member.status in memberslist:
-                            cursor.execute('UPDATE users SET exp = exp + 1000, vt = %s WHERE id = %s', (ids, ids,))
+                            cursor.execute('UPDATE newusers SET exp = exp + 1000, vt = %s WHERE id = %s', (ids, ids,))
                             conn.commit()
                             update.message.reply_text('Задание выполнено! (+1000 монет)')
                             logger.info('Sub osuzhdaiu')
@@ -276,13 +276,13 @@ def start(update, context):
                 else:
                     update.message.reply_text('Вы уже получали монеты за это задание!')
             elif text == 'streamerswtf':
-                cursor.execute('SELECT swtf FROM users WHERE id = %s', (ids,))
+                cursor.execute('SELECT swtf FROM newusers WHERE id = %s', (ids,))
                 subscribed = cursor.fetchone()
                 if none in str(subscribed[0]):
                     try:
                         member = context.bot.get_chat_member('@streamerswtf', ids)
                         if member.status in memberslist:
-                            cursor.execute('UPDATE users SET exp = exp + 1000, swtf = %s WHERE id = %s', (ids, ids,))
+                            cursor.execute('UPDATE newusers SET exp = exp + 1000, swtf = %s WHERE id = %s', (ids, ids,))
                             conn.commit()
                             update.message.reply_text('Задание выполнено! (+1000 монет)')
                             logger.info('Sub streamerswtf')
@@ -293,13 +293,13 @@ def start(update, context):
                 else:
                     update.message.reply_text('Вы уже получали монеты за это задание!')
             elif text == 'glitchpeach':
-                cursor.execute('SELECT gp FROM users WHERE id = %s', (ids,))
+                cursor.execute('SELECT gp FROM newusers WHERE id = %s', (ids,))
                 subscribed = cursor.fetchone()
                 if none in str(subscribed[0]):
                     try:
                         member = context.bot.get_chat_member('@glitchpeach', ids)
                         if member.status in memberslist:
-                            cursor.execute('UPDATE users SET exp = exp + 1000, gp = %s WHERE id = %s', (ids, ids,))
+                            cursor.execute('UPDATE newusers SET exp = exp + 1000, gp = %s WHERE id = %s', (ids, ids,))
                             conn.commit()
                             update.message.reply_text('Задание выполнено! (+1000 монет)')
                             logger.info('Sub glitchpeach')
@@ -310,13 +310,13 @@ def start(update, context):
                 else:
                     update.message.reply_text('Вы уже получали монеты за это задание!')
             elif text == 'nvmrstuff':
-                cursor.execute('SELECT nvmr FROM users WHERE id = %s', (ids,))
+                cursor.execute('SELECT nvmr FROM newusers WHERE id = %s', (ids,))
                 subscribed = cursor.fetchone()
                 if none in str(subscribed[0]):
                     try:
                         member = context.bot.get_chat_member('@nvmrstuff', ids)
                         if member.status in memberslist:
-                            cursor.execute('UPDATE users SET exp = exp + 1000, nvmr = %s WHERE id = %s', (ids, ids,))
+                            cursor.execute('UPDATE newusers SET exp = exp + 1000, nvmr = %s WHERE id = %s', (ids, ids,))
                             conn.commit()
                             update.message.reply_text('Задание выполнено! (+1000 монет)')
                             logger.info('Sub nvmr')
@@ -340,7 +340,7 @@ def checkquery(update, context):
     name = update.inline_query.from_user.full_name
     id_int = update.inline_query.from_user.id
     ids = str(id_int)
-    cursor.execute('SELECT id FROM users')
+    cursor.execute('SELECT id FROM newusers')
     members = cursor.fetchall()
     if ids in str(members):
         # if ids not in all_user_data:
@@ -351,7 +351,7 @@ def checkquery(update, context):
         keyboard = [[InlineKeyboardButton("Активировать", callback_data=f'cheque {check_hash} {query.from_user.id} {query.query}')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         text = query.query
-        cursor.execute('SELECT exp FROM users WHERE id = %s', (query.from_user.id,))
+        cursor.execute('SELECT exp FROM newusers WHERE id = %s', (query.from_user.id,))
         balance = cursor.fetchone()
         try:
             if int(query.query) > int(balance[0]):
@@ -401,14 +401,14 @@ def checkquery(update, context):
 
 
 def bets(update, context):
-    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         ids = update.message.from_user.id
-        cursor.execute('SELECT id FROM users')
+        cursor.execute('SELECT id FROM newusers')
         members = cursor.fetchall()
         if str(ids) in str(members):
-            cursor.execute('SELECT exp, bet FROM users WHERE id = %s', (update.message.from_user.id,))
+            cursor.execute('SELECT exp, bet FROM newusers WHERE id = %s', (update.message.from_user.id,))
             betinfo = cursor.fetchone()
             balance = int(betinfo[0])
             bet = int(betinfo[1])
@@ -419,11 +419,11 @@ def bets(update, context):
                 if balance >= bet:
                     if dice <= 3:
                         update.message.reply_text(f'Проигрыш! (-{bet} монет)\nРезультат: {dice}')
-                        cursor.execute('UPDATE users SET exp = exp - %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
+                        cursor.execute('UPDATE newusers SET exp = exp - %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
                         conn.commit()
                     elif dice > 3:
                         update.message.reply_text(f'Выигрыш! (+{bet} монет)\nРезультат: {dice}')
-                        cursor.execute('UPDATE users SET exp = exp + %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
+                        cursor.execute('UPDATE newusers SET exp = exp + %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
                         conn.commit()
                     else:
                         update.message.reply_text('Произошла ошибка, попробуй позже!')
@@ -439,11 +439,11 @@ def bets(update, context):
 
 def setBet(update, context):
     # update.message.reply_text('Ставки и всё что с ними связано теперь здесь: @NevermoreBets.\nСовершенно новый, уникальный, неповторимый экспириенс в телеграмме, залетайте!')
-    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         ids = update.message.from_user.id
-        cursor.execute('SELECT id FROM users')
+        cursor.execute('SELECT id FROM newusers')
         members = cursor.fetchall()
         if str(ids) in str(members):
             member = context.bot.get_chat_member(channel_username, ids)
@@ -455,7 +455,7 @@ def setBet(update, context):
             try:
                 bet = int(user_says[0])
                 if (bet == 0) or (bet >= 10) and (bet <= maxBet):
-                    cursor.execute('UPDATE users SET bet = %s WHERE id = %s', (bet, ids,))
+                    cursor.execute('UPDATE newusers SET bet = %s WHERE id = %s', (bet, ids,))
                     conn.commit()
                     update.message.reply_text('Готово! Чтобы сделать ставку, пришли в чат этот эмодзи: 🎲')
                 else:
@@ -469,7 +469,7 @@ def setBet(update, context):
 
 
 def pidor(update, context):
-    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         try:
@@ -511,7 +511,7 @@ def pidor_toggle(update, context):
 
 
 def krokodil(update, context):
-    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         try:
@@ -545,7 +545,7 @@ def krokodil(update, context):
 
 
 def fbi(update, context):
-    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         context.bot.send_animation(chat_id=update.message.chat_id, animation='CgACAgIAAxkBAAIBrF6MQgz-TZJXda7BWdgFSZfY1LAOAAIVAwACuzWoSw_3NpLvCy0dGAQ')
@@ -554,10 +554,10 @@ def fbi(update, context):
 
 
 def babki(update, context):
-    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
-        cursor.execute('SELECT exp FROM users WHERE id = %s', (update.message.from_user.id,))
+        cursor.execute('SELECT exp FROM newusers WHERE id = %s', (update.message.from_user.id,))
         babki = cursor.fetchone()
         update.message.reply_text(f'У тебя {babki[0]} монет!')
     else:
@@ -565,7 +565,7 @@ def babki(update, context):
 
 
 def tip(update, context):
-    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         try:
@@ -573,7 +573,7 @@ def tip(update, context):
             tName = update.message.reply_to_message.from_user.full_name
             ids = update.message.from_user.id
             iName = update.message.from_user.full_name
-            cursor.execute('SELECT id FROM users')
+            cursor.execute('SELECT id FROM newusers')
             members = cursor.fetchall()
             if (str(ids) in str(members)) and (str(target) in str(members)):
                 member = context.bot.get_chat_member(channel_username, ids)
@@ -587,7 +587,7 @@ def tip(update, context):
                 except:
                     update.message.reply_text('Ошибка! Укажи сумму перевода.')
                     return
-                cursor.execute('SELECT exp FROM users WHERE id = %s', (ids,))
+                cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
                 balance = cursor.fetchone()
                 if (amount < 10) or (amount > maxTip):
                     update.message.reply_text(f'Ошибка!\nМин. перевод: 10 монет, макс. перевод: 1000 монет или 10.000 монет для подписчиков: {channel_username} за раз.')
@@ -596,8 +596,8 @@ def tip(update, context):
                 elif amount > int(balance[0]):
                     update.message.reply_text('Недостаточно средств!')
                 elif ((amount >= 10) and (amount <= maxTip)) and amount <= int(balance[0]):
-                    cursor.execute('UPDATE users SET exp = exp - %s, total_tipped = total_tipped + %s WHERE id = %s', (amount, amount, ids,))
-                    cursor.execute('UPDATE users SET exp = exp + %s, total_recieved = total_recieved + %s WHERE id = %s', (amount, amount, target,))
+                    cursor.execute('UPDATE newusers SET exp = exp - %s, total_tipped = total_tipped + %s WHERE id = %s', (amount, amount, ids,))
+                    cursor.execute('UPDATE newusers SET exp = exp + %s, total_recieved = total_recieved + %s WHERE id = %s', (amount, amount, target,))
                     conn.commit()
                     update.message.reply_text(f'<code>{iName}</code> успешно переводит <code>{tName}</code> <b>{amount}</b> монет.', parse_mode='HTML')
             else:
@@ -610,7 +610,7 @@ def tip(update, context):
 
 def button(update, context):
     query = update.callback_query
-    cursor.execute('SELECT banned FROM users WHERE id = %s', (query.from_user.id,))
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (query.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         if ('krokoword' in query.data) or ('krokochange' in query.data):
@@ -623,14 +623,14 @@ def button(update, context):
                     query.answer(f'{context.chat_data["krokoword"]}', show_alert=True)
                 elif ('krokochange' in query.data) and (str(query.from_user.id) in query.data):
                     logger.info('yes')
-                    cursor.execute('SELECT exp FROM users WHERE  id = %s', (query.from_user.id,))
+                    cursor.execute('SELECT exp FROM newusers WHERE  id = %s', (query.from_user.id,))
                     balancez = cursor.fetchone()
                     balance = int(balancez[0])
                     if balance >= 5:
                         logger.info('byes')
                         context.chat_data['krokoword'] = (get_word('russian.txt'))
                         query.answer(f'Новое слово: {context.chat_data["krokoword"]}', show_alert=True)
-                        cursor.execute('UPDATE users SET exp = exp - 5 WHERE id = %s', (query.from_user.id,))
+                        cursor.execute('UPDATE newusers SET exp = exp - 5 WHERE id = %s', (query.from_user.id,))
                         conn.commit()
                     else:
                         query.answer('Недостаточно монет!', show_alert=True)
@@ -640,7 +640,7 @@ def button(update, context):
                 query.answer('Эта игра уже закончилась!', show_alert=True)
         elif 'cheque' in query.data:
             if (str(query.from_user.id) not in query.data):
-                cursor.execute('SELECT id FROM users')
+                cursor.execute('SELECT id FROM newusers')
                 members = cursor.fetchall()
                 if str(query.from_user.id) in str(members):
                     data = query.data.split()
@@ -651,13 +651,13 @@ def button(update, context):
                     if qInvoker in all_user_data:
                         all_user_data.remove(qInvoker)
                         logger.info(f'From: {qInvoker}, Hash: {qHash}, SUMM: {qAmount}')
-                        cursor.execute('SELECT exp FROM users WHERE id = %s', (qInvoker,))
+                        cursor.execute('SELECT exp FROM newusers WHERE id = %s', (qInvoker,))
                         balance = cursor.fetchone()
                         if int(qAmount) <= int(balance[0]):
                             # query.edit_message_text()
                             # cursor.execute('INSERT INTO cheques (hash, invoker, reciever, amount, ttime) VALUES (%s, %s, %s, %s, %s)', (qHash, qInvoker, query.from_user.id, qAmount, qTime,))
-                            cursor.execute('UPDATE users SET exp = exp - %s, total_tipped = total_tipped + %s WHERE id = %s', (qAmount, qAmount, qInvoker,))
-                            cursor.execute('UPDATE users SET exp = exp + %s, total_recieved = total_recieved + %s WHERE id = %s', (qAmount, qAmount, query.from_user.id,))
+                            cursor.execute('UPDATE newusers SET exp = exp - %s, total_tipped = total_tipped + %s WHERE id = %s', (qAmount, qAmount, qInvoker,))
+                            cursor.execute('UPDATE newusers SET exp = exp + %s, total_recieved = total_recieved + %s WHERE id = %s', (qAmount, qAmount, query.from_user.id,))
                             conn.commit()
                             logger.info('Transaction done!')
                             query.answer('Чек успешно активирован!', show_alert=True)
@@ -674,21 +674,21 @@ def button(update, context):
             else:
                 query.answer('Произошла ошибка.', show_alert=True)
         elif 'giveaway' in query.data:
-            cursor.execute('SELECT id FROM users')
+            cursor.execute('SELECT id FROM newusers')
             members = cursor.fetchall()
             if str(query.from_user.id) in str(members):
                 member1 = context.bot.get_chat_member(ch1, query.from_user.id)
                 # member2 = context.bot.get_chat_member(ch2, query.from_user.id)
                 if (member1.status in memberslist):
                 # if (member1.status in memberslist) and (member2.status in memberslist):
-                    cursor.execute('SELECT raffle FROM users WHERE id = %s', (query.from_user.id,))
+                    cursor.execute('SELECT raffle FROM newusers WHERE id = %s', (query.from_user.id,))
                     raffle = cursor.fetchone()
                     if '0' in str(raffle[0]):
                         data = query.data.split()
                         chData = data[1]
                         keyboard = [[InlineKeyboardButton("Участвую!", callback_data=f"giveaway {chData}")]]
                         reply_markup = InlineKeyboardMarkup(keyboard)
-                        cursor.execute('UPDATE users SET raffle = 1 WHERE id = %s', (query.from_user.id,))
+                        cursor.execute('UPDATE newusers SET raffle = 1 WHERE id = %s', (query.from_user.id,))
                         cursor.execute('UPDATE raffles SET participants = participants + 1 WHERE id = %s', (chData,))
                         conn.commit()
                         query.answer('Теперь ты участвуешь в розыгрыше!', show_alert=True)
@@ -720,19 +720,19 @@ def echo(update, context):
         ids = update.message.from_user.id
         chatid = update.message.chat_id
         name = update.message.from_user.full_name
-        cursor.execute('SELECT id FROM users')
+        cursor.execute('SELECT id FROM newusers')
         members = cursor.fetchall()
         cursor.execute('SELECT id FROM newchats')
         newchats = cursor.fetchall()
         if str(ids) in str(members):
-            cursor.execute('UPDATE users SET name = %s, lastmsg = %s WHERE id = %s', (name, cur_time, ids,))
+            cursor.execute('UPDATE newusers SET name = %s, lastmsg = %s WHERE id = %s', (name, cur_time, ids,))
             conn.commit()
         else:
             registered = time.strftime('%d.%m.%y')
-            cursor.execute('INSERT INTO users (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (ids, name, cur_time, registered,))
+            cursor.execute('INSERT INTO newusers (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (ids, name, cur_time, registered,))
             conn.commit()
             logger.info(f'New user {update.message.from_user.full_name}!')
-        cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+        cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
         banned = cursor.fetchone()
         if '0' in str(banned[0]):
             pass
@@ -747,13 +747,13 @@ def echo(update, context):
         if (chance <= 5) and ('1' in str(pState[0])):
             if (pidor_time >= int(pTime[0])):
                 logger.info('New pidor.')
-                cursor.execute('SELECT pidor FROM users WHERE id = %s', (ids,))
+                cursor.execute('SELECT pidor FROM newusers WHERE id = %s', (ids,))
                 pcount = cursor.fetchone()
                 if int(pcount[0]) == 0:
                     update.message.reply_text('Есть 2 новости:\n1. У тебя был личный контакт с Билом Гейтсом, поздравляем!\n2. Тебя чипировали.')
                 else:
                     update.message.reply_text(f'Chipization time! Прошивка твоего чипа обновляется уже {int(pcount[0])+1} раз.')
-                cursor.execute('UPDATE users SET exp = exp + 5, pidor = pidor + 1 WHERE id = %s', (ids,))
+                cursor.execute('UPDATE newusers SET exp = exp + 5, pidor = pidor + 1 WHERE id = %s', (ids,))
                 cursor.execute('UPDATE newchats SET pidor_last = %s, pidor_time = %s, pidor_total = pidor_total + 1 WHERE id = %s', (name, cur_time, chatid,))
                 context.chat_data['pidor'] = update.message.from_user.full_name
             else:
@@ -770,7 +770,7 @@ def echo(update, context):
             if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) in str(context.chat_data['kroko_inv'])) and ('1' in str(state[0])):
                 context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
                 update.message.reply_text('Ты же понимаешь, что так играть не честно?\nМне пришлось оштрафовать тебя на 50 монет и преждевременно закончить игру.\n\nНачать заново - /krokodil')
-                cursor.execute('UPDATE users SET exp = exp - 50 WHERE id = %s', (ids,))
+                cursor.execute('UPDATE newusers SET exp = exp - 50 WHERE id = %s', (ids,))
                 cursor.execute('UPDATE games SET state = 0 WHERE chatid = %s', (chatid,))
                 job = context.chat_data['kroko_job']
                 job.enabled=False
@@ -788,7 +788,7 @@ def echo(update, context):
                     krokoWin = 5
                 update.message.reply_text(f'Ты угадал(-а)! Держи {krokoWin} монет за правильный ответ.\n\nНачать заново - /krokodil')
                 context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
-                cursor.execute('UPDATE users SET exp = exp + %s WHERE id = %s', (krokoWin, ids,))
+                cursor.execute('UPDATE newusers SET exp = exp + %s WHERE id = %s', (krokoWin, ids,))
                 cursor.execute('UPDATE games SET state = 0 WHERE chatid = %s', (chatid,))
                 job = context.chat_data['kroko_job']
                 job.enabled=False
@@ -822,7 +822,7 @@ def echo(update, context):
 #     try:
 #         target = update.message.reply_to_message.from_user.id
 #         ids = update.message.from_user.id
-#         cursor.execute('SELECT id FROM users')
+#         cursor.execute('SELECT id FROM newusers')
 #         members = cursor.fetchall()
 #         if (str(ids) in str(members)) and (str(target) in str(members)):
 #             user_says = context.args[0]
@@ -831,7 +831,7 @@ def echo(update, context):
 #             except:
 #                 return
 #             ids = update.message.from_user.id
-#             cursor.execute('SELECT exp FROM users WHERE id = %s', (ids,))
+#             cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
 #             balance = cursor.fetchone()
 #             exp = int(balance[0])
 #             gMin = 10
@@ -844,7 +844,7 @@ def echo(update, context):
 
 
 def qHelp(update, context):
-    cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         update.message.reply_text('''Список доступных команд:
@@ -880,7 +880,7 @@ def freecoins(update, context):
 
 
 def substats(update, context):
-    cursor.execute('SELECT COUNT(DISTINCT vt), COUNT(DISTINCT swtf), COUNT(DISTINCT gp), COUNT(DISTINCT nvmr) FROM users')
+    cursor.execute('SELECT COUNT(DISTINCT vt), COUNT(DISTINCT swtf), COUNT(DISTINCT gp), COUNT(DISTINCT nvmr) FROM newusers')
     subs = cursor.fetchone()
     update.message.reply_text(f'Кол-во привлечённых подписчиков:\n@osuzhdaiu: {subs[0]}\n@streamerswtf: {subs[1]}\n@glitchpeach: {subs[2]}\n@nvmrstuff: {subs[3]}', parse_mode='HTML', disable_web_page_preview=True)
 
