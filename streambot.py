@@ -161,13 +161,12 @@ def new_user(update, context):
             tLink = newhello[1]
             context.bot.send_animation(chat_id=update.message.chat_id, animation=newhello[0], caption=f'{random.choice(privet)}, {update.message.from_user.full_name}!\n📸: <a href="twitch.tv/{tLink}">{tLink}</a>', parse_mode="HTML")
             cursor.execute('SELECT id from users')
-            all_ids = cursor.fetchall() 
-            ids = update.message.from_user.id
-            if ids not in all_ids:
+            all_ids = cursor.fetchall()
+            if member.id not in all_ids:
                 name = update.message.from_user.full_name
                 cur_time = int(time.time())
                 registered = time.strftime('%d.%m.%y')
-                cursor.execute('INSERT INTO users (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (ids, name, cur_time, registered,))
+                cursor.execute('INSERT INTO users (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (member.id, name, cur_time, registered,))
                 conn.commit()
                 logger.info(f'New invited user {update.message.from_user.full_name}!')
             else:
