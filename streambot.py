@@ -129,12 +129,13 @@ def start(update, context):
                         update.message.reply_text('Что-то пошло не так.')
                 else:
                     update.message.reply_text('Награда уже получена!')
-            elif text == 'shop':
-                update.message.reply_text(f'{context.args[1]}: {context.args[2]}')
-                if info[0] in partnersList:
-                    streamer = info[1]
-                    item = info[2]
-                    update.message.reply_text(f'{streamer}: {item}')
+            elif 'shop' in text:
+                text2 = text.split('-')
+                update.message.reply_text(f'{text}: {text2[1]}')
+                # if info[0] in partnersList:
+                #     streamer = info[1]
+                #     item = info[2]
+                #     update.message.reply_text(f'{streamer}: {item}')
                 #     cursor.execute('SELECT price FROM shop WHERE streamer = %s, item = %s', (streamer, shop,))
                 #     price = cursor.fetchone()
                 #     cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
