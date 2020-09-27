@@ -130,24 +130,26 @@ def start(update, context):
                 else:
                     update.message.reply_text('Награда уже получена!')
             elif 'shop' in text:
-                text2 = text.split('-')
-                update.message.reply_text(f'{text}: {text2[1]}')
-                # if info[0] in partnersList:
-                #     streamer = info[1]
-                #     item = info[2]
-                #     update.message.reply_text(f'{streamer}: {item}')
-                #     cursor.execute('SELECT price FROM shop WHERE streamer = %s, item = %s', (streamer, shop,))
-                #     price = cursor.fetchone()
-                #     cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
-                #     balance = cursor.fetchone()
-                #     if int(balance) >= int(price):
-                #         update.message.reply_text('Транзакция!')
-                #     elif int(balance) < int(price):
-                #         update.message.reply_text(f'Не хватает <b>{int(price)-int(balance)}</b> монет!', parse_mode='HTML')
-                #     else:
-                #         update.message.reply_text('Shop error.')
-                # else:
-                #     update.message.reply_text('Произошла ошибка!')
+                try:
+                    info = text.split('-')
+                    update.message.reply_text(f'{text}: {info[1]}')
+                    if info[1] in partnersList:
+                        streamer = info[1]
+                        item = info[2]
+                        cursor.execute('SELECT price FROM shop WHERE streamer = %s, item = %s', (streamer, item,))
+                        price = cursor.fetchone()
+                        cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
+                        balance = cursor.fetchone()
+                        if int(balance) >= int(price):
+                            update.message.reply_text('Транзакция!')
+                        elif int(balance) < int(price):
+                            update.message.reply_text(f'Не хватает <b>{int(price)-int(balance)}</b> монет!', parse_mode='HTML')
+                        else:
+                            update.message.reply_text('Shop error.')
+                    else:
+                        update.message.reply_text('Произошла ошибка! #SHOPERROR')
+                except:
+                    update.message.reply_text('Ошибка запроса! #SHOP404')
             else:
                 update.message.reply_text('Meow-meow')
         except:
