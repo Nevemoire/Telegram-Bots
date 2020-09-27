@@ -142,8 +142,8 @@ def start(update, context):
                         balance = cursor.fetchone()
                         if int(balance[0]) >= int(price[0]):
                             update.message.reply_text('Транзакция!')
-                        elif int(balance) < int(price):
-                            update.message.reply_text(f'Не хватает <b>{int(price)-int(balance)}</b> монет!', parse_mode='HTML')
+                        elif int(balance[0]) < int(price[0]):
+                            update.message.reply_text(f'Не хватает <b>{int(price[0])-int(balance[0])}</b> монет!', parse_mode='HTML')
                         else:
                             update.message.reply_text('Shop error.')
                     else:
