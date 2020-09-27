@@ -130,9 +130,10 @@ def start(update, context):
                 else:
                     update.message.reply_text('Награда уже получена!')
             elif text == 'shop':
-                if context.args[1] in partnersList:
-                    streamer = context.args[1]
-                    item = context.args[2]
+                info = context.args.split('-')
+                if info[0] in partnersList:
+                    streamer = info[1]
+                    item = info[2]
                     update.message.reply_text(f'{streamer}: {item}')
                 #     cursor.execute('SELECT price FROM shop WHERE streamer = %s, item = %s', (streamer, shop,))
                 #     price = cursor.fetchone()
@@ -298,7 +299,7 @@ def new_user(update, context):
             newchats = cursor.fetchall()
             if str(chatid) in str(newchats):
                 logger.info('here we go again...')
-                update.message.reply_text('Мне кажется, или я уже был в этом чате? Осуждаю.\n\nЛадно, ладно. Я не злопамятный, можем начать всё с чистого листа.')
+                update.message.reply_text('Мне кажется, или я уже была в этом чате? Осуждаю.\n\nЛадно, ладно. Я не злопамятная, можем начать всё с чистого листа, но только в этот раз!.')
                 cursor.execute('UPDATE newchats SET name = %s, users = %s, unable = 0 WHERE id = %s', (name, userscount, chatid,))
                 context.bot.send_message(chat_id=391206263, text=f'Бота снова добавили в {name} ({userscount})!')
                 conn.commit()
@@ -310,8 +311,8 @@ def new_user(update, context):
 Всем пис в этом чатике!
 С этого момента я буду вас развлекать.
 
-Список всех команд: /help
-Инструменты для продвижения стримеров: @streamerswtf
+Список доступных команд: /help
+Сообщество СНГ стримеров: @streamerswtf
 Наш сайт: streamers.wtf""", disable_web_page_preview=True)
                 conn.commit()
             else:
