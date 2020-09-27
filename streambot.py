@@ -140,7 +140,7 @@ def start(update, context):
                         price = cursor.fetchone()
                         cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
                         balance = cursor.fetchone()
-                        if int(balance) >= int(price):
+                        if int(balance[0]) >= int(price[0]):
                             update.message.reply_text('Транзакция!')
                         elif int(balance) < int(price):
                             update.message.reply_text(f'Не хватает <b>{int(price)-int(balance)}</b> монет!', parse_mode='HTML')
