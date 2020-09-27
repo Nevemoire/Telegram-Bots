@@ -49,6 +49,110 @@ ch1 = '@streamerswtf'
 memberz = 'creator, administrator, member'
 memberslist = memberz.split(', ')
 
+partnersList = ['glitchpeach', 'morphilina']
+
+
+def start(update, context):
+    """Send a message when the command /start is issued."""
+    ids = update.message.from_user.id
+    cursor.execute('SELECT id FROM newusers')
+    all_users = cursor.fetchall()
+    none = 'None'
+    if str(ids) in str(all_users):
+        try:
+            text = context.args[0]  
+            if text == 'osuzhdaiu':
+                cursor.execute('SELECT vt FROM newusers WHERE id = %s', (ids,))
+                subscribed = cursor.fetchone()
+                if none in str(subscribed[0]):
+                    try:
+                        member = context.bot.get_chat_member('@osuzhdaiu', ids)
+                        if member.status in memberslist:
+                            cursor.execute('UPDATE newusers SET exp = exp + 1000, vt = %s WHERE id = %s', (ids, ids,))
+                            conn.commit()
+                            update.message.reply_text('Задание выполнено! (+1000 монет)')
+                            logger.info('Sub osuzhdaiu')
+                        else:
+                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                    except:
+                        update.message.reply_text('Что-то пошло не так.')
+                else:
+                    update.message.reply_text('Награда уже получена!')
+            elif text == 'streamerswtf':
+                cursor.execute('SELECT swtf FROM newusers WHERE id = %s', (ids,))
+                subscribed = cursor.fetchone()
+                if none in str(subscribed[0]):
+                    try:
+                        member = context.bot.get_chat_member('@streamerswtf', ids)
+                        if member.status in memberslist:
+                            cursor.execute('UPDATE newusers SET exp = exp + 1000, swtf = %s WHERE id = %s', (ids, ids,))
+                            conn.commit()
+                            update.message.reply_text('Задание выполнено! (+1000 монет)')
+                            logger.info('Sub streamerswtf')
+                        else:
+                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                    except:
+                        update.message.reply_text('Что-то пошло не так.')
+                else:
+                    update.message.reply_text('Награда уже получена!')
+            elif text == 'glitchpeach':
+                cursor.execute('SELECT gp FROM newusers WHERE id = %s', (ids,))
+                subscribed = cursor.fetchone()
+                if none in str(subscribed[0]):
+                    try:
+                        member = context.bot.get_chat_member('@glitchpeach', ids)
+                        if member.status in memberslist:
+                            cursor.execute('UPDATE newusers SET exp = exp + 1000, gp = %s WHERE id = %s', (ids, ids,))
+                            conn.commit()
+                            update.message.reply_text('Задание выполнено! (+1000 монет)')
+                            logger.info('Sub glitchpeach')
+                        else:
+                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                    except:
+                        update.message.reply_text('Что-то пошло не так.')
+                else:
+                    update.message.reply_text('Награда уже получена!')
+            elif text == 'nvmrstuff':
+                cursor.execute('SELECT nvmr FROM newusers WHERE id = %s', (ids,))
+                subscribed = cursor.fetchone()
+                if none in str(subscribed[0]):
+                    try:
+                        member = context.bot.get_chat_member('@nvmrstuff', ids)
+                        if member.status in memberslist:
+                            cursor.execute('UPDATE newusers SET exp = exp + 1000, nvmr = %s WHERE id = %s', (ids, ids,))
+                            conn.commit()
+                            update.message.reply_text('Задание выполнено! (+1000 монет)')
+                            logger.info('Sub nvmr')
+                        else:
+                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                    except:
+                        update.message.reply_text('Что-то пошло не так.')
+                else:
+                    update.message.reply_text('Награда уже получена!')
+            elif text == 'shop':
+                if context.args[1] in partnersList:
+                    streamer = context.args[1]
+                    item = context.args[2]
+                    update.message.reply_text(f'{streamer}: {item}')
+                #     cursor.execute('SELECT price FROM shop WHERE streamer = %s, item = %s', (streamer, shop,))
+                #     price = cursor.fetchone()
+                #     cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
+                #     balance = cursor.fetchone()
+                #     if int(balance) >= int(price):
+                #         update.message.reply_text('Транзакция!')
+                #     elif int(balance) < int(price):
+                #         update.message.reply_text(f'Не хватает <b>{int(price)-int(balance)}</b> монет!', parse_mode='HTML')
+                #     else:
+                #         update.message.reply_text('Shop error.')
+                # else:
+                #     update.message.reply_text('Произошла ошибка!')
+            else:
+                update.message.reply_text('Meow-meow')
+        except:
+            update.message.reply_text('Meow')
+    elif str(ids) not in str(all_users):
+        update.message.reply_text('Сперва нужно зарегестрироваться, для этого напишите хотя бы одно сообщение в чате где присутствует @kamenschikbot!', parse_mode='HTML')
+
 
 def restricted(func):
     @wraps(func)
@@ -118,27 +222,41 @@ def stats(update, context):
 
 
 def raffle(update, context):
-    keyboard = [[InlineKeyboardButton("Участвую!", callback_data=f"giveaway {update.message.from_user.id}")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    date = context.args[0]
-    # context.bot.send_message(chat_id=-437611665, text=f'Всем привет!\nМы тут решили провести розыгрыш, пока вы скучаете дома!\n\nПризовой фонд:\n1. Блабла\n2. Блабла\n3. Блабла\n\nДля участия нужно подписаться на:\n@streamerswtf\n@rsmgram\nи нажать кнопку "Участвую!"')
-    context.user_data['raffle'] = context.bot.send_message(chat_id='@streamerswtf', text=f'...\nПобедители будут выбраны {date}\nУчастников: 0', reply_markup=reply_markup)
-    cursor.execute('UPDATE newusers SET raffle = 0')
-    cursor.execute('INSERT INTO raffles (id, participants, date_end, message_id, chat_id) VALUES (%s, 0, %s, %s, %s)', (update.message.from_user.id, date, context.user_data['raffle'].message_id, context.user_data['raffle'].chat_id,))
-    conn.commit()
+    ids = update.message.from_user.id
+    member = context.bot.get_chat_member(update.message.chat_id, ids)
+    if member.status in 'creator':
+        keyboard = [[InlineKeyboardButton("Участвую!", callback_data=f"giveaway {ids}")]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        invoker = context.args[0]
+        date = context.args[1]
+        try:
+        # context.bot.send_message(chat_id=-437611665, text=f'Всем привет!\nМы тут решили провести розыгрыш, пока вы скучаете дома!\n\nПризовой фонд:\n1. Блабла\n2. Блабла\n3. Блабла\n\nДля участия нужно подписаться на:\n@streamerswtf\n@rsmgram\nи нажать кнопку "Участвую!"')
+            context.user_data['raffle'] = context.bot.send_message(chat_id=invoker, text=f'...\nПобедители будут выбраны {date}\nУчастников: 0', reply_markup=reply_markup)
+            cursor.execute('UPDATE newusers SET raffle = 0')
+            cursor.execute('INSERT INTO raffles (id, participants, date_end, message_id, chat_id) VALUES (%s, 0, %s, %s, %s)', (ids, date, context.user_data['raffle'].message_id, context.user_data['raffle'].chat_id,))
+            conn.commit()
+        except:
+            update.message.reply_text('Произошла ошибка!\nВозможные причины:\n1) Введены неправильные данные.\n2) Бот не является админом на канале.\n\nПример команды:\n/raffle @example 01.01.2077')
+    else:
+        update.message.reply_text('Только владелец чата может использовать эту команду!')
 
 
 def raffleWinners(update, context):
-    text = 'Победители:\n'
-    num = 0
-    for winner in range(3):
-        cursor.execute('SELECT id, name FROM newusers WHERE raffle = 1 ORDER BY random()')
-        info = cursor.fetchone()
-        cursor.execute('UPDATE newusers SET raffle = 2 WHERE id = %s', (info[0],))
-        conn.commit()
-        num += 1
-        text += f'{num}) <a href="tg://user?id={info[0]}">{info[1]}</a>\n'
-    update.message.reply_text(text, parse_mode='HTML')
+    ids = update.message.from_user.id
+    member = context.bot.get_chat_member(update.message.chat_id, ids)
+    if member.status in 'creator':
+        text = 'Победители:\n'
+        num = 0
+        for winner in range(3):
+            cursor.execute('SELECT id, name FROM newusers WHERE raffle = 1 ORDER BY random()')
+            info = cursor.fetchone()
+            cursor.execute('UPDATE newusers SET raffle = 2 WHERE id = %s', (info[0],))
+            conn.commit()
+            num += 1
+            text += f'{num}) <a href="tg://user?id={info[0]}">{info[1]}</a>\n'
+        update.message.reply_text(text, parse_mode='HTML')
+    else:
+        update.message.reply_text('Только владелец чата может использовать эту команду!')
 
 
 def get_admin_ids(bot, chat_id):
@@ -247,91 +365,6 @@ def showTwitch(update, context):
         context.bot.send_video(chat_id=update.message.chat_id, video=clip[0], caption=fCap, parse_mode='HTML')
     else:
         pass
-
-
-def start(update, context):
-    """Send a message when the command /start is issued."""
-    ids = update.message.from_user.id
-    cursor.execute('SELECT id FROM newusers')
-    all_users = cursor.fetchall()
-    none = 'None'
-    if str(ids) in str(all_users):
-        try:
-            text = context.args[0]  
-            if text == 'osuzhdaiu':
-                cursor.execute('SELECT vt FROM newusers WHERE id = %s', (ids,))
-                subscribed = cursor.fetchone()
-                if none in str(subscribed[0]):
-                    try:
-                        member = context.bot.get_chat_member(-1001415515636, ids)
-                        if member.status in memberslist:
-                            cursor.execute('UPDATE newusers SET exp = exp + 1000, vt = %s WHERE id = %s', (ids, ids,))
-                            conn.commit()
-                            update.message.reply_text('Задание выполнено! (+1000 монет)')
-                            logger.info('Sub osuzhdaiu')
-                        else:
-                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
-                    except:
-                        update.message.reply_text('Что-то пошло не так.')
-                else:
-                    update.message.reply_text('Вы уже получали монеты за это задание!')
-            elif text == 'streamerswtf':
-                cursor.execute('SELECT swtf FROM newusers WHERE id = %s', (ids,))
-                subscribed = cursor.fetchone()
-                if none in str(subscribed[0]):
-                    try:
-                        member = context.bot.get_chat_member('@streamerswtf', ids)
-                        if member.status in memberslist:
-                            cursor.execute('UPDATE newusers SET exp = exp + 1000, swtf = %s WHERE id = %s', (ids, ids,))
-                            conn.commit()
-                            update.message.reply_text('Задание выполнено! (+1000 монет)')
-                            logger.info('Sub streamerswtf')
-                        else:
-                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
-                    except:
-                        update.message.reply_text('Что-то пошло не так.')
-                else:
-                    update.message.reply_text('Вы уже получали монеты за это задание!')
-            elif text == 'glitchpeach':
-                cursor.execute('SELECT gp FROM newusers WHERE id = %s', (ids,))
-                subscribed = cursor.fetchone()
-                if none in str(subscribed[0]):
-                    try:
-                        member = context.bot.get_chat_member('@glitchpeach', ids)
-                        if member.status in memberslist:
-                            cursor.execute('UPDATE newusers SET exp = exp + 1000, gp = %s WHERE id = %s', (ids, ids,))
-                            conn.commit()
-                            update.message.reply_text('Задание выполнено! (+1000 монет)')
-                            logger.info('Sub glitchpeach')
-                        else:
-                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
-                    except:
-                        update.message.reply_text('Что-то пошло не так.')
-                else:
-                    update.message.reply_text('Вы уже получали монеты за это задание!')
-            elif text == 'nvmrstuff':
-                cursor.execute('SELECT nvmr FROM newusers WHERE id = %s', (ids,))
-                subscribed = cursor.fetchone()
-                if none in str(subscribed[0]):
-                    try:
-                        member = context.bot.get_chat_member('@nvmrstuff', ids)
-                        if member.status in memberslist:
-                            cursor.execute('UPDATE newusers SET exp = exp + 1000, nvmr = %s WHERE id = %s', (ids, ids,))
-                            conn.commit()
-                            update.message.reply_text('Задание выполнено! (+1000 монет)')
-                            logger.info('Sub nvmr')
-                        else:
-                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
-                    except:
-                        update.message.reply_text('Что-то пошло не так.')
-                else:
-                    update.message.reply_text('Вы уже получали монеты за это задание!')
-            else:
-                update.message.reply_text('Meow')
-        except:
-            update.message.reply_text('Meow')
-    elif str(ids) not in str(all_users):
-        update.message.reply_text('Сперва нужно зарегестрироваться, для этого напишите хотя бы одно сообщение в чате где присутствует @kamenschikbot!', parse_mode='HTML')
 
 
 def checkquery(update, context):
@@ -907,9 +940,9 @@ def main():
     # log all errors
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_user))
-    dp.add_handler(CommandHandler('raffle', raffle, filters=(Filters.user(username="@daaetoya"))))
+    dp.add_handler(CommandHandler('raffle', raffle))
     # dp.add_handler(CommandHandler('raffle', raffle, filters=(Filters.user(username="@daaetoya") | Filters.user(username='@bhyout'))))
-    dp.add_handler(CommandHandler('winners', raffleWinners, filters=Filters.user(username="@daaetoya")))
+    dp.add_handler(CommandHandler('winners', raffleWinners))
     dp.add_handler(CommandHandler('krokodil', krokodil, pass_job_queue=True, pass_chat_data=True))
     dp.add_handler(CommandHandler('chipization', pidor))
     dp.add_handler(CommandHandler('chipization_toggle', pidor_toggle))
