@@ -136,7 +136,7 @@ def start(update, context):
                     if info[1] in partnersList:
                         streamer = info[1]
                         item = info[2]
-                        cursor.execute('SELECT price FROM shop WHERE streamer = %s, item = %s', (streamer, item,))
+                        cursor.execute('SELECT price FROM shop WHERE streamer = %s AND item = %s', (streamer, item,))
                         price = cursor.fetchone()
                         cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
                         balance = cursor.fetchone()
