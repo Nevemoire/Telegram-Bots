@@ -129,8 +129,8 @@ def start(update, context):
                         update.message.reply_text('Что-то пошло не так.')
                 else:
                     update.message.reply_text('Награда уже получена!')
-            elif 'shop' in text:
-                info = context.args.split('-')
+            elif text == 'shop':
+                update.message.reply_text(f'{context.args[1]}: {context.args[2]}')
                 if info[0] in partnersList:
                     streamer = info[1]
                     item = info[2]
