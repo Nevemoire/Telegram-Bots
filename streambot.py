@@ -883,7 +883,7 @@ def echo(update, context):
 #             try:
 #                 amount = int(user_says)
 #             except Exception as e:
-logger.info('Ошибка!', exc_info=e)
+# logger.info('Ошибка!', exc_info=e)
 #                 return
 #             ids = update.message.from_user.id
 #             cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
@@ -895,7 +895,7 @@ logger.info('Ошибка!', exc_info=e)
 #             result = random.randint(0, 1100)
 #             if result > risk:
 #     except Exception as e:
-logger.info('Ошибка!', exc_info=e)
+# logger.info('Ошибка!', exc_info=e)
 #         update.message.reply_text('Ошибка! Удостоверься, что ты отвечаешь на сообщение, а не на фото, видео и т.п.')
 
 
