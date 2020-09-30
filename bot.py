@@ -1,13 +1,15 @@
-
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 # This program is dedicated to the public domain under the CC0 license.
 
 """
-Simple Bot to reply to Telegram messages.
-First, a few handler functions are defined. Then, those functions are passed to
+First, a few callback functions are defined. Then, those
+functions are passed to
 the Dispatcher and registered at their respective places.
 Then, the bot is started and runs until we press Ctrl-C on the command line.
 Usage:
-Basic Echobot example, repeats messages.
+Example of a bot-user conversation using ConversationHandler.
+Send /start to initiate the conversation.
 Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
@@ -15,307 +17,990 @@ bot.
 import logging
 import random
 import psycopg2
+import os
 import time
+import string
+from uuid import uuid4
+from functools import wraps
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
-from telegram.ext import Updater, CommandHandler, MessageHandler, InlineQueryHandler, CallbackQueryHandler, ConversationHandler, Filters
+from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle, InputTextMessageContent
+from telegram.ext import Updater, CommandHandler, MessageHandler, InlineQueryHandler, CallbackQueryHandler, Filters
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-					level=logging.INFO)
+                    level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
-channel = '@nevermorebets'
-channel_username = '@theclownfiesta'
 
+conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], password=os.environ['password'],
+                        host=os.environ['host'])
+# conn = psycopg2.connect(dbname='d19olitilh6q1s', user='oukggnzlpirgzh', password='a4e84b7de4257e36cecc14b60bb0ff570f7ce52d5d24b1c7eb275c96f403af36',
+#                         host='ec2-79-125-23-20.eu-west-1.compute.amazonaws.com')
+cursor = conn.cursor()
+
+all_user_data = set()
+
+privet = ['Салам алейкум', 'Hi', 'Merhaba', 'Hola', 'Прывитанне', 'Здравейте', 'Chao', 'Aloha', 'Гамарджоба', 'Shalom', 'Ave', 'Guten Tag', 'Привіт', 'Привет', 'Namaste', 'Bonjour', 'Konnichi wa']
+LIST_OF_ADMINS = [391206263]
+channel_username = '@streamerswtf'
+ch1 = '@streamerswtf'
+# ch2 = '@rsmgram'
 memberz = 'creator, administrator, member'
 memberslist = memberz.split(', ')
 
-BETSUMM = range(1)
-
-conn = psycopg2.connect(dbname='d19olitilh6q1s', user='oukggnzlpirgzh', password='a4e84b7de4257e36cecc14b60bb0ff570f7ce52d5d24b1c7eb275c96f403af36',
-						host='ec2-79-125-23-20.eu-west-1.compute.amazonaws.com')
-# conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], password=os.environ['password'],
-#						 host=os.environ['host'])
-
-cursor = conn.cursor()
+partnersList = ['glitchpeach', 'morphilina']
 
 
-# Define a few command handlers. These usually take the two arguments update and
-# context. Error handlers also receive the raised TelegramError object in error.
 def start(update, context):
-	"""Send a message when the command /start is issued."""
-	usrid = update.message.from_user.id
-	cursor.execute('SELECT id FROM users')
-	all_users = cursor.fetchall()
-	if str(usrid) in str(all_users):
-		try:
-			text = context.args[0]
-		except:
-			return
-		if 'ref' in text:
-			promo = text.split('ref-')
-			error = 'None'
-			invoker = update.message.from_user.id
-			cursor.execute('SELECT ref_by FROM users WHERE id = %s', (invoker,))
-			promo_used = cursor.fetchone()
-			cursor.execute('SELECT id FROM users')
-			totalb = cursor.fetchall()
-			if promo[1] not in str(totalb):
-				update.message.reply_text('Такого промокода не существует.')
-			elif promo[1] in str(invoker):
-				update.message.reply_text('Свой промокод использовать нельзя!')
-			elif error not in str(promo_used):
-				update.message.reply_text('Промокод уже активирован.')
-			else:
-				update.message.reply_text(promo[1])
-				cursor.execute('UPDATE users SET exp = exp + 1000, ref_by = %s WHERE id = %s', (promo[1], update.message.from_user.id,))
-				cursor.execute('UPDATE users SET exp = exp + 100, reffs = reffs + 1 WHERE id = %s', (promo[1],))
-				update.message.reply_text('Промокод активирован, вам начислена 1000 монет.')
-				conn.commit()
-
-			return ConversationHandler.END
-		elif text == 'faq':
-			update.message.reply_text('''
-<b>1. Как играть?</b>
-Ставите на один из трёх доступных коэфициентов, указываете сумму ставки и ждёте результат.
-<b>2. Что означают 🎉, 👥, 🏦?</b>
-🎉 - Результат игры.
-👥 - Сколько всего человек сделало ставку.
-🏦 - Общий выигрыш за раунд.
-<b>3. Что такое X2, X3 и X6?</b>
-Это коэфициенты (множители) игры. Чем больше множитель, тем меньше шанс на его выпадение.
-<b>4. Какое число должно выпасть на кубике чтобы я выиграл(-а)?</b>
-<b>X2</b>: 2, 4, 6.
-<b>X3</b>: 3, 5.
-<b>X6</b>: 1.
-<b>5. Есть ли какие-нибудь ограничения на ставки?</b>
-Да. Для подписчиков @theclownfiesta максимальная ставка - <b>10 000</b> монет, для других - <b>1000</b>.
-<b>6. Могу ли я ставить если мне ещё не исполнилось 18 лет?</b>
-Да. В ставках на @NevermoreBets используется внутриигровая валюта, которую пользователи получают <a href="https://t.me/nevermorebetsbot?start=deposit">бесплатно</a> или <b>бонусом</b> за материальную поддержку разработчика.
-Она не является платёжным средством, не представляет никакой экономической ценности и не может быть поменяна на реальные деньги.
-
-Остались вопросы или есть предложение? Пишите: @daaetoya.
-<b>Важно!</b> Если у вас нет уважительной причины, а написать хочется, тогда мы ждём вас в нашем чате: @clownfiestachat.''', parse_mode='HTML')
-			return ConversationHandler.END
-		elif text == 'deposit':
-			update.message.reply_text('''
-<b>Несколько способов получить монеты:</b>
-1. Пригласить друзей в игру (/promo).
-2. Выполнять задания (@clownfiestabot -> /freecoins).
-3. Бесплатно, если вы общаетесь и/или играете в игру "Крокодил" в чате, где присутствует @clownfiestabot.
-4. Розыгрыши на канале @theclownfiesta.
-5. Поддержать разработку бота (/donate), за каждые <b>5</b> руб. вы получите <b>1000</b> монет на свой счёт :)''', parse_mode='HTML')
-			return ConversationHandler.END
-		elif (text == 'x2') or (text == 'x3') or (text == 'x6'):
-			cursor.execute('SELECT bet_mult FROM users WHERE id = %s', (update.message.from_user.id,))
-			bet = cursor.fetchone()
-			if str(bet[0]) == '0':
-				if text == 'x2':
-					nums = 'Выигрышные числа: <b>2</b>, <b>4</b>, <b>6</b>.'
-				elif text == 'x3':
-					nums = 'Выигрышные числа: <b>3</b>, <b>5</b>.'
-				elif text == 'x6':
-					nums = 'Выигрышное число: <b>1</b>.'
-				cursor.execute('SELECT exp FROM users WHERE id = %s', (update.message.from_user.id,))
-				bal = cursor.fetchone()
-				balance = int(bal[0])
-				context.user_data['multiplier'] = int(text[1])
-				update.message.reply_text(f'Укажите сумму ставки.\nВаш баланс: <b>{balance}</b> монет.\n\nВ случае выигрыша ваша ставка умножится на <b>{context.user_data["multiplier"]}</b>.\n{nums}\n\nОтменить ставку - /cancel', parse_mode='HTML')
-
-				return BETSUMM
-			else:
-				update.message.reply_text('Вы уже сделали ставку на этот раунд!')
-
-				return ConversationHandler.END
-		else:
-			return ConversationHandler.END
-	elif str(usrid) not in str(all_users):
-		update.message.reply_text('''Кажется, вы присоединились к нам <b>впервые</b>!
-Краткая сводка для новичков:
-
-Этот бот работает в паре с @clownfiestabot. Подробнее написано в разделе <a href="https://t.me/nevermorebetsbot?start=faq">ЧаВо</a>, он станет доступен после регистрации (/reg).
-
-Полезные ссылки:
-@ClownfiestaBot - Бот, созданный для развлечения пользователей. <b>Работает в чатах!</b>
-Кстати, благодаря ему родился я :)
-@ClownfiestaChat - Чат для обсуждений ботов и простого общения.
-@TheClownfiesta - Канал, где разработчик рассказывает об обновлениях ботов, разных новостях и даже делает розыгрыши.
-@NevermoreBets - Канал со ставками.
-
-Добро пожаловать к нам!\nЧтобы зарегистрироваться и начать пользоваться ботом, нажмите: /reg''', parse_mode='HTML')
-
-		return ConversationHandler.END
-
-
-def reg(update, context):
-	ids = update.message.from_user.id
-	name = update.message.from_user.full_name
-	cur_time = int(time.time())
-	cursor.execute('SELECT id FROM users')
-	members = cursor.fetchall()
-	if str(ids) in str(members):
-		cursor.execute('UPDATE users SET name = %s, lastmsg = %s WHERE id = %s', (name, cur_time, ids,))
-	else:
-		registered = time.strftime('%d.%m.%y')
-		cursor.execute('INSERT INTO users (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (ids, name, cur_time, registered,))
-		update.message.reply_text('Регистрация пройдена успешно!\nПереходите на наш канал: @NevermoreBets')
-	conn.commit()
+    """Send a message when the command /start is issued."""
+    ids = update.message.from_user.id
+    cursor.execute('SELECT id FROM newusers')
+    all_users = cursor.fetchall()
+    none = 'None'
+    if str(ids) in str(all_users):
+        try:
+            text = context.args[0]  
+            if text == 'osuzhdaiu':
+                cursor.execute('SELECT vt FROM newusers WHERE id = %s', (ids,))
+                subscribed = cursor.fetchone()
+                if none in str(subscribed[0]):
+                    try:
+                        member = context.bot.get_chat_member('@osuzhdaiu', ids)
+                        if member.status in memberslist:
+                            cursor.execute('UPDATE newusers SET exp = exp + 1000, vt = %s WHERE id = %s', (ids, ids,))
+                            conn.commit()
+                            update.message.reply_text('Задание выполнено! (+1000 монет)')
+                            logger.info('Sub osuzhdaiu')
+                        else:
+                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                    except Exception as e:
+                        logger.info('Ошибка!', exc_info=e)
+                        update.message.reply_text('Что-то пошло не так.')
+                else:
+                    update.message.reply_text('Награда уже получена!')
+            elif text == 'streamerswtf':
+                cursor.execute('SELECT swtf FROM newusers WHERE id = %s', (ids,))
+                subscribed = cursor.fetchone()
+                if none in str(subscribed[0]):
+                    try:
+                        member = context.bot.get_chat_member('@streamerswtf', ids)
+                        if member.status in memberslist:
+                            cursor.execute('UPDATE newusers SET exp = exp + 1000, swtf = %s WHERE id = %s', (ids, ids,))
+                            conn.commit()
+                            update.message.reply_text('Задание выполнено! (+1000 монет)')
+                            logger.info('Sub streamerswtf')
+                        else:
+                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                    except Exception as e:
+                        logger.info('Ошибка!', exc_info=e)
+                        update.message.reply_text('Что-то пошло не так.')
+                else:
+                    update.message.reply_text('Награда уже получена!')
+            elif text == 'glitchpeach':
+                cursor.execute('SELECT gp FROM newusers WHERE id = %s', (ids,))
+                subscribed = cursor.fetchone()
+                if none in str(subscribed[0]):
+                    try:
+                        member = context.bot.get_chat_member('@glitchpeach', ids)
+                        if member.status in memberslist:
+                            cursor.execute('UPDATE newusers SET exp = exp + 1000, gp = %s WHERE id = %s', (ids, ids,))
+                            conn.commit()
+                            update.message.reply_text('Задание выполнено! (+1000 монет)')
+                            logger.info('Sub glitchpeach')
+                        else:
+                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                    except Exception as e:
+                        logger.info('Ошибка!', exc_info=e)
+                        update.message.reply_text('Что-то пошло не так.')
+                else:
+                    update.message.reply_text('Награда уже получена!')
+            elif text == 'nvmrstuff':
+                cursor.execute('SELECT nvmr FROM newusers WHERE id = %s', (ids,))
+                subscribed = cursor.fetchone()
+                if none in str(subscribed[0]):
+                    try:
+                        member = context.bot.get_chat_member('@nvmrstuff', ids)
+                        if member.status in memberslist:
+                            cursor.execute('UPDATE newusers SET exp = exp + 1000, nvmr = %s WHERE id = %s', (ids, ids,))
+                            conn.commit()
+                            update.message.reply_text('Задание выполнено! (+1000 монет)')
+                            logger.info('Sub nvmr')
+                        else:
+                            update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
+                    except Exception as e:
+                        logger.info('Ошибка!', exc_info=e)
+                        update.message.reply_text('Что-то пошло не так.')
+                else:
+                    update.message.reply_text('Награда уже получена!')
+            elif 'shop' in text:
+                try:
+                    info = text.split('-')
+                    update.message.reply_text(f'{text}: {info[1]}')
+                    if info[1] in partnersList:
+                        streamer = info[1]
+                        item = info[2]
+                        cursor.execute('SELECT price FROM shop WHERE streamer = %s AND item = %s', (streamer, item,))
+                        price = cursor.fetchone()
+                        cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
+                        balance = cursor.fetchone()
+                        if int(balance[0]) >= int(price[0]):
+                            update.message.reply_text('Транзакция!')
+                        elif int(balance[0]) < int(price[0]):
+                            update.message.reply_text(f'Не хватает <b>{int(price[0])-int(balance[0])}</b> монет!', parse_mode='HTML')
+                        else:
+                            update.message.reply_text('Shop error.')
+                    else:
+                        update.message.reply_text('Произошла ошибка! #SHOPERROR')
+                except Exception as e:
+                    update.message.reply_text('Ошибка запроса! #SHOP404')
+                    logger.info('Ошибка!', exc_info=e)
+            else:
+                update.message.reply_text('Meow-meow')
+        except Exception as e:
+            update.message.reply_text('Meow')
+            logger.info('Ошибка!', exc_info=e)
+    elif str(ids) not in str(all_users):
+        update.message.reply_text('Сперва нужно зарегестрироваться, для этого напишите хотя бы одно сообщение в чате где присутствует @MokaAkasiaBot!', parse_mode='HTML')
 
 
-def bet_summ(update, context):
-	cursor.execute('SELECT exp FROM users WHERE id = %s', (update.message.from_user.id,))
-	bal = cursor.fetchone()
-	balance = int(bal[0])
-	multiplier = context.user_data['multiplier']
-	try:
-		bet = int(update.message.text)
-		member = context.bot.get_chat_member(channel_username, update.message.from_user.id)
-		if member.status in memberslist:
-			maxBet = 10000
-		else:
-			maxBet = 1000
-		if bet >= 100 and bet <= balance and bet <= maxBet:
-			cursor.execute('UPDATE users SET exp = exp - %s, bet = %s, bet_mult = %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, multiplier, bet, update.message.from_user.id,))
-			conn.commit()
-			update.message.reply_text(f'💰: {balance-bet}\n🎲: [<b>X{multiplier}</b>] <b>{bet}</b> монет.\n👾: @NevermoreBets', parse_mode='HTML')
-			del context.user_data['multiplier']
-
-			return ConversationHandler.END
-		elif bet >= 100 and bet > balance and bet <= maxBet:
-			update.message.reply_text(f'Недостаточно монет!\nВаш баланс: <b>{balance}</b> монет.\n\nОтменить ставку - /cancel', parse_mode='HTML')
-		elif bet < 100 or bet > maxBet:
-			update.message.reply_text('Ошибка! <b>Мин.</b> ставка: <b>100</b> монет, <b>макс.</b> ставка: <b>1000</b> монет.\nДля подписчиков @theclownfiesta <b>макс.</b> ставка: <b>10 000</b> монет.\n\nОтменить ставку - /cancel', parse_mode='HTML')
-	except:
-		update.message.reply_text('Проверьте, чтобы в вашем сообщении не было лишних символов и попробуйте ещё раз.\n\nОтменить ставку - /cancel')
+def restricted(func):
+    @wraps(func)
+    def wrapped(update, context, *args, **kwargs):
+        user_id = update.effective_user.id
+        if user_id not in LIST_OF_ADMINS:
+            print("Unauthorized access denied for {}.".format(user_id))
+            return
+        return func(update, context, *args, **kwargs)
+    return wrapped
 
 
-def cancel(update, context):
-	update.message.reply_text('Охрана, отмена 😵\n\nОбязательно возвращайтесь, мы ждём вас! @NevermoreBets')
-
-	return ConversationHandler.END
-
-
-def donate(update, context):
-	update.message.reply_text('Реквизиты для доната:\nСбер: 5469 3800 8674 8745\nЯ.Соберу: yasobe.ru/na/Nevermore\n\nПрикрепите ваш UserID к донату чтобы получить 1000 монет за каждые 5 руб. доната :)')
-	update.message.reply_text(f'Ваш UserID: {update.message.from_user.id}')
+@restricted
+def ban(update, context):
+    target = update.message.reply_to_message.from_user.id
+    cursor.execute('UPDATE newusers SET banned = 1 WHERE id = %s', (target,))
+    conn.commit()
+    update.message.reply_text('Пользователь забанен.')
 
 
-def promo(update, context):
-	update.message.reply_text(f'Ссылка для приглашения:\nhttps://t.me/NevermoreBetsBot?start=ref-{update.message.from_user.id}')
+@restricted
+def unban(update, context):
+    target = update.message.reply_to_message.from_user.id
+    cursor.execute('UPDATE newusers SET banned = 0 WHERE id = %s', (target,))
+    conn.commit()
+    update.message.reply_text('Пользователь разбанен.')
 
 
-def help(update, context):
-	"""Send a message when the command /help is issued."""
-	update.message.reply_text('Чтобы сделать ставку перейдите в этот канал: @NevermoreBets.\nЧастые вопросы и ответы на них вы можете посмотреть, нажав на соответствующую кнопку под одним из сообщений на канале.\nЕсть другие вопросы или предложения? Пишите: @daaetoya')
+@restricted
+def message(update, context):
+    keyboard = [[InlineKeyboardButton("Обсудить 🙋", url="t.me/swtfchat")], [InlineKeyboardButton("Наш канал", url="t.me/streamerswtf")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    s = update.message.text
+    cursor.execute('SELECT id FROM newchats')
+    ids = cursor.fetchall()
+    for newchats in ids:
+        try:
+            context.bot.send_message(chat_id=newchats[0], text=s.split(' ', 1)[1], reply_markup=reply_markup)
+        except Exception as e:
+            cursor.execute("UPDATE newchats SET unable = 1 WHERE id = %s", (newchats[0],))
+            logger.info('Ошибка!', exc_info=e)
 
 
-def bot_bets(context):
-	try:
-		cursor.execute('SELECT COUNT(bet_mult) FROM users WHERE bet_mult > 0')
-		bet_num = cursor.fetchone()
-		total_bets = int(bet_num[0])
-	except:
-		total_bets = 0
-	job = context.job
-	keyboard = [[InlineKeyboardButton("X2", url="t.me/nevermorebetsbot?start=x2"), InlineKeyboardButton("X3", url="t.me/nevermorebetsbot?start=x3"), InlineKeyboardButton("X6", url="t.me/nevermorebetsbot?start=x6")],
-				[InlineKeyboardButton("Пополнить 💰", url="t.me/nevermorebetsbot?start=deposit"), InlineKeyboardButton("ЧаВо 👩‍🎓", url="t.me/nevermorebetsbot?start=faq")]]
-	reply_markup = InlineKeyboardMarkup(keyboard)
-	bets = context.bot.send_dice(chat_id=channel)
-	if (bets.dice.value == 2) or (bets.dice.value == 4) or (bets.dice.value == 6):
-		multiplier = 'x2'
-		mult = 2
-	elif (bets.dice.value == 3) or (bets.dice.value == 5):
-		multiplier = 'x3'
-		mult = 3
-	elif bets.dice.value == 1:
-		multiplier = 'x6'
-		mult = 6
-	else:
-		context.bot.send_message(chat_id=channel, text='Error')
-
-		return
-	cursor.execute('SELECT SUM(bet) FROM users WHERE bet_mult = %s', (mult,))
-	bet_total = cursor.fetchone()
-	try:
-		total_win = int(bet_total[0])
-	except:
-		total_win = 0
-	cursor.execute('UPDATE users SET exp = exp + bet * %s WHERE bet_mult = %s', (mult, mult,))
-	cursor.execute('UPDATE users SET bet = 0, bet_mult = 0 WHERE bet_mult > 0')
-	conn.commit()
-	context.bot.send_message(chat_id=channel, text=f'🎉 {multiplier} | 👥 {total_bets} | 🏦 {total_win*mult}\n\nСделать ставку 👇', reply_markup=reply_markup)
-	msg = context.bot.send_message(chat_id=channel, text=f'⌛️: {job.interval} секунд.')
-	mID = msg.message_id
-	context.job_queue.run_repeating(sec_update, interval=10, first=11, context=mID)
-	global t_sec
-	global t_range
-	t_sec = 95
-	t_range = 9
+@restricted
+def compensate(update, context):
+    cursor.execute("UPDATE newusers SET exp = exp + 1000")
+    conn.commit()
+    update.message.reply_text('Готово!')
 
 
-def sec_update(context):
-	global t_sec
-	global t_range
-	job = context.job
-	if t_range > 1:
-		t_sec = t_sec - 10
-		context.bot.edit_message_text(chat_id=channel, message_id=job.context, text=f'⌛️: {t_sec} секунд.')
-		t_range = t_range - 1
-	elif t_range == 1:
-		t_sec = t_sec - 10
-		context.bot.delete_message(chat_id=channel, message_id=job.context)
-		job.schedule_removal()
-	else:
-		logger.info('shit')
+@restricted
+def stats(update, context):
+    cursor.execute('SELECT id from newchats')
+    ids = cursor.fetchall() 
+    for newchats in ids:
+        try:
+            chatUsers = context.bot.get_chat_members_count(newchats[0])
+            cursor.execute('UPDATE newchats SET users = %s WHERE id = %s', (chatUsers, newchats[0],))
+            conn.commit()
+        except Exception as e:
+            logger.info('Ошибка!', exc_info=e)
+            cursor.execute('UPDATE newchats SET unable = 2 WHERE id = %s', (newchats[0],))
+            conn.commit()
+    cursor.execute('SELECT COUNT(id) FROM newusers')
+    allUsers = cursor.fetchone()
+    cursor.execute('SELECT COUNT(id), SUM(users) FROM newchats')
+    info = cursor.fetchone()
+    update.message.reply_text(f'Всего чатов: {info[0]}\nВсего участников: {info[1]}\nАктивных участников: {allUsers[0]}')
+
+
+def raffle(update, context):
+    ids = update.message.from_user.id
+    member = context.bot.get_chat_member(update.message.chat_id, ids)
+    if member.status in 'creator':
+        keyboard = [[InlineKeyboardButton("Участвую!", callback_data=f"giveaway {ids}")]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        invoker = context.args[0]
+        date = context.args[1]
+        try:
+        # context.bot.send_message(chat_id=-437611665, text=f'Всем привет!\nМы тут решили провести розыгрыш, пока вы скучаете дома!\n\nПризовой фонд:\n1. Блабла\n2. Блабла\n3. Блабла\n\nДля участия нужно подписаться на:\n@streamerswtf\n@rsmgram\nи нажать кнопку "Участвую!"')
+            context.user_data['raffle'] = context.bot.send_message(chat_id=invoker, text=f'...\nПобедители будут выбраны {date}\nУчастников: 0', reply_markup=reply_markup)
+            cursor.execute('UPDATE newusers SET raffle = 0')
+            cursor.execute('INSERT INTO raffles (id, participants, date_end, message_id, chat_id) VALUES (%s, 0, %s, %s, %s)', (ids, date, context.user_data['raffle'].message_id, context.user_data['raffle'].chat_id,))
+            conn.commit()
+        except Exception as e:
+            logger.info('Ошибка!', exc_info=e)
+            update.message.reply_text('Произошла ошибка!\nВозможные причины:\n1) Введены неправильные данные.\n2) Бот не является админом на канале.\n\nПример команды:\n/raffle @example 01.01.2077')
+    else:
+        update.message.reply_text('Только владелец чата может использовать эту команду!')
+
+
+def raffleWinners(update, context):
+    ids = update.message.from_user.id
+    member = context.bot.get_chat_member(update.message.chat_id, ids)
+    if member.status in 'creator':
+        text = 'Победители:\n'
+        num = 0
+        for winner in range(3):
+            cursor.execute('SELECT id, name FROM newusers WHERE raffle = 1 ORDER BY random()')
+            info = cursor.fetchone()
+            cursor.execute('UPDATE newusers SET raffle = 2 WHERE id = %s', (info[0],))
+            conn.commit()
+            num += 1
+            text += f'{num}) <a href="tg://user?id={info[0]}">{info[1]}</a>\n'
+        update.message.reply_text(text, parse_mode='HTML')
+    else:
+        update.message.reply_text('Только владелец чата может использовать эту команду!')
+
+
+def get_admin_ids(bot, chat_id):
+    """Returns a list of admin IDs for a given chat. Results are cached for 1 hour."""
+    return [admin.user.id for admin in bot.get_chat_administrators(chat_id)]
+
+
+def get_word(fname):
+    lines = open(fname).read().splitlines()
+    return random.choice(lines)
+
+
+def new_user(update, context):
+    for member in update.message.new_chat_members:
+        if member.id != context.bot.get_me().id:
+            logger.info('hey user')
+            cursor.execute('SELECT id, link FROM newhello ORDER BY random() LIMIT 1')
+            hgif = cursor.fetchall()
+            newhello = hgif[0]
+            tLink = newhello[1]
+            context.bot.send_animation(chat_id=update.message.chat_id, animation=newhello[0], caption=f'{random.choice(privet)}, {update.message.from_user.full_name}!\n📸: <a href="twitch.tv/{tLink}">{tLink}</a>', parse_mode="HTML")
+            cursor.execute('SELECT id from newusers')
+            all_ids = cursor.fetchall()
+            if str(member.id) not in str(all_ids):
+                name = update.message.from_user.full_name
+                cur_time = int(time.time())
+                registered = time.strftime('%d.%m.%y')
+                cursor.execute('INSERT INTO newusers (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (member.id, name, cur_time, registered,))
+                conn.commit()
+                logger.info(f'New invited user {update.message.from_user.full_name}!')
+            else:
+                pass
+        elif member.id == context.bot.get_me().id:
+            logger.info('hey chat')
+            userscount = context.bot.get_chat_members_count(update.message.chat.id)
+            name = update.message.chat.title
+            chatid = update.message.chat_id
+            cursor.execute('SELECT id FROM newchats')
+            newchats = cursor.fetchall()
+            if str(chatid) in str(newchats):
+                logger.info('here we go again...')
+                update.message.reply_text('Мне кажется, или я уже была в этом чате? Осуждаю.\n\nЛадно, ладно. Я не злопамятная, можем начать всё с чистого листа, но только в этот раз!.')
+                cursor.execute('UPDATE newchats SET name = %s, users = %s, unable = 0 WHERE id = %s', (name, userscount, chatid,))
+                context.bot.send_message(chat_id=391206263, text=f'Бота снова добавили в {name} ({userscount})!')
+                conn.commit()
+            elif str(chatid) not in str(newchats):
+                logger.info('hola amigos')
+                cursor.execute('INSERT INTO newchats (id, users, name) VALUES (%s, %s, %s)', (chatid, userscount, name,))
+                context.bot.send_message(chat_id=391206263, text=f'Бота добавили в {name} ({userscount})!')
+                update.message.reply_text("""
+Всем пис в этом чатике!
+С этого момента я буду вас развлекать.
+
+Список доступных команд: /help
+Сообщество СНГ стримеров: @streamerswtf
+Наш сайт: streamers.wtf""", disable_web_page_preview=True)
+                conn.commit()
+            else:
+                update.message.reply_text('Произошла ошибка.')
+        else:
+            pass
+
+
+def set_exp(context):
+    cur_time = int(time.time())
+    exp_time = cur_time - 600
+    cursor.execute('UPDATE newusers SET exp = exp + 10 WHERE lastmsg >= %s', (exp_time,))
+    conn.commit()
+    logger.info('Exp time!')
+
+
+def krokodie(context):
+    context.bot.send_message(chat_id=context.job.context, text='Время истекло!\nНачать игру заново - /krokodil')
+    cursor.execute('UPDATE newgames SET state = 2 WHERE chatid = %s', (context.job.context,))
+    conn.commit()
+
+
+def krokoreload(context):
+    cursor.execute('UPDATE newgames SET state = 0')
+    conn.commit()
+
+
+def hGif(update, context):
+    fID = update.message.document.file_id
+    fLink = update.message.caption
+    update.message.reply_text(fID)
+    cursor.execute('INSERT INTO newhello (id, link) VALUES (%s, %s)', (fID, fLink,))
+    conn.commit()
+    logger.info('New hi gif')
+
+
+def twitch(update, context):
+    fID = update.message.video.file_id
+    update.message.reply_text(fID)
+    cursor.execute('INSERT INTO newclips (id) VALUES (%s)', (fID,))
+    conn.commit()
+
+
+def showTwitch(update, context):
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
+    banned = cursor.fetchone()
+    if '0' in str(banned[0]):
+        fCap = "Лучшие моменты <b>Twitch</b>'a: @osuzhdaiu"
+        cursor.execute('SELECT id FROM newclips ORDER BY random() LIMIT 1')
+        clip = cursor.fetchone()
+        context.bot.send_video(chat_id=update.message.chat_id, video=clip[0], caption=fCap, parse_mode='HTML')
+    else:
+        pass
+
+
+def checkquery(update, context):
+    """Handle the inline query."""
+    query = update.inline_query
+    name = update.inline_query.from_user.full_name
+    id_int = update.inline_query.from_user.id
+    ids = str(id_int)
+    cursor.execute('SELECT id FROM newusers')
+    members = cursor.fetchall()
+    if ids in str(members):
+        # if ids not in all_user_data:
+        possible_chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
+        check_hash = ''.join(random.choice(possible_chars) for x in range(10))
+        all_user_data = check_hash
+        # all_user_data.add(ids)
+        keyboard = [[InlineKeyboardButton("Активировать", callback_data=f'cheque {check_hash} {query.from_user.id} {query.query}')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        text = query.query
+        cursor.execute('SELECT exp FROM newusers WHERE id = %s', (query.from_user.id,))
+        balance = cursor.fetchone()
+        try:
+            if int(query.query) > int(balance[0]):
+                results = [
+                    InlineQueryResultArticle(
+                        id=uuid4(),
+                        title="Недостаточно средств",
+                        description="Жаль, но не получится выписать чек на эту сумму:(",
+                        thumb_url="https://i.pinimg.com/originals/49/0d/c0/490dc04a6916f957f560297b919b330a.jpg",
+                        input_message_content=InputTextMessageContent('Недостаточно средств :('))]
+            elif int(query.query) < 100:
+                results = [
+                    InlineQueryResultArticle(
+                        id=uuid4(),
+                        title="Мин. сумма чека: 100 монет",
+                        description="Жаль, но не получится выписать чек на эту сумму:(",
+                        thumb_url="https://i.pinimg.com/originals/49/0d/c0/490dc04a6916f957f560297b919b330a.jpg",
+                        input_message_content=InputTextMessageContent('Упс, ошибка :('))]
+            else:
+                results = [
+                    InlineQueryResultArticle(
+                        id=uuid4(),
+                        title=f"Чек на сумму {query.query} монет.",
+                        description=f"Баланс после списания: {int(balance[0])-int(query.query)} монет.",
+                        thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
+                        reply_markup=reply_markup,
+                        input_message_content=InputTextMessageContent(f'От: {name}\nЧек на: {query.query} монет.'))]
+        except Exception as e:
+            logger.info('Ошибка!', exc_info=e)
+            results = [
+                    InlineQueryResultArticle(
+                        id=uuid4(),
+                        title=f"Укажите сумму чека",
+                        description=f"Баланс: {balance[0]} монет.",
+                        thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
+                        input_message_content=InputTextMessageContent('Привет! Как дела?)'))]
+
+        query.answer(results, cache_time=0, is_personal=True)
+        # elif ids in all_user_data:
+        #     results = [
+        #                 InlineQueryResultArticle(
+        #                     id=uuid4(),
+        #                     title=f"Нельзя создавать больше одного чека одновременно.",
+        #                     description=f"Баланс: {balance[0]} монет.",
+        #                     thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
+        #                     input_message_content=InputTextMessageContent('Привет! Как дела?)'))]
+        #     query.answer(results, cache_time=0, is_personal=True)
+
+
+def bets(update, context):
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
+    banned = cursor.fetchone()
+    if '0' in str(banned[0]):
+        ids = update.message.from_user.id
+        cursor.execute('SELECT id FROM newusers')
+        members = cursor.fetchall()
+        if str(ids) in str(members):
+            cursor.execute('SELECT exp, bet FROM newusers WHERE id = %s', (update.message.from_user.id,))
+            betinfo = cursor.fetchone()
+            balance = int(betinfo[0])
+            bet = int(betinfo[1])
+            dice = update.message.dice.value
+            if bet == 0:
+                pass
+            else:
+                if balance >= bet:
+                    if dice <= 3:
+                        update.message.reply_text(f'Проигрыш! (-{bet} монет)\nРезультат: {dice}')
+                        cursor.execute('UPDATE newusers SET exp = exp - %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
+                        conn.commit()
+                    elif dice > 3:
+                        update.message.reply_text(f'Выигрыш! (+{bet} монет)\nРезультат: {dice}')
+                        cursor.execute('UPDATE newusers SET exp = exp + %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
+                        conn.commit()
+                    else:
+                        update.message.reply_text('Произошла ошибка, попробуй позже!')
+                elif balance < bet:
+                    update.message.reply_text('Недостаточно монет!')
+                else:
+                    update.message.reply_text('Произошла ошибка, попробуй позже!')
+        else:
+            update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
+    else:
+        pass
+
+
+def setBet(update, context):
+    # update.message.reply_text('Ставки и всё что с ними связано теперь здесь: @NevermoreBets.\nСовершенно новый, уникальный, неповторимый экспириенс в телеграмме, залетайте!')
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
+    banned = cursor.fetchone()
+    if '0' in str(banned[0]):
+        ids = update.message.from_user.id
+        cursor.execute('SELECT id FROM newusers')
+        members = cursor.fetchall()
+        if str(ids) in str(members):
+            member = context.bot.get_chat_member(channel_username, ids)
+            if member.status in memberslist:
+                maxBet = 10000
+            else:
+                maxBet = 1000
+            user_says = context.args
+            try:
+                bet = int(user_says[0])
+                if (bet == 0) or (bet >= 10) and (bet <= maxBet):
+                    cursor.execute('UPDATE newusers SET bet = %s WHERE id = %s', (bet, ids,))
+                    conn.commit()
+                    update.message.reply_text('Готово! Чтобы сделать ставку, пришли в чат этот эмодзи: 🎲')
+                else:
+                    update.message.reply_text(f'Недопустимое значение!\nМин. ставка: 10 монет\nМакс. ставка: 1000 монет или 10.000 монет для подписчиков: {channel_username}\nЧтобы отключить ставки, напиши: /bet 0')
+            except Exception as e:
+                logger.info('Ошибка!', exc_info=e)
+                update.message.reply_text('Пришли мне команду в формате:\n/bet <ЧИСЛО>,\n\nгде <ЧИСЛО> - сумма ставки.\nОтключить ставки: /bet 0')
+        else:
+            update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
+    else:
+        pass
+
+
+def pidor(update, context):
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
+    banned = cursor.fetchone()
+    if '0' in str(banned[0]):
+        try:
+            cursor.execute('SELECT pidor_total, pidor_last FROM newchats WHERE id = %s', (update.message.chat_id,))
+            pInfo = cursor.fetchone()
+            if 'pidor' in context.chat_data:
+                pidor = context.chat_data['pidor']
+                update.message.reply_text(f'В последний раз Гейтс чипировал {pidor}')
+            elif int(pInfo[0]) > 0:
+                update.message.reply_text(f'В последний раз Гейтс чипировал {pInfo[1]}')
+            else:
+                update.message.reply_text('В этом чате пока никого не чипировали.')
+        except IndexError as error:
+            update.message.reply_text('Парам-пара-па. Пау! Этот чат пока слишком зелёный.')
+        except Exception as e:
+            logger.info('Ошибка!', exc_info=e)
+            update.message.reply_text('Произошла оши-и-и-б... (System Error)')
+    else:
+        pass
+
+
+def pidor_toggle(update, context):
+    try:
+        if update.effective_user.id in get_admin_ids(context.bot, update.message.chat_id):
+            cursor.execute('SELECT pidor_state FROM newchats WHERE id = %s', (update.message.chat_id,))
+            pState = cursor.fetchone()
+            if '1' in str(pState[0]):
+                cursor.execute('UPDATE newchats SET pidor_state = 0 WHERE id = %s', (update.message.chat_id,))
+                update.message.reply_text('Всем участникам чата роздано по шапочке из фольги!')
+            elif '0' in str(pState[0]):
+                cursor.execute('UPDATE newchats SET pidor_state = 1 WHERE id = %s', (update.message.chat_id,))
+                update.message.reply_text('Шапочки из фольги закончились! Теперь любой из нас может быть чипирован!')
+            else:
+                update.message.reply_text('Произошла ошибка!')
+            conn.commit()
+        else:
+            update.message.reply_text('Кажется, у тебя нет власти.')
+    except Exception as e:
+        logger.info('Ошибка!', exc_info=e)
+        update.message.reply_text('Произошла ошибка!')
+
+
+def krokodil(update, context):
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
+    banned = cursor.fetchone()
+    if '0' in str(banned[0]):
+        try:
+            cursor.execute('SELECT state FROM newgames WHERE chatid = %s', (update.message.chat_id,))
+            state = cursor.fetchone()
+            if ('0' in str(state[0])) or ('2' in str(state[0])):
+                cursor.execute('UPDATE newgames SET total = total + 1 WHERE chatid = %s', (update.message.chat_id,))
+                conn.commit()
+                cursor.execute('SELECT total FROM newgames WHERE chatid = %s', (update.message.chat_id,))
+                gameid = cursor.fetchone()
+                keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id} {gameid[0]}')], [InlineKeyboardButton("Поменять (-5 монет)", callback_data=f'krokochange {update.message.from_user.id} {gameid[0]}')]]
+                reply_markup = InlineKeyboardMarkup(keyboard)
+                invoker = update.message.from_user.full_name
+                context.chat_data['krokoword'] = (get_word('russian.txt'))
+                context.chat_data['message'] = update.message.reply_text(f'Игра #{gameid[0]}\nОбъясняет: {invoker}\nВремени: 2 минуты', reply_markup=reply_markup)
+                context.chat_data['kroko_job'] = context.job_queue.run_once(krokodie, 120, context=update.message.chat_id)
+                context.chat_data['kroko_inv'] = update.message.from_user.id
+                context.chat_data['kroko_iname'] = update.message.from_user.full_name
+                cursor.execute('UPDATE newgames SET state = 1 WHERE chatid = %s', (update.message.chat_id,))
+                conn.commit()
+            elif '1' in str(state[0]):
+                update.message.reply_text('Игра уже идёт!')
+            else:
+                update.message.reply_text('Error!')
+        except Exception as e:
+            logger.info('Ошибка!', exc_info=e)
+            cursor.execute('INSERT INTO newgames (chatid, state) VALUES (%s, 0)', (update.message.chat_id,))
+            conn.commit()
+            update.message.reply_text('Чат зарегестрирован! Напиши /krokodil ещё раз, чтобы начать игру.')
+    else:
+        pass
+
+
+def fbi(update, context):
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
+    banned = cursor.fetchone()
+    if '0' in str(banned[0]):
+        context.bot.send_animation(chat_id=update.message.chat_id, animation='CgACAgIAAxkBAAIBrF6MQgz-TZJXda7BWdgFSZfY1LAOAAIVAwACuzWoSw_3NpLvCy0dGAQ')
+    else:
+        pass
+
+
+def babki(update, context):
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
+    banned = cursor.fetchone()
+    if '0' in str(banned[0]):
+        cursor.execute('SELECT exp FROM newusers WHERE id = %s', (update.message.from_user.id,))
+        babki = cursor.fetchone()
+        update.message.reply_text(f'У тебя {babki[0]} монет!')
+    else:
+        pass
+
+
+def tip(update, context):
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
+    banned = cursor.fetchone()
+    if '0' in str(banned[0]):
+        try:
+            target = update.message.reply_to_message.from_user.id
+            tName = update.message.reply_to_message.from_user.full_name
+            ids = update.message.from_user.id
+            iName = update.message.from_user.full_name
+            cursor.execute('SELECT id FROM newusers')
+            members = cursor.fetchall()
+            if (str(ids) in str(members)) and (str(target) in str(members)):
+                member = context.bot.get_chat_member(channel_username, ids)
+                if member.status in memberslist:
+                    maxTip = 10000
+                else:
+                    maxTip = 1000
+                user_says = context.args
+                try:
+                    amount = int(user_says[0])
+                except Exception as e:
+                    logger.info('Ошибка!', exc_info=e)
+                    update.message.reply_text('Ошибка! Укажи сумму перевода.')
+                    return
+                cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
+                balance = cursor.fetchone()
+                if (amount < 10) or (amount > maxTip):
+                    update.message.reply_text(f'Ошибка!\nМин. перевод: 10 монет, макс. перевод: 1000 монет или 10.000 монет для подписчиков: {channel_username} за раз.')
+                elif str(ids) in str(target):
+                    update.message.reply_text('Очень смешно. 🤨')
+                elif amount > int(balance[0]):
+                    update.message.reply_text('Недостаточно средств!')
+                elif ((amount >= 10) and (amount <= maxTip)) and amount <= int(balance[0]):
+                    cursor.execute('UPDATE newusers SET exp = exp - %s, total_tipped = total_tipped + %s WHERE id = %s', (amount, amount, ids,))
+                    cursor.execute('UPDATE newusers SET exp = exp + %s, total_recieved = total_recieved + %s WHERE id = %s', (amount, amount, target,))
+                    conn.commit()
+                    update.message.reply_text(f'<code>{iName}</code> успешно переводит <code>{tName}</code> <b>{amount}</b> монет.', parse_mode='HTML')
+            else:
+                update.message.reply_text('Ошибка! Перевод возможен только если оба пользователя присутствуют в базе данных.')
+        except Exception as e:
+            logger.info('Ошибка!', exc_info=e)
+            update.message.reply_text('Ошибка! Удостоверься, что ты отвечаешь на сообщение, а не на фото, видео и т.п.')
+    else:
+        pass
+
+
+def button(update, context):
+    query = update.callback_query
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (query.from_user.id,))
+    banned = cursor.fetchone()
+    if '0' in str(banned[0]):
+        if ('krokoword' in query.data) or ('krokochange' in query.data):
+            data = query.data.split()
+            gId = data[2]
+            cursor.execute('SELECT total FROM newgames WHERE chatid = %s', (query.message.chat_id,))
+            gameid = cursor.fetchone()
+            if str(gId) == str(gameid[0]):
+                if ('krokoword' in query.data) and (str(query.from_user.id) in query.data):
+                    query.answer(f'{context.chat_data["krokoword"]}', show_alert=True)
+                elif ('krokochange' in query.data) and (str(query.from_user.id) in query.data):
+                    logger.info('yes')
+                    cursor.execute('SELECT exp FROM newusers WHERE  id = %s', (query.from_user.id,))
+                    balancez = cursor.fetchone()
+                    balance = int(balancez[0])
+                    if balance >= 5:
+                        logger.info('byes')
+                        context.chat_data['krokoword'] = (get_word('russian.txt'))
+                        query.answer(f'Новое слово: {context.chat_data["krokoword"]}', show_alert=True)
+                        cursor.execute('UPDATE newusers SET exp = exp - 5 WHERE id = %s', (query.from_user.id,))
+                        conn.commit()
+                    else:
+                        query.answer('Недостаточно монет!', show_alert=True)
+                elif str(query.from_user.id) not in query.data:
+                    query.answer(f'В очередь!\nСейчас объясняет: {context.chat_data["kroko_iname"]}', show_alert=True)
+            else:
+                query.answer('Эта игра уже закончилась!', show_alert=True)
+        elif 'cheque' in query.data:
+            if (str(query.from_user.id) not in query.data):
+                cursor.execute('SELECT id FROM newusers')
+                members = cursor.fetchall()
+                if str(query.from_user.id) in str(members):
+                    data = query.data.split()
+                    qHash = data[1]
+                    qInvoker = data[2]
+                    qAmount = data[3]
+                    qTime = int(time.time())
+                    if qInvoker in all_user_data:
+                        all_user_data.remove(qInvoker)
+                        logger.info(f'From: {qInvoker}, Hash: {qHash}, SUMM: {qAmount}')
+                        cursor.execute('SELECT exp FROM newusers WHERE id = %s', (qInvoker,))
+                        balance = cursor.fetchone()
+                        if int(qAmount) <= int(balance[0]):
+                            # query.edit_message_text()
+                            # cursor.execute('INSERT INTO cheques (hash, invoker, reciever, amount, ttime) VALUES (%s, %s, %s, %s, %s)', (qHash, qInvoker, query.from_user.id, qAmount, qTime,))
+                            cursor.execute('UPDATE newusers SET exp = exp - %s, total_tipped = total_tipped + %s WHERE id = %s', (qAmount, qAmount, qInvoker,))
+                            cursor.execute('UPDATE newusers SET exp = exp + %s, total_recieved = total_recieved + %s WHERE id = %s', (qAmount, qAmount, query.from_user.id,))
+                            conn.commit()
+                            logger.info('Transaction done!')
+                            query.answer('Чек успешно активирован!', show_alert=True)
+                        else:
+                            query.answer('Ошибка!', show_alert=True)
+                    elif qInvoker not in all_user_data:
+                        query.answer('Кажется, этот чек уже активировали.', show_alert=True)
+                    else:
+                        query.answer('Ошибка!', show_alert=True)
+                else:
+                    query.answer('Сперва нужно зарегестрироваться!', show_alert=True)
+            elif (str(query.from_user.id) in query.data):
+                query.answer('Нельзя активировать собственный чек!', show_alert=True)
+            else:
+                query.answer('Произошла ошибка.', show_alert=True)
+        elif 'giveaway' in query.data:
+            cursor.execute('SELECT id FROM newusers')
+            members = cursor.fetchall()
+            if str(query.from_user.id) in str(members):
+                member1 = context.bot.get_chat_member(ch1, query.from_user.id)
+                # member2 = context.bot.get_chat_member(ch2, query.from_user.id)
+                if (member1.status in memberslist):
+                # if (member1.status in memberslist) and (member2.status in memberslist):
+                    cursor.execute('SELECT raffle FROM newusers WHERE id = %s', (query.from_user.id,))
+                    raffle = cursor.fetchone()
+                    if '0' in str(raffle[0]):
+                        data = query.data.split()
+                        chData = data[1]
+                        keyboard = [[InlineKeyboardButton("Участвую!", callback_data=f"giveaway {chData}")]]
+                        reply_markup = InlineKeyboardMarkup(keyboard)
+                        cursor.execute('UPDATE newusers SET raffle = 1 WHERE id = %s', (query.from_user.id,))
+                        cursor.execute('UPDATE raffles SET participants = participants + 1 WHERE id = %s', (chData,))
+                        conn.commit()
+                        query.answer('Теперь ты участвуешь в розыгрыше!', show_alert=True)
+                        logger.info(f'New raffle participant: {query.from_user.full_name}')
+                        cursor.execute('SELECT participants, date_end, chat_id, message_id FROM raffles WHERE id = %s', (chData,))
+                        info = cursor.fetchone()
+                        pNum = info[0]
+                        date = info[1]
+                        chID = int(info[2])
+                        mID = int(info[3])
+                        context.bot.edit_message_text(chat_id=chID, message_id=mID, text=f'...\nПобедители будут выбраны {date}\nУчастников: {pNum}', reply_markup=reply_markup)
+                    else:
+                        query.answer('Ты уже участвуешь в розыгрыше! 🙃', show_alert=True)
+                        logger.info(f'Raffle denied: {query.from_user.full_name}')
+                else:
+                    query.answer('Ты не подписан(-а) на @streamerswtf!', show_alert=True)
+            else:
+                    query.answer('Сперва нужно зарегестрироваться!', show_alert=True)
+        else:
+            query.answer('Произошла ошибка.', show_alert=True)
+    else:
+        query.answer('Извини, но ты забанен(-а).', show_alert=True)
+
+
+def echo(update, context):
+    try:
+        cur_time = int(time.time())
+        pidor_time = cur_time - 14400
+        ids = update.message.from_user.id
+        chatid = update.message.chat_id
+        name = update.message.from_user.full_name
+        cursor.execute('SELECT id FROM newusers')
+        members = cursor.fetchall()
+        cursor.execute('SELECT id FROM newchats')
+        newchats = cursor.fetchall()
+        if str(ids) in str(members):
+            cursor.execute('UPDATE newusers SET name = %s, lastmsg = %s WHERE id = %s', (name, cur_time, ids,))
+            conn.commit()
+        else:
+            registered = time.strftime('%d.%m.%y')
+            cursor.execute('INSERT INTO newusers (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (ids, name, cur_time, registered,))
+            conn.commit()
+            logger.info(f'New user {update.message.from_user.full_name}!')
+        cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
+        banned = cursor.fetchone()
+        if '0' in str(banned[0]):
+            pass
+        else:
+            return
+        chance = random.randint(0, 1000)
+        cursor.execute('SELECT pidor_state FROM newchats WHERE id = %s', (update.message.chat_id,))
+        pState = cursor.fetchone()
+        cursor.execute('SELECT pidor_time FROM newchats WHERE id = %s', (update.message.chat_id,))
+        pTime = cursor.fetchone()
+        logger.info(f'Random: {chance}')
+        if (chance <= 5) and ('1' in str(pState[0])):
+            if (pidor_time >= int(pTime[0])):
+                logger.info('New pidor.')
+                cursor.execute('SELECT pidor FROM newusers WHERE id = %s', (ids,))
+                pcount = cursor.fetchone()
+                if int(pcount[0]) == 0:
+                    update.message.reply_text('Есть 2 новости:\n1. У тебя был личный контакт с Билом Гейтсом, поздравляем!\n2. Тебя чипировали.')
+                else:
+                    update.message.reply_text(f'Chipization time! Прошивка твоего чипа обновляется уже {int(pcount[0])+1} раз.')
+                cursor.execute('UPDATE newusers SET exp = exp + 5, pidor = pidor + 1 WHERE id = %s', (ids,))
+                cursor.execute('UPDATE newchats SET pidor_last = %s, pidor_time = %s, pidor_total = pidor_total + 1 WHERE id = %s', (name, cur_time, chatid,))
+                context.chat_data['pidor'] = update.message.from_user.full_name
+            else:
+                logger.info('Almost new pidor.')
+                pass
+        else:
+            pass
+        if 'krokoword' in context.chat_data:
+            msg = update.message.text
+            wrd = context.chat_data['krokoword']
+            message = context.chat_data['message']
+            cursor.execute('SELECT state FROM newgames WHERE chatid = %s', (update.message.chat_id,))
+            state = cursor.fetchone()
+            if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) in str(context.chat_data['kroko_inv'])) and ('1' in str(state[0])):
+                context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
+                update.message.reply_text('Ты же понимаешь, что так играть не честно?\nМне пришлось оштрафовать тебя на 50 монет и преждевременно закончить игру.\n\nНачать заново - /krokodil')
+                cursor.execute('UPDATE newusers SET exp = exp - 50 WHERE id = %s', (ids,))
+                cursor.execute('UPDATE newgames SET state = 0 WHERE chatid = %s', (chatid,))
+                job = context.chat_data['kroko_job']
+                job.enabled=False
+                job.schedule_removal()
+                del context.chat_data['krokoword']
+                del context.chat_data['kroko_job']
+                del context.chat_data['kroko_inv']
+                del context.chat_data['kroko_iname']
+                del context.chat_data['message']
+            elif (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])) and ('1' in str(state[0])):
+                member = context.bot.get_chat_member(channel_username, ids)
+                if member.status in memberslist:
+                    krokoWin = 10
+                else:
+                    krokoWin = 5
+                update.message.reply_text(f'Ты угадал(-а)! Держи {krokoWin} монет за правильный ответ.\n\nНачать заново - /krokodil')
+                context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
+                cursor.execute('UPDATE newusers SET exp = exp + %s WHERE id = %s', (krokoWin, ids,))
+                cursor.execute('UPDATE newgames SET state = 0 WHERE chatid = %s', (chatid,))
+                job = context.chat_data['kroko_job']
+                job.enabled=False
+                job.schedule_removal()
+                del context.chat_data['krokoword']
+                del context.chat_data['kroko_job']
+                del context.chat_data['kroko_inv']
+                del context.chat_data['kroko_iname']
+                del context.chat_data['message']
+            elif (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) not in str(context.chat_data['kroko_inv'])) and ('1' not in str(state[0])):
+                update.message.reply_text('Ты угадал(-а)! Только игра уже закончилась:(\n\nНачать заново - /krokodil')
+                context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
+                del context.chat_data['krokoword']
+                del context.chat_data['kroko_job']
+                del context.chat_data['kroko_inv']
+                del context.chat_data['kroko_iname']
+                del context.chat_data['message']
+            else:
+                pass
+        else:
+            pass
+        cursor.execute('UPDATE newchats SET messages = messages + 1 WHERE id = %s', (update.message.chat_id,))
+        conn.commit()
+    except AttributeError as error:
+        return
+    except Exception as e:
+        logger.info('Ошибка!', exc_info=e)
+        pass
+
+
+# def gop(update, context):
+#     try:
+#         target = update.message.reply_to_message.from_user.id
+#         ids = update.message.from_user.id
+#         cursor.execute('SELECT id FROM newusers')
+#         members = cursor.fetchall()
+#         if (str(ids) in str(members)) and (str(target) in str(members)):
+#             user_says = context.args[0]
+#             try:
+#                 amount = int(user_says)
+#             except Exception as e:
+# logger.info('Ошибка!', exc_info=e)
+#                 return
+#             ids = update.message.from_user.id
+#             cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
+#             balance = cursor.fetchone()
+#             exp = int(balance[0])
+#             gMin = 10
+#             gMax = exp*2
+#             risk = amount/gMax*1000
+#             result = random.randint(0, 1100)
+#             if result > risk:
+#     except Exception as e:
+# logger.info('Ошибка!', exc_info=e)
+#         update.message.reply_text('Ошибка! Удостоверься, что ты отвечаешь на сообщение, а не на фото, видео и т.п.')
+
+
+def qHelp(update, context):
+    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
+    banned = cursor.fetchone()
+    if '0' in str(banned[0]):
+        update.message.reply_text('''Список доступных команд:
+
+/krokodil - Игра в угадать слово.
+/chipization - Посмотреть кто стал последней жертвой Била Гейтса.
+/chipization_toggle - Вкл./Выкл. (Только для админов чата)
+/fbi - На случай важных переговоров.
+/balance - Посмотреть баланс.
+/freecoins - Халявные монетки.
+
+/tip <SUMM> - Перевести денежку (Пишется в ответ на сообщение получателя).
+/bet <SUMM> - Указать сумму ставки.
+
+Вместо <SUMM> указываем число от 10 до 1000 (10.000 для подписчиков @streamerswtf).''')
+        logger.info('Help requested')
+    else:
+        pass
+
+
+def freecoins(update, context):
+    update.message.reply_text('''1. Подписка на @osuzhdaiu: 1000 монет.
+<a href="https://t.me/MokaAkasiaBot?start=osuzhdaiu">Проверить</a>
+
+2. Подписка на @streamerswtf: 1000 монет + повышеный лимит (до 10к) на переводы и ставки.
+<a href="https://t.me/MokaAkasiaBot?start=streamerswtf">Проверить</a>
+
+3. Подписка на @glitchpeach: 1000 монет.
+<a href="https://t.me/MokaAkasiaBot?start=glitchpeach">Проверить</a>
+
+4. Подписка на личный канал разработчика @nvmrstuff: 1000 монет.
+<a href="https://t.me/MokaAkasiaBot?start=nvmrstuff">Проверить</a>''', parse_mode='HTML', disable_web_page_preview=True)
+
+
+def substats(update, context):
+    cursor.execute('SELECT COUNT(DISTINCT vt), COUNT(DISTINCT swtf), COUNT(DISTINCT gp), COUNT(DISTINCT nvmr) FROM newusers')
+    subs = cursor.fetchone()
+    update.message.reply_text(f'Кол-во привлечённых подписчиков:\n@osuzhdaiu: {subs[0]}\n@streamerswtf: {subs[1]}\n@glitchpeach: {subs[2]}\n@nvmrstuff: {subs[3]}', parse_mode='HTML', disable_web_page_preview=True)
 
 
 def error(update, context):
-	"""Log Errors caused by Updates."""
-	logger.warning('Update "%s" caused error "%s"', update, context.error)
+    """Log Errors caused by Updates."""
+    logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
 def main():
-	"""Start the bot."""
-	# Create the Updater and pass it your bot's token.
-	# Make sure to set use_context=True to use the new context based callbacks
-	# Post version 12 this will no longer be necessary
-	updater = Updater("936330141:AAHTjMpi22s603reitWXuQib9mZD-Ht_YV8", use_context=True)
-	# updater = Updater(os.environ['token'], use_context=True)
+    # Create the Updater and pass it your bot's token.
+    # Make sure to set use_context=True to use the new context based callbacks
+    # Post version 12 this will no longer be necessary
 
-	# Get the dispatcher to register handlers
-	dp = updater.dispatcher
-	j = updater.job_queue
-	j.run_repeating(bot_bets, interval=95, first=0)
+    # updater = Updater('1231333868:AAHiPBXYKNgoHpBTeGbxb2mwe2aBm9hToeI', use_context=True)
+    updater = Updater(os.environ['token'], use_context=True)
 
-	conv_handler = ConversationHandler(
-		entry_points=[CommandHandler('start', start)],
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+    j = updater.job_queue
+    j.run_repeating(set_exp, interval=600, first=0)
+    j.run_once(krokoreload, 1)
 
-		states={ BETSUMM: [MessageHandler((Filters.text&(~(Filters.command))), bet_summ)], },
+    # log all errors
+    dp.add_handler(CommandHandler('start', start))
+    dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_user))
+    dp.add_handler(CommandHandler('raffle', raffle))
+    # dp.add_handler(CommandHandler('raffle', raffle, filters=(Filters.user(username="@daaetoya") | Filters.user(username='@bhyout'))))
+    dp.add_handler(CommandHandler('winners', raffleWinners))
+    dp.add_handler(CommandHandler('krokodil', krokodil, pass_job_queue=True, pass_chat_data=True))
+    dp.add_handler(CommandHandler('chipization', pidor))
+    dp.add_handler(CommandHandler('chipization_toggle', pidor_toggle))
+    dp.add_handler(CommandHandler('fbi', fbi))
+    # dp.add_handler(CommandHandler('donate', donate))
+    # dp.add_handler(CommandHandler('nya', showPussy))
+    dp.add_handler(CommandHandler('osuzhdaiu', showTwitch))
+    dp.add_handler(CommandHandler('balance', babki))
+    dp.add_handler(CommandHandler('stats', stats))
+    dp.add_handler(CommandHandler('ban', ban))
+    dp.add_handler(CommandHandler('unban', unban))
+    dp.add_handler(CommandHandler('freecoins', freecoins))
+    dp.add_handler(CommandHandler('substats', substats, filters=Filters.user(username="@daaetoya")))
+    dp.add_handler(CommandHandler('message', message))
+    dp.add_handler(MessageHandler((Filters.dice & (~Filters.forwarded)), bets))
+    dp.add_handler(CommandHandler('bet', setBet, pass_args=True))
+    dp.add_handler(CommandHandler('tip', tip, pass_args=True))
+    dp.add_handler(CommandHandler('help', qHelp))
+    dp.add_handler(InlineQueryHandler(checkquery))
+    # dp.add_handler(CommandHandler("gop", gop, pass_args=True))
+    dp.add_handler(MessageHandler(Filters.group, echo))
+    # dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte")), pussy))
+    dp.add_handler(MessageHandler(Filters.video & (~Filters.group) & Filters.user(username="@daaetoya"), twitch))
+    dp.add_handler(MessageHandler(Filters.document & (~Filters.group) & Filters.user(username="@daaetoya"), hGif))
+    dp.add_handler(CallbackQueryHandler(button))
+    dp.add_error_handler(error)
 
-		fallbacks=[CommandHandler('cancel', cancel)]
-	)
+    # Start the Bot
+    updater.start_polling()
 
-	dp.add_handler(conv_handler)
-
-	# on different commands - answer in Telegram
-	dp.add_handler(CommandHandler("start", start))
-	dp.add_handler(CommandHandler("reg", reg))
-	dp.add_handler(CommandHandler("help", help))
-	dp.add_handler(CommandHandler("donate", donate))
-	dp.add_handler(CommandHandler("promo", promo))
-	# log all errors
-	dp.add_error_handler(error)
-
-	# Start the Bot
-	updater.start_polling()
-
-	# Run the bot until you press Ctrl-C or the process receives SIGINT,
-	# SIGTERM or SIGABRT. This should be used most of the time, since
-	# start_polling() is non-blocking and will stop the bot gracefully.
-	updater.idle()
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
 
 
 if __name__ == '__main__':
-	main()
+    main()
