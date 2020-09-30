@@ -74,7 +74,8 @@ def start(update, context):
                             logger.info('Sub osuzhdaiu')
                         else:
                             update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
-                    except:
+                    except Exception as e:
+                        logger.info('Ошибка!', exc_info=e)
                         update.message.reply_text('Что-то пошло не так.')
                 else:
                     update.message.reply_text('Награда уже получена!')
@@ -91,7 +92,8 @@ def start(update, context):
                             logger.info('Sub streamerswtf')
                         else:
                             update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
-                    except:
+                    except Exception as e:
+                        logger.info('Ошибка!', exc_info=e)
                         update.message.reply_text('Что-то пошло не так.')
                 else:
                     update.message.reply_text('Награда уже получена!')
@@ -108,7 +110,8 @@ def start(update, context):
                             logger.info('Sub glitchpeach')
                         else:
                             update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
-                    except:
+                    except Exception as e:
+                        logger.info('Ошибка!', exc_info=e)
                         update.message.reply_text('Что-то пошло не так.')
                 else:
                     update.message.reply_text('Награда уже получена!')
@@ -125,7 +128,8 @@ def start(update, context):
                             logger.info('Sub nvmr')
                         else:
                             update.message.reply_text('Подписка не подтверждена! Задание не выполнено.')
-                    except:
+                    except Exception as e:
+                        logger.info('Ошибка!', exc_info=e)
                         update.message.reply_text('Что-то пошло не так.')
                 else:
                     update.message.reply_text('Награда уже получена!')
@@ -150,11 +154,12 @@ def start(update, context):
                         update.message.reply_text('Произошла ошибка! #SHOPERROR')
                 except Exception as e:
                     update.message.reply_text('Ошибка запроса! #SHOP404')
-                    logger.info('Ошибка: %s', exc_info=e)
+                    logger.info('Ошибка!', exc_info=e)
             else:
                 update.message.reply_text('Meow-meow')
-        except:
+        except Exception as e:
             update.message.reply_text('Meow')
+            logger.info('Ошибка!', exc_info=e)
     elif str(ids) not in str(all_users):
         update.message.reply_text('Сперва нужно зарегестрироваться, для этого напишите хотя бы одно сообщение в чате где присутствует @kamenschikbot!', parse_mode='HTML')
 
@@ -196,8 +201,9 @@ def message(update, context):
     for newchats in ids:
         try:
             context.bot.send_message(chat_id=newchats[0], text=s.split(' ', 1)[1], reply_markup=reply_markup)
-        except:
+        except Exception as e:
             cursor.execute("UPDATE newchats SET unable = 1 WHERE id = %s", (newchats[0],))
+            logger.info('Ошибка!', exc_info=e)
 
 
 @restricted
@@ -216,7 +222,8 @@ def stats(update, context):
             chatUsers = context.bot.get_chat_members_count(newchats[0])
             cursor.execute('UPDATE newchats SET users = %s WHERE id = %s', (chatUsers, newchats[0],))
             conn.commit()
-        except:
+        except Exception as e:
+            logger.info('Ошибка!', exc_info=e)
             cursor.execute('UPDATE newchats SET unable = 2 WHERE id = %s', (newchats[0],))
             conn.commit()
     cursor.execute('SELECT COUNT(id) FROM newusers')
@@ -240,7 +247,8 @@ def raffle(update, context):
             cursor.execute('UPDATE newusers SET raffle = 0')
             cursor.execute('INSERT INTO raffles (id, participants, date_end, message_id, chat_id) VALUES (%s, 0, %s, %s, %s)', (ids, date, context.user_data['raffle'].message_id, context.user_data['raffle'].chat_id,))
             conn.commit()
-        except:
+        except Exception as e:
+            logger.info('Ошибка!', exc_info=e)
             update.message.reply_text('Произошла ошибка!\nВозможные причины:\n1) Введены неправильные данные.\n2) Бот не является админом на канале.\n\nПример команды:\n/raffle @example 01.01.2077')
     else:
         update.message.reply_text('Только владелец чата может использовать эту команду!')
@@ -417,7 +425,8 @@ def checkquery(update, context):
                         thumb_url="https://i.pinimg.com/originals/ee/d5/19/eed519321feadb35c297ddd3ec14b397.png",
                         reply_markup=reply_markup,
                         input_message_content=InputTextMessageContent(f'От: {name}\nЧек на: {query.query} монет.'))]
-        except:
+        except Exception as e:
+            logger.info('Ошибка!', exc_info=e)
             results = [
                     InlineQueryResultArticle(
                         id=uuid4(),
@@ -498,7 +507,8 @@ def setBet(update, context):
                     update.message.reply_text('Готово! Чтобы сделать ставку, пришли в чат этот эмодзи: 🎲')
                 else:
                     update.message.reply_text(f'Недопустимое значение!\nМин. ставка: 10 монет\nМакс. ставка: 1000 монет или 10.000 монет для подписчиков: {channel_username}\nЧтобы отключить ставки, напиши: /bet 0')
-            except:
+            except Exception as e:
+                logger.info('Ошибка!', exc_info=e)
                 update.message.reply_text('Пришли мне команду в формате:\n/bet <ЧИСЛО>,\n\nгде <ЧИСЛО> - сумма ставки.\nОтключить ставки: /bet 0')
         else:
             update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
@@ -522,7 +532,8 @@ def pidor(update, context):
                 update.message.reply_text('В этом чате пока никого не чипировали.')
         except IndexError as error:
             update.message.reply_text('Парам-пара-па. Пау! Этот чат пока слишком зелёный.')
-        except:
+        except Exception as e:
+            logger.info('Ошибка!', exc_info=e)
             update.message.reply_text('Произошла оши-и-и-б... (System Error)')
     else:
         pass
@@ -544,7 +555,8 @@ def pidor_toggle(update, context):
             conn.commit()
         else:
             update.message.reply_text('Кажется, у тебя нет власти.')
-    except:
+    except Exception as e:
+        logger.info('Ошибка!', exc_info=e)
         update.message.reply_text('Произошла ошибка!')
 
 
@@ -574,7 +586,8 @@ def krokodil(update, context):
                 update.message.reply_text('Игра уже идёт!')
             else:
                 update.message.reply_text('Error!')
-        except:
+        except Exception as e:
+            logger.info('Ошибка!', exc_info=e)
             cursor.execute('INSERT INTO games (chatid, state) VALUES (%s, 0)', (update.message.chat_id,))
             conn.commit()
             update.message.reply_text('Чат зарегестрирован! Напиши /krokodil ещё раз, чтобы начать игру.')
@@ -622,7 +635,8 @@ def tip(update, context):
                 user_says = context.args
                 try:
                     amount = int(user_says[0])
-                except:
+                except Exception as e:
+                    logger.info('Ошибка!', exc_info=e)
                     update.message.reply_text('Ошибка! Укажи сумму перевода.')
                     return
                 cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
@@ -640,7 +654,8 @@ def tip(update, context):
                     update.message.reply_text(f'<code>{iName}</code> успешно переводит <code>{tName}</code> <b>{amount}</b> монет.', parse_mode='HTML')
             else:
                 update.message.reply_text('Ошибка! Перевод возможен только если оба пользователя присутствуют в базе данных.')
-        except:
+        except Exception as e:
+            logger.info('Ошибка!', exc_info=e)
             update.message.reply_text('Ошибка! Удостоверься, что ты отвечаешь на сообщение, а не на фото, видео и т.п.')
     else:
         pass
@@ -852,7 +867,8 @@ def echo(update, context):
         conn.commit()
     except AttributeError as error:
         return
-    except:
+    except Exception as e:
+        logger.info('Ошибка!', exc_info=e)
         pass
 
 
@@ -866,7 +882,8 @@ def echo(update, context):
 #             user_says = context.args[0]
 #             try:
 #                 amount = int(user_says)
-#             except:
+#             except Exception as e:
+logger.info('Ошибка!', exc_info=e)
 #                 return
 #             ids = update.message.from_user.id
 #             cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
@@ -877,7 +894,8 @@ def echo(update, context):
 #             risk = amount/gMax*1000
 #             result = random.randint(0, 1100)
 #             if result > risk:
-#     except:
+#     except Exception as e:
+logger.info('Ошибка!', exc_info=e)
 #         update.message.reply_text('Ошибка! Удостоверься, что ты отвечаешь на сообщение, а не на фото, видео и т.п.')
 
 
