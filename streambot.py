@@ -343,12 +343,12 @@ def set_exp(context):
 
 def krokodie(context):
     context.bot.send_message(chat_id=context.job.context, text='Время истекло!\nНачать игру заново - /krokodil')
-    cursor.execute('UPDATE games SET state = 2 WHERE chatid = %s', (context.job.context,))
+    cursor.execute('UPDATE newgames SET state = 2 WHERE chatid = %s', (context.job.context,))
     conn.commit()
 
 
 def krokoreload(context):
-    cursor.execute('UPDATE games SET state = 0')
+    cursor.execute('UPDATE newgames SET state = 0')
     conn.commit()
 
 
@@ -565,12 +565,12 @@ def krokodil(update, context):
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         try:
-            cursor.execute('SELECT state FROM games WHERE chatid = %s', (update.message.chat_id,))
+            cursor.execute('SELECT state FROM newgames WHERE chatid = %s', (update.message.chat_id,))
             state = cursor.fetchone()
             if ('0' in str(state[0])) or ('2' in str(state[0])):
-                cursor.execute('UPDATE games SET total = total + 1 WHERE chatid = %s', (update.message.chat_id,))
+                cursor.execute('UPDATE newgames SET total = total + 1 WHERE chatid = %s', (update.message.chat_id,))
                 conn.commit()
-                cursor.execute('SELECT total FROM games WHERE chatid = %s', (update.message.chat_id,))
+                cursor.execute('SELECT total FROM newgames WHERE chatid = %s', (update.message.chat_id,))
                 gameid = cursor.fetchone()
                 keyboard = [[InlineKeyboardButton("Слово", callback_data=f'krokoword {update.message.from_user.id} {gameid[0]}')], [InlineKeyboardButton("Поменять (-5 монет)", callback_data=f'krokochange {update.message.from_user.id} {gameid[0]}')]]
                 reply_markup = InlineKeyboardMarkup(keyboard)
@@ -580,7 +580,7 @@ def krokodil(update, context):
                 context.chat_data['kroko_job'] = context.job_queue.run_once(krokodie, 120, context=update.message.chat_id)
                 context.chat_data['kroko_inv'] = update.message.from_user.id
                 context.chat_data['kroko_iname'] = update.message.from_user.full_name
-                cursor.execute('UPDATE games SET state = 1 WHERE chatid = %s', (update.message.chat_id,))
+                cursor.execute('UPDATE newgames SET state = 1 WHERE chatid = %s', (update.message.chat_id,))
                 conn.commit()
             elif '1' in str(state[0]):
                 update.message.reply_text('Игра уже идёт!')
@@ -588,7 +588,7 @@ def krokodil(update, context):
                 update.message.reply_text('Error!')
         except Exception as e:
             logger.info('Ошибка!', exc_info=e)
-            cursor.execute('INSERT INTO games (chatid, state) VALUES (%s, 0)', (update.message.chat_id,))
+            cursor.execute('INSERT INTO newgames (chatid, state) VALUES (%s, 0)', (update.message.chat_id,))
             conn.commit()
             update.message.reply_text('Чат зарегестрирован! Напиши /krokodil ещё раз, чтобы начать игру.')
     else:
@@ -669,7 +669,7 @@ def button(update, context):
         if ('krokoword' in query.data) or ('krokochange' in query.data):
             data = query.data.split()
             gId = data[2]
-            cursor.execute('SELECT total FROM games WHERE chatid = %s', (query.message.chat_id,))
+            cursor.execute('SELECT total FROM newgames WHERE chatid = %s', (query.message.chat_id,))
             gameid = cursor.fetchone()
             if str(gId) == str(gameid[0]):
                 if ('krokoword' in query.data) and (str(query.from_user.id) in query.data):
@@ -818,13 +818,13 @@ def echo(update, context):
             msg = update.message.text
             wrd = context.chat_data['krokoword']
             message = context.chat_data['message']
-            cursor.execute('SELECT state FROM games WHERE chatid = %s', (update.message.chat_id,))
+            cursor.execute('SELECT state FROM newgames WHERE chatid = %s', (update.message.chat_id,))
             state = cursor.fetchone()
             if (msg.lower() == wrd.lower()) and (str(update.message.from_user.id) in str(context.chat_data['kroko_inv'])) and ('1' in str(state[0])):
                 context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
                 update.message.reply_text('Ты же понимаешь, что так играть не честно?\nМне пришлось оштрафовать тебя на 50 монет и преждевременно закончить игру.\n\nНачать заново - /krokodil')
                 cursor.execute('UPDATE newusers SET exp = exp - 50 WHERE id = %s', (ids,))
-                cursor.execute('UPDATE games SET state = 0 WHERE chatid = %s', (chatid,))
+                cursor.execute('UPDATE newgames SET state = 0 WHERE chatid = %s', (chatid,))
                 job = context.chat_data['kroko_job']
                 job.enabled=False
                 job.schedule_removal()
@@ -842,7 +842,7 @@ def echo(update, context):
                 update.message.reply_text(f'Ты угадал(-а)! Держи {krokoWin} монет за правильный ответ.\n\nНачать заново - /krokodil')
                 context.bot.edit_message_text(chat_id=message.chat_id, message_id=message.message_id, text='Игра закончилась!\nНачать заново - /krokodil')
                 cursor.execute('UPDATE newusers SET exp = exp + %s WHERE id = %s', (krokoWin, ids,))
-                cursor.execute('UPDATE games SET state = 0 WHERE chatid = %s', (chatid,))
+                cursor.execute('UPDATE newgames SET state = 0 WHERE chatid = %s', (chatid,))
                 job = context.chat_data['kroko_job']
                 job.enabled=False
                 job.schedule_removal()
