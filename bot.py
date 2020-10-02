@@ -49,7 +49,7 @@ ch1 = '@streamerswtf'
 memberz = 'creator, administrator, member'
 memberslist = memberz.split(', ')
 
-partnersList = ['glitchpeach', 'morphilina']
+partnersList = ['swtf', 'glitchpeach', 'morphilina']
 
 
 def start(update, context):
