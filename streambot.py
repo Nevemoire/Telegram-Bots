@@ -146,13 +146,13 @@ def start(update, context):
                         cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
                         balance = cursor.fetchone()
                         if int(balance[0]) >= int(shopInfo[0]):
-                            cursor.execute('UPDATE users SET exp = exp - %s WHERE id = %s', (shopInfo[0], ids,))
+                            cursor.execute('UPDATE newusers SET exp = exp - %s WHERE id = %s', (shopInfo[0], ids,))
                             conn.commit()
                             update.message.reply_text(f'Вы успешно купили: <b>{shopInfo[1]}</b>!\nЕсли покупка требует какого-либо уточнения, продавец свяжется с вами.', parse_mode='HTML')
                             try:
-                                context.bot.send_message(chat_id=shopInfo[2], text=f'<a href="tg://user?id={ids}>{userName}</a> купил(-а) <b>{shopInfo[1]}</b>"')
+                                context.bot.send_message(chat_id=shopInfo[2], text=f'<a href="tg://user?id={ids}>{userName}</a> купил(-а) <b>{shopInfo[1]}</b>"', parse_mode='HTML')
                             except:
-                                context.bot.send_message(chat_id=391206263, text=f'{streamer} не получил(-а) сообщение:\n<a href="tg://user?id={ids}>{userName}</a> купил(-а) <b>{shopInfo[1]}</b>"')
+                                context.bot.send_message(chat_id=391206263, text=f'{streamer} не получил(-а) сообщение:\n<a href="tg://user?id={ids}>{userName}</a> купил(-а) <b>{shopInfo[1]}</b>"', parse_mode='HTML')
                         elif int(balance[0]) < int(shopInfo[0]):
                             update.message.reply_text(f'Не хватает <b>{int(shopInfo[0])-int(balance[0])}</b> монет!', parse_mode='HTML')
                         else:
