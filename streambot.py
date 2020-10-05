@@ -184,7 +184,7 @@ def start(update, context):
         return ConversationHandler.END
 
 
-def message(update, context):
+def convMessage(update, context):
     message = update.message.from_user
     userInfo = context.user_data['info']
     cursor.execute('UPDATE newusers SET exp = exp - %s WHERE id = %s', (userInfo[3], userInfo[0],))
@@ -1035,7 +1035,7 @@ def main():
         entry_points=[CommandHandler('start', start)],
 
         states={
-            MESSAGE: [MessageHandler(Filters.text & ~Filters.command, message)]
+            MESSAGE: [MessageHandler(Filters.text & ~Filters.command, convMessage)]
         },
 
         fallbacks=[CommandHandler('cancel', cancel)]
