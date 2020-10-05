@@ -153,7 +153,7 @@ def start(update, context):
                         balance = cursor.fetchone()
                         if int(balance[0]) >= int(shopInfo[0]):
                             update.message.reply_text(f'{shopInfo[3]}\nОтмена - /cancel')
-                            context.user_data['info'] = (ids, userName, streamer, shopInfo[0], shopInfo[1], shopInfo[2])
+                            context.user_data['info'] = [ids, userName, streamer, shopInfo[0], shopInfo[1], shopInfo[2]]
                             return MESSAGE
                         elif int(balance[0]) < int(shopInfo[0]):
                             update.message.reply_text(f'Не хватает <b>{int(shopInfo[0])-int(balance[0])}</b> монет!', parse_mode='HTML')
