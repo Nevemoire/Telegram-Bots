@@ -24,7 +24,7 @@ from uuid import uuid4
 from functools import wraps
 
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle, InputTextMessageContent
-from telegram.ext import Updater, CommandHandler, MessageHandler, InlineQueryHandler, CallbackQueryHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, InlineQueryHandler, CallbackQueryHandler, ConversationHandler, Filters
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -50,6 +50,8 @@ memberz = 'creator, administrator, member'
 memberslist = memberz.split(', ')
 
 partnersList = ['swtf', 'glitchpeach', 'morphilina']
+
+MESSAGE = range(1)
 
 
 def start(update, context):
@@ -80,6 +82,7 @@ def start(update, context):
                         update.message.reply_text('Что-то пошло не так.')
                 else:
                     update.message.reply_text('Награда уже получена!')
+                return ConversationHandler.END
             elif text == 'streamerswtf':
                 cursor.execute('SELECT swtf FROM newusers WHERE id = %s', (ids,))
                 subscribed = cursor.fetchone()
@@ -98,6 +101,7 @@ def start(update, context):
                         update.message.reply_text('Что-то пошло не так.')
                 else:
                     update.message.reply_text('Награда уже получена!')
+                return ConversationHandler.END
             elif text == 'glitchpeach':
                 cursor.execute('SELECT gp FROM newusers WHERE id = %s', (ids,))
                 subscribed = cursor.fetchone()
@@ -116,6 +120,7 @@ def start(update, context):
                         update.message.reply_text('Что-то пошло не так.')
                 else:
                     update.message.reply_text('Награда уже получена!')
+                return ConversationHandler.END
             elif text == 'nvmrstuff':
                 cursor.execute('SELECT nvmr FROM newusers WHERE id = %s', (ids,))
                 subscribed = cursor.fetchone()
@@ -134,6 +139,7 @@ def start(update, context):
                         update.message.reply_text('Что-то пошло не так.')
                 else:
                     update.message.reply_text('Награда уже получена!')
+                return ConversationHandler.END
             elif 'shop' in text:
                 try:
                     info = text.split('-')
@@ -141,34 +147,60 @@ def start(update, context):
                     if str(info[1]) in partnersList:
                         streamer = info[1]
                         item = info[2]
-                        cursor.execute('SELECT price, title, sellerid FROM shop WHERE streamer = %s AND item = %s', (streamer, item,))
+                        cursor.execute('SELECT price, title, sellerid, message FROM shop WHERE streamer = %s AND item = %s', (streamer, item,))
                         shopInfo = cursor.fetchone()
                         cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
                         balance = cursor.fetchone()
                         if int(balance[0]) >= int(shopInfo[0]):
-                            cursor.execute('UPDATE newusers SET exp = exp - %s WHERE id = %s', (shopInfo[0], ids,))
-                            conn.commit()
-                            update.message.reply_text(f'Вы успешно купили: <b>{shopInfo[1]}</b>!\nЕсли покупка требует какого-либо уточнения, продавец свяжется с вами.', parse_mode='HTML')
-                            try:
-                                context.bot.send_message(chat_id=shopInfo[2], text=f'<a href="tg://user?id={ids}">{userName}</a> купил(-а) <b>{shopInfo[1]}</b>', parse_mode='HTML')
-                            except:
-                                context.bot.send_message(chat_id=391206263, text=f'{streamer} не получил(-а) сообщение:\n<a href="tg://user?id={ids}">{userName}</a> купил(-а) <b>{shopInfo[1]}</b>', parse_mode='HTML')
+                            update.message.reply_text(f'{shopInfo[3]}\nОтмена - /cancel')
+                            context.user_data['info'] = (ids, userName, streamer, shopInfo[0], shopInfo[1], shopInfo[2])
+                            return MESSAGE
                         elif int(balance[0]) < int(shopInfo[0]):
                             update.message.reply_text(f'Не хватает <b>{int(shopInfo[0])-int(balance[0])}</b> монет!', parse_mode='HTML')
+                            return ConversationHandler.END
                         else:
                             update.message.reply_text('Shop error.')
+                            return ConversationHandler.END
                     else:
                         update.message.reply_text(f'Произошла ошибка! #SHOPERROR')
+                        return ConversationHandler.END
                 except Exception as e:
                     update.message.reply_text('Ошибка запроса! #SHOP404')
                     logger.info('Ошибка!', exc_info=e)
+                    return ConversationHandler.END
             else:
                 update.message.reply_text('Meow-meow')
+                return ConversationHandler.END
         except Exception as e:
             update.message.reply_text('Meow')
+            return ConversationHandler.END
             logger.info('Ошибка!', exc_info=e)
     elif str(ids) not in str(all_users):
-        update.message.reply_text('Сперва нужно зарегестрироваться, для этого напишите хотя бы одно сообщение в чате где присутствует @MokaAkasiaBot!', parse_mode='HTML')
+        cur_time = int(time.time())
+        registered = time.strftime('%d.%m.%y')
+        cursor.execute('INSERT INTO newusers (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (ids, userName, cur_time, registered,))
+        conn.commit()
+        update.message.reply_text(f'{random.choice(privet)}!')
+        return ConversationHandler.END
+
+
+def message(update, context):
+    message = update.message.from_user
+    userInfo = context.user_data['info']
+    cursor.execute('UPDATE newusers SET exp = exp - %s WHERE id = %s', (userInfo[3], userInfo[0],))
+    conn.commit()
+    update.message.reply_text(f'Вы успешно купили: <b>{userInfo[4]}</b>!', parse_mode='HTML')
+    try:
+        context.bot.send_message(chat_id=userInfo[5], text=f'<a href="tg://user?id={userInfo[0]}">{userInfo[1]}</a> купил(-а) <b>{userInfo[4]}</b>\nПриложение: {message}', parse_mode='HTML')
+    except:
+        context.bot.send_message(chat_id=391206263, text=f'{userInfo[2]} не получил(-а) сообщение:\n<a href="tg://user?id={userInfo[0]}">{userInfo[1]}</a> купил(-а) <b>{userInfo[4]}</b>\nПриложение: {message}', parse_mode='HTML')
+    return ConversationHandler.END
+
+
+def cancel(update, context):
+    update.message.reply_text('Охрана, отмена.')
+
+    return ConversationHandler.END
 
 
 def restricted(func):
@@ -998,6 +1030,19 @@ def main():
     dp.add_handler(MessageHandler(Filters.video & (~Filters.group) & Filters.user(username="@daaetoya"), twitch))
     dp.add_handler(MessageHandler(Filters.document & (~Filters.group) & Filters.user(username="@daaetoya"), hGif))
     dp.add_handler(CallbackQueryHandler(button))
+
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('start', start)],
+
+        states={
+            MESSAGE: [MessageHandler(Filters.text & ~Filters.command, message)]
+        },
+
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+
+    dp.add_handler(conv_handler)
+
     dp.add_error_handler(error)
 
     # Start the Bot
