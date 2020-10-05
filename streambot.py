@@ -1000,7 +1000,7 @@ def main():
     j.run_once(krokoreload, 1)
 
     # log all errors
-    dp.add_handler(CommandHandler('start', start))
+    # dp.add_handler(CommandHandler('start', start))
     dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_user))
     dp.add_handler(CommandHandler('raffle', raffle))
     # dp.add_handler(CommandHandler('raffle', raffle, filters=(Filters.user(username="@daaetoya") | Filters.user(username='@bhyout'))))
