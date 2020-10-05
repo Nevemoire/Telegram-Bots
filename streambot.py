@@ -180,7 +180,7 @@ def start(update, context):
         registered = time.strftime('%d.%m.%y')
         cursor.execute('INSERT INTO newusers (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (ids, userName, cur_time, registered,))
         conn.commit()
-        update.message.reply_text(f'{random.choice(privet)}!')
+        update.message.reply_text(f'{random.choice(privet)}! Спасибо за регистрацию!\n\nДоступные команды можно узнать нажав на -> /help\nТакже, советую посмотреть и <a href="https://streamers.wtf">наш сайт</a>, там много интересного :)', parse_mode='HTML', disable_web_page_preview=True)
         return ConversationHandler.END
 
 
@@ -201,6 +201,10 @@ def cancel(update, context):
     update.message.reply_text('Охрана, отмена.')
 
     return ConversationHandler.END
+
+
+def shop(update, context):
+    update.message.reply_text('Ссылка на магазин: https://streamers.wtf/shop')
 
 
 def restricted(func):
@@ -943,12 +947,12 @@ def qHelp(update, context):
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         update.message.reply_text('''Список доступных команд:
+/shop - Магазин.
+/balance - Посмотреть баланс.
 
 /krokodil - Игра в угадать слово.
 /chipization - Посмотреть кто стал последней жертвой Била Гейтса.
 /chipization_toggle - Вкл./Выкл. (Только для админов чата)
-/fbi - На случай важных переговоров.
-/balance - Посмотреть баланс.
 /freecoins - Халявные монетки.
 
 /tip <SUMM> - Перевести денежку (Пишется в ответ на сообщение получателя).
@@ -980,6 +984,10 @@ def substats(update, context):
     update.message.reply_text(f'Кол-во привлечённых подписчиков:\n@osuzhdaiu: {subs[0]}\n@streamerswtf: {subs[1]}\n@glitchpeach: {subs[2]}\n@nvmrstuff: {subs[3]}', parse_mode='HTML', disable_web_page_preview=True)
 
 
+def donate(update, context):
+    update.message.reply_text('Если вы хотите поддержать развитие проекта, то можете сделать это перейдя по ссылке: https://www.donationalerts.com/r/streamerswtf', disable_web_page_preview=True)
+
+
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
@@ -1008,12 +1016,13 @@ def main():
     dp.add_handler(CommandHandler('krokodil', krokodil, pass_job_queue=True, pass_chat_data=True))
     dp.add_handler(CommandHandler('chipization', pidor))
     dp.add_handler(CommandHandler('chipization_toggle', pidor_toggle))
-    dp.add_handler(CommandHandler('fbi', fbi))
-    # dp.add_handler(CommandHandler('donate', donate))
+    # dp.add_handler(CommandHandler('fbi', fbi))
+    dp.add_handler(CommandHandler('donate', donate))
     # dp.add_handler(CommandHandler('nya', showPussy))
     dp.add_handler(CommandHandler('osuzhdaiu', showTwitch))
     dp.add_handler(CommandHandler('balance', babki))
     dp.add_handler(CommandHandler('stats', stats))
+    dp.add_handler(CommandHandler('shop', shop))
     dp.add_handler(CommandHandler('ban', ban))
     dp.add_handler(CommandHandler('unban', unban))
     dp.add_handler(CommandHandler('freecoins', freecoins))
