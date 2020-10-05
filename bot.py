@@ -137,7 +137,7 @@ def start(update, context):
                 try:
                     info = text.split('-')
                     update.message.reply_text(f'{text}: {info[1]}')
-                    if info[1] in partnersList:
+                    if str(info[1]) in partnersList:
                         streamer = info[1]
                         item = info[2]
                         cursor.execute('SELECT price FROM shop WHERE streamer = %s AND item = %s', (streamer, item,))
@@ -151,7 +151,7 @@ def start(update, context):
                         else:
                             update.message.reply_text('Shop error.')
                     else:
-                        update.message.reply_text(f'Произошла ошибка! #SHOPERROR ({info[1]})')
+                        update.message.reply_text(f'Произошла ошибка! #SHOPERROR ({info[1]}) asd')
                 except Exception as e:
                     update.message.reply_text('Ошибка запроса! #SHOP404')
                     logger.info('Ошибка!', exc_info=e)
