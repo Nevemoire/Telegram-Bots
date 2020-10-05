@@ -137,7 +137,7 @@ def start(update, context):
             elif 'shop' in text:
                 try:
                     info = text.split('-')
-                    update.message.reply_text(f'{text}: {info[1]}')
+                    # update.message.reply_text(f'{text}: {info[1]}')
                     if str(info[1]) in partnersList:
                         streamer = info[1]
                         item = info[2]
@@ -150,9 +150,9 @@ def start(update, context):
                             conn.commit()
                             update.message.reply_text(f'Вы успешно купили: <b>{shopInfo[1]}</b>!\nЕсли покупка требует какого-либо уточнения, продавец свяжется с вами.', parse_mode='HTML')
                             try:
-                                context.bot.send_message(chat_id=shopInfo[2], text=f'<a href="tg://user?id={ids}>{userName}</a> купил(-а) <b>{shopInfo[1]}</b>"', parse_mode='HTML')
+                                context.bot.send_message(chat_id=shopInfo[2], text=f'<a href="tg://user?id={ids}">{userName}</a> купил(-а) <b>{shopInfo[1]}</b>', parse_mode='HTML')
                             except:
-                                context.bot.send_message(chat_id=391206263, text=f'{streamer} не получил(-а) сообщение:\n<a href="tg://user?id={ids}>{userName}</a> купил(-а) <b>{shopInfo[1]}</b>"', parse_mode='HTML')
+                                context.bot.send_message(chat_id=391206263, text=f'{streamer} не получил(-а) сообщение:\n<a href="tg://user?id={ids}">{userName}</a> купил(-а) <b>{shopInfo[1]}</b>', parse_mode='HTML')
                         elif int(balance[0]) < int(shopInfo[0]):
                             update.message.reply_text(f'Не хватает <b>{int(shopInfo[0])-int(balance[0])}</b> монет!', parse_mode='HTML')
                         else:
