@@ -49,7 +49,7 @@ ch1 = '@streamerswtf'
 memberz = 'creator, administrator, member'
 memberslist = memberz.split(', ')
 
-partnersList = ['glitchpeach', 'morphilina']
+partnersList = ['swtf', 'glitchpeach', 'morphilina']
 
 
 def start(update, context):
@@ -137,7 +137,7 @@ def start(update, context):
                 try:
                     info = text.split('-')
                     update.message.reply_text(f'{text}: {info[1]}')
-                    if info[1] in partnersList:
+                    if str(info[1]) in partnersList:
                         streamer = info[1]
                         item = info[2]
                         cursor.execute('SELECT price FROM shop WHERE streamer = %s AND item = %s', (streamer, item,))
@@ -151,7 +151,7 @@ def start(update, context):
                         else:
                             update.message.reply_text('Shop error.')
                     else:
-                        update.message.reply_text('Произошла ошибка! #SHOPERROR')
+                        update.message.reply_text(f'Произошла ошибка! #SHOPERROR ({info[1]})')
                 except Exception as e:
                     update.message.reply_text('Ошибка запроса! #SHOP404')
                     logger.info('Ошибка!', exc_info=e)
@@ -161,7 +161,7 @@ def start(update, context):
             update.message.reply_text('Meow')
             logger.info('Ошибка!', exc_info=e)
     elif str(ids) not in str(all_users):
-        update.message.reply_text('Сперва нужно зарегестрироваться, для этого напишите хотя бы одно сообщение в чате где присутствует @kamenschikbot!', parse_mode='HTML')
+        update.message.reply_text('Сперва нужно зарегестрироваться, для этого напишите хотя бы одно сообщение в чате где присутствует @MokaAkasiaBot!', parse_mode='HTML')
 
 
 def restricted(func):
@@ -923,16 +923,16 @@ def qHelp(update, context):
 
 def freecoins(update, context):
     update.message.reply_text('''1. Подписка на @osuzhdaiu: 1000 монет.
-<a href="https://t.me/kamenschikbot?start=osuzhdaiu">Проверить</a>
+<a href="https://t.me/MokaAkasiaBot?start=osuzhdaiu">Проверить</a>
 
 2. Подписка на @streamerswtf: 1000 монет + повышеный лимит (до 10к) на переводы и ставки.
-<a href="https://t.me/kamenschikbot?start=streamerswtf">Проверить</a>
+<a href="https://t.me/MokaAkasiaBot?start=streamerswtf">Проверить</a>
 
 3. Подписка на @glitchpeach: 1000 монет.
-<a href="https://t.me/kamenschikbot?start=glitchpeach">Проверить</a>
+<a href="https://t.me/MokaAkasiaBot?start=glitchpeach">Проверить</a>
 
 4. Подписка на личный канал разработчика @nvmrstuff: 1000 монет.
-<a href="https://t.me/kamenschikbot?start=nvmrstuff">Проверить</a>''', parse_mode='HTML', disable_web_page_preview=True)
+<a href="https://t.me/MokaAkasiaBot?start=nvmrstuff">Проверить</a>''', parse_mode='HTML', disable_web_page_preview=True)
 
 
 def substats(update, context):
