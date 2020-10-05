@@ -185,7 +185,7 @@ def start(update, context):
 
 
 def convMessage(update, context):
-    message = update.message.from_user
+    message = update.message.text
     userInfo = context.user_data['info']
     cursor.execute('UPDATE newusers SET exp = exp - %s WHERE id = %s', (userInfo[3], userInfo[0],))
     conn.commit()
