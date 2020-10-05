@@ -140,18 +140,21 @@ def start(update, context):
                     if str(info[1]) in partnersList:
                         streamer = info[1]
                         item = info[2]
-                        cursor.execute('SELECT price FROM shop WHERE streamer = %s AND item = %s', (streamer, item,))
-                        price = cursor.fetchone()
+                        cursor.execute('SELECT price, title FROM shop WHERE streamer = %s AND item = %s', (streamer, item,))
+                        shopInfo = cursor.fetchone()
                         cursor.execute('SELECT exp FROM newusers WHERE id = %s', (ids,))
                         balance = cursor.fetchone()
-                        if int(balance[0]) >= int(price[0]):
-                            update.message.reply_text('Транзакция!')
-                        elif int(balance[0]) < int(price[0]):
-                            update.message.reply_text(f'Не хватает <b>{int(price[0])-int(balance[0])}</b> монет!', parse_mode='HTML')
+                        if int(balance[0]) >= int(shopInfo[0]):
+                            new_balance = int(balance[0]) - int(shopInfo[0])
+                            cursor.execute('UPDATE users SET exp = %s WHERE id = %s', (new_balance, ids,))
+                            conn.commit()
+                            update.message.reply_text(f'Вы успешно купили: <b>{shopInfo[1]}</b>!\nЕсли покупка требует какого-либо уточнения, с вами свяжется наш менеджер.\n\nБаланс: {new_balance} монет.')
+                        elif int(balance[0]) < int(shopInfo[0]):
+                            update.message.reply_text(f'Не хватает <b>{int(shopInfo[0])-int(balance[0])}</b> монет!', parse_mode='HTML')
                         else:
                             update.message.reply_text('Shop error.')
                     else:
-                        update.message.reply_text(f'Произошла ошибка! #SHOPERROR ({info[1]})')
+                        update.message.reply_text(f'Произошла ошибка! #SHOPERROR')
                 except Exception as e:
                     update.message.reply_text('Ошибка запроса! #SHOP404')
                     logger.info('Ошибка!', exc_info=e)
