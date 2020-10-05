@@ -148,7 +148,7 @@ def start(update, context):
                         if int(balance[0]) >= int(shopInfo[0]):
                             cursor.execute('UPDATE users SET exp = exp - %s WHERE id = %s', (shopInfo[0], ids,))
                             conn.commit()
-                            update.message.reply_text(f'Вы успешно купили: <b>{shopInfo[1]}</b>!\nЕсли покупка требует какого-либо уточнения, продавец свяжется с вами.\n\nБаланс: {new_balance} монет.', parse_mode='HTML')
+                            update.message.reply_text(f'Вы успешно купили: <b>{shopInfo[1]}</b>!\nЕсли покупка требует какого-либо уточнения, продавец свяжется с вами.', parse_mode='HTML')
                             try:
                                 context.bot.send_message(chat_id=shopInfo[2], text=f'<a href="tg://user?id={ids}>{userName}</a> купил(-а) <b>{shopInfo[1]}</b>"')
                             except:
