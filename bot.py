@@ -151,7 +151,7 @@ def start(update, context):
                         else:
                             update.message.reply_text('Shop error.')
                     else:
-                        update.message.reply_text('Произошла ошибка! #SHOPERROR')
+                        update.message.reply_text(f'Произошла ошибка! #SHOPERROR ({info[1]})')
                 except Exception as e:
                     update.message.reply_text('Ошибка запроса! #SHOP404')
                     logger.info('Ошибка!', exc_info=e)
