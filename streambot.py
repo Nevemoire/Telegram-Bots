@@ -256,6 +256,21 @@ def compensate(update, context):
     update.message.reply_text('Готово!')
 
 
+def owner(update, context):  
+    ids = update.message.from_user.id
+    member = context.bot.get_chat_member(update.message.chat_id, ids)
+    cursor.execute('SELECT owner FROM newchats WHERE id = %s', (update.message.chat_id,))
+    chatid = cursor.fetchone()
+    if (member.status in 'creator') and (str(chatid[0]) == '0'):
+        cursor.execute('UPDATE newchats SET owner = %s', (update.message.from_user.id,))
+        conn.commit()
+        update.message.reply_text('Владелец чата успешно подтвержден.')
+    elif (member.status in 'creator') and (str(chatid[0]) != '0'):
+        update.message.reply_text('Владелец чата уже подтвержден.')
+    else:
+        pass
+
+
 @restricted
 def stats(update, context):
     cursor.execute('SELECT id from newchats')
@@ -1025,6 +1040,7 @@ def main():
     dp.add_handler(CommandHandler('shop', shop))
     dp.add_handler(CommandHandler('ban', ban))
     dp.add_handler(CommandHandler('unban', unban))
+    dp.add_handler(CommandHandler('owner', owner))
     dp.add_handler(CommandHandler('freecoins', freecoins))
     dp.add_handler(CommandHandler('substats', substats, filters=Filters.user(username="@daaetoya")))
     dp.add_handler(CommandHandler('message', message))
