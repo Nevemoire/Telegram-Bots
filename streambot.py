@@ -180,7 +180,7 @@ def start(update, context):
         registered = time.strftime('%d.%m.%y')
         cursor.execute('INSERT INTO newusers (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (ids, userName, cur_time, registered,))
         conn.commit()
-        update.message.reply_text(f'{random.choice(privet)}! Спасибо за регистрацию!\n\nДоступные команды можно узнать нажав на -> /help\nТакже, советую посмотреть и <a href="https://streamers.wtf">наш сайт</a>, там много интересного :)', parse_mode='HTML', disable_web_page_preview=True)
+        update.message.reply_text(f'{random.choice(privet)}! Спасибо за регистрацию!\n\nДоступные команды можно узнать нажав на -> /help\nТакже, советую вступить в наш чат: @swtfchat и посетить <a href="https://streamers.wtf">наш сайт</a>, там много интересного :)', parse_mode='HTML', disable_web_page_preview=True)
         return ConversationHandler.END
 
 
@@ -259,16 +259,24 @@ def compensate(update, context):
 def owner(update, context):  
     ids = update.message.from_user.id
     member = context.bot.get_chat_member(update.message.chat_id, ids)
-    cursor.execute('SELECT owner FROM newchats WHERE id = %s', (update.message.chat_id,))
-    chatid = cursor.fetchone()
-    if (member.status in 'creator') and (str(chatid[0]) == '0'):
-        cursor.execute('UPDATE newchats SET owner = %s', (update.message.from_user.id,))
-        conn.commit()
-        update.message.reply_text('Владелец чата успешно подтвержден.')
-    elif (member.status in 'creator') and (str(chatid[0]) != '0'):
-        update.message.reply_text('Владелец чата уже подтвержден.')
-    else:
-        pass
+    cursor.execute('SELECT owner, owner_nn FROM newchats WHERE id = %s', (update.message.chat_id,))
+    owner = cursor.fetchone()
+    user_says = context.args # дописать функцию никнейма
+    try:
+        if (member.status in 'creator') and (str(owner[0]) == '0') and (str(owner[1]) != str(user_says[0])):
+                cursor.execute('UPDATE newchats SET owner = %s, owner_nn = %s', (update.message.from_user.id, context.args[0]))
+                conn.commit()
+                update.message.reply_text('Владелец чата успешно подтвержден.')
+        elif (member.status in 'creator') and (str(owner[0]) != '0') and (str(owner[1]) != str(user_says[0])):
+            cursor.execute('UPDATE newchats SET owner = %s, owner_nn = %s', (update.message.from_user.id, context.args[0]))
+            conn.commit()
+            update.message.reply_text('Данные успешно обновлены.')
+        elif (member.status in 'creator') and (str(owner[0]) != '0'):
+            update.message.reply_text('Владелец чата уже подтвержден.')
+        else:
+            pass
+    except:
+        update.message.reply_text('Ошибка! Укажи ник владельца.\nПример: /owner Nevermore')
 
 
 @restricted
@@ -344,7 +352,16 @@ def new_user(update, context):
     for member in update.message.new_chat_members:
         if member.id != context.bot.get_me().id:
             logger.info('hey user')
-            cursor.execute('SELECT id, link FROM newhello ORDER BY random() LIMIT 1')
+            cursor.execute('SELECT owner, owner_nn FROM newchats WHERE id = %s', (update.message.chat_id,))
+            owner = cursor.fetchone()
+            if (str(owner[0]) != '0') and (str(owner[1]) != 'Nevermore'):
+                try:
+                    cursor.execute('SELECT id, link FROM newhello WHERE link = %s', (owner[1],))
+                except Exception as e:
+                    logger.info('Ошибка!', exc_info=e)
+                    cursor.execute('SELECT id, link FROM newhello ORDER BY random() LIMIT 1')
+            else:
+                cursor.execute('SELECT id, link FROM newhello ORDER BY random() LIMIT 1')
             hgif = cursor.fetchall()
             newhello = hgif[0]
             tLink = newhello[1]
@@ -369,7 +386,7 @@ def new_user(update, context):
             newchats = cursor.fetchall()
             if str(chatid) in str(newchats):
                 logger.info('here we go again...')
-                update.message.reply_text('Мне кажется, или я уже была в этом чате? Осуждаю.\n\nЛадно, ладно. Я не злопамятная, можем начать всё с чистого листа, но только в этот раз!.')
+                update.message.reply_text('Мне кажется, или я уже была в этом чате? Осуждаю.\n\nЛадно, ладно. Я не злопамятная, можем начать всё с чистого листа, но только в этот раз!\nА если вы хотите всё-таки загладить свою вину, можете вступать в наш чат: @swtfchat')
                 cursor.execute('UPDATE newchats SET name = %s, users = %s, unable = 0 WHERE id = %s', (name, userscount, chatid,))
                 context.bot.send_message(chat_id=391206263, text=f'Бота снова добавили в {name} ({userscount})!')
                 conn.commit()
@@ -383,7 +400,8 @@ def new_user(update, context):
 
 Список доступных команд: /help
 Сообщество СНГ стримеров: @streamerswtf
-Наш сайт: streamers.wtf""", disable_web_page_preview=True)
+Наш сайт: streamers.wtf
+Наш чат, где вы можете обсудить работу бота, предложить свои идеи и просто лампово пообщаться: @swtfchat""", disable_web_page_preview=True)
                 conn.commit()
             else:
                 update.message.reply_text('Произошла ошибка.')
@@ -653,15 +671,6 @@ def krokodil(update, context):
         pass
 
 
-def fbi(update, context):
-    cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
-    banned = cursor.fetchone()
-    if '0' in str(banned[0]):
-        context.bot.send_animation(chat_id=update.message.chat_id, animation='CgACAgIAAxkBAAIBrF6MQgz-TZJXda7BWdgFSZfY1LAOAAIVAwACuzWoSw_3NpLvCy0dGAQ')
-    else:
-        pass
-
-
 def babki(update, context):
     cursor.execute('SELECT banned FROM newusers WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
@@ -702,7 +711,7 @@ def tip(update, context):
                 if (amount < 10) or (amount > maxTip):
                     update.message.reply_text(f'Ошибка!\nМин. перевод: 10 монет, макс. перевод: 1000 монет или 10.000 монет для подписчиков: {channel_username} за раз.')
                 elif str(ids) in str(target):
-                    update.message.reply_text('Очень смешно. 🤨')
+                    update.message.reply_text('Ха-ха. 🤨')
                 elif amount > int(balance[0]):
                     update.message.reply_text('Недостаточно средств!')
                 elif ((amount >= 10) and (amount <= maxTip)) and amount <= int(balance[0]):
@@ -711,10 +720,10 @@ def tip(update, context):
                     conn.commit()
                     update.message.reply_text(f'<code>{iName}</code> успешно переводит <code>{tName}</code> <b>{amount}</b> монет.', parse_mode='HTML')
             else:
-                update.message.reply_text('Ошибка! Перевод возможен только если оба пользователя присутствуют в базе данных.')
+                update.message.reply_text('Ошибка! Перевод возможен только если оба пользователя зарегистрированы.')
         except Exception as e:
             logger.info('Ошибка!', exc_info=e)
-            update.message.reply_text('Ошибка! Удостоверься, что ты отвечаешь на сообщение, а не на фото, видео и т.п.')
+            update.message.reply_text('Ошибка! Проверь, правильно ли ты используешь команду? Реплаить нужно <b>текстовое сообщение</b>.', parse_mode='HTML')
     else:
         pass
 
@@ -962,8 +971,10 @@ def qHelp(update, context):
     banned = cursor.fetchone()
     if '0' in str(banned[0]):
         update.message.reply_text('''Список доступных команд:
+/owner - Подтвердить владение чатом. (Только для создателя чата)
 /shop - Магазин.
 /balance - Посмотреть баланс.
+/donate - Поддержать развитие проекта.
 
 /krokodil - Игра в угадать слово.
 /chipization - Посмотреть кто стал последней жертвой Била Гейтса.
@@ -1023,17 +1034,13 @@ def main():
     j.run_once(krokoreload, 1)
 
     # log all errors
-    # dp.add_handler(CommandHandler('start', start))
     dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_user))
     dp.add_handler(CommandHandler('raffle', raffle))
-    # dp.add_handler(CommandHandler('raffle', raffle, filters=(Filters.user(username="@daaetoya") | Filters.user(username='@bhyout'))))
     dp.add_handler(CommandHandler('winners', raffleWinners))
     dp.add_handler(CommandHandler('krokodil', krokodil, pass_job_queue=True, pass_chat_data=True))
     dp.add_handler(CommandHandler('chipization', pidor))
     dp.add_handler(CommandHandler('chipization_toggle', pidor_toggle))
-    # dp.add_handler(CommandHandler('fbi', fbi))
     dp.add_handler(CommandHandler('donate', donate))
-    # dp.add_handler(CommandHandler('nya', showPussy))
     dp.add_handler(CommandHandler('osuzhdaiu', showTwitch))
     dp.add_handler(CommandHandler('balance', babki))
     dp.add_handler(CommandHandler('stats', stats))
@@ -1051,7 +1058,6 @@ def main():
     dp.add_handler(InlineQueryHandler(checkquery))
     # dp.add_handler(CommandHandler("gop", gop, pass_args=True))
     dp.add_handler(MessageHandler(Filters.group, echo))
-    # dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte")), pussy))
     dp.add_handler(MessageHandler(Filters.video & (~Filters.group) & Filters.user(username="@daaetoya"), twitch))
     dp.add_handler(MessageHandler(Filters.document & (~Filters.group) & Filters.user(username="@daaetoya"), hGif))
     dp.add_handler(CallbackQueryHandler(button))
