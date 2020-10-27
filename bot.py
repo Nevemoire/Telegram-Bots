@@ -104,18 +104,19 @@ def about_bot(update, context):
 
 @run_async  
 def about_author(update, context):
-    update.message.reply_text("""*Привет!* Меня зовут Данил.
-Студент (но это не точно), пока ещё не миллиардер, начинающий разработчик (учу `python`) и front-end (`js/react`) девелопер.
+    update.message.reply_text("""22+ y.o. web-developer && constructor from Moscow.
 
-Несколько работ из моего портфолио:
-- https://poli-trade.com.ua - собран на Tilda.ws.
-- https://mjm-corp.ee или https://mjmcorp.esy.es - написан вручную с нуля, без помощи каких-либо конструкторов.
-- https://active-sp.ru (калькулятор, презентация, рекламные макеты и др.) - собран на WP.
+My latest works:
+- https://poly-trade.com.ua (Bootstrap 4, JS)
+- https://montazhgso.com (Bootstrap 4, JS, PHP)
+- https://streamers.wtf (Complex work from scratch, including: Bootstrap, SCSS, JS, PHP)
+- @clownfiestabot
+- @MokaAkasiaBot (in pair with streamers.wtf)
 
-Также, ссылка на мой сайт:
-https://nevermore.red - собран на Tilda.ws, вскоре будет заново переписан по технологии [Single Page Application](http://www.codenet.ru/webmast/js/spa/), на основе Bootstrap 4 + React.js.
+My page:
+https://nevermore.wtf
 
-Есть вопросы и/или предложения? Пиши мне: @daaetoya""",  parse_mode='MARKDOWN', disable_web_page_preview=True)
+Made with ♥ by @daaetoya""",  parse_mode='MARKDOWN', disable_web_page_preview=True)
 
     return CHOOSING
 
