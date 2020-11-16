@@ -40,6 +40,7 @@ conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'], pa
 cursor = conn.cursor()
 
 all_user_data = set()
+formatNumber = lambda n: n if n%1 else int(n)
 
 privet = ['Салам алейкум', 'Hi', 'Merhaba', 'Hola', 'Прывитанне', 'Здравейте', 'Chao', 'Aloha', 'Гамарджоба', 'Shalom', 'Ave', 'Guten Tag', 'Привіт', 'Привет', 'Namaste', 'Bonjour', 'Konnichi wa']
 LIST_OF_ADMINS = [391206263]
@@ -575,7 +576,8 @@ def chlen(update, context):
     else:    
         cursor.execute('SELECT chlen FROM users WHERE id = %s', (update.message.from_user.id,))
         clength = cursor.fetchone()
-        update.message.reply_text(f'Длина твоего члена: {int(clength[0])/10} см!\nСледующую опперацию можно будет провести завтра или позже.')
+        a = int(clength[0])/10
+        update.message.reply_text(f'Длина твоего члена: {formatNumber(a)} см!\nСледующую опперацию можно будет провести завтра или позже.')
 
 
 def pidor_toggle(update, context):
