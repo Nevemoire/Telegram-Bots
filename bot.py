@@ -553,6 +553,30 @@ def pidor(update, context):
         pass
 
 
+def gay(update, context):
+    update.message.reply_text(f'Ты гэй на {random.randint(1,100)}%! 🏳️‍🌈')
+
+
+def chlen(update, context):
+    chance = random.randint(1,3)
+    chlen = random.randint(1,10)
+    chlen_date = time.strftime('%d.%m.%y')
+    cursor.execute('SELECT from USERS chlen_date WHERE id = %s', (update.message.from_user.id,))
+    chlen_last = cursor.fetchone()
+    if chlen_date not in chlen_time:
+        if chance == 1:
+            cursor.execute('UPDATE users SET chlen = chlen - %s, chlen_date = %s WHERE id = %s', (chlen, chlen_date, update.message.from_user.id,))
+            update.message.reply_text(f'Твой член укоротился на {chlen} мм!')
+        else:
+            cursor.execute('UPDATE users SET chlen = chlen + %s, chlen_date = %s WHERE id = %s', (chlen, chlen_date, update.message.from_user.id,))
+            update.message.reply_text(f'Твой член вырос на {chlen} мм!')
+        conn.commit()
+    else:    
+        cursor.execute('SELECT chlen FROM users WHERE id = %s', (update.message.from_user.id,))
+        clength = cursor.fetchone()
+        update.message.reply_text(f'Длина твоего члена: {int(clength)/100} см!')
+
+
 def pidor_toggle(update, context):
     try:
         if update.effective_user.id in get_admin_ids(context.bot, update.message.chat_id):
@@ -989,6 +1013,8 @@ def main():
     dp.add_handler(CommandHandler('balance', babki))
     dp.add_handler(CommandHandler('stats', stats))
     dp.add_handler(CommandHandler('ban', ban))
+    dp.add_handler(CommandHandler('gay', gay))
+    dp.add_handler(CommandHandler('chlen', chlen))
     dp.add_handler(CommandHandler('unban', unban))
     dp.add_handler(CommandHandler('freecoins', freecoins))
     dp.add_handler(CommandHandler('substats', substats, filters=Filters.user(username="@daaetoya")))
