@@ -561,9 +561,9 @@ def chlen(update, context):
     chance = random.randint(1,3)
     chlen = random.randint(1,10)
     chlen_date = time.strftime('%d.%m.%y')
-    cursor.execute('SELECT from USERS chlen_date WHERE id = %s', (update.message.from_user.id,))
+    cursor.execute('SELECT chlen_date FROM users WHERE id = %s', (update.message.from_user.id,))
     chlen_last = cursor.fetchone()
-    update.message.reply_text(f'{chlen_date} + {chlen_last}')
+    # update.message.reply_text(f'{chlen_date} + {chlen_last}')
     if chlen_date not in chlen_last:
         if chance == 1:
             cursor.execute('UPDATE users SET chlen = chlen - %s, chlen_date = %s WHERE id = %s', (chlen, chlen_date, update.message.from_user.id,))
