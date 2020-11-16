@@ -469,32 +469,35 @@ def bets(update, context):
             balance = int(betinfo[0])
             bet = int(betinfo[1])
             dice = update.message.dice.value
-            if bet == 0:
-                pass
-            else:
-                if balance >= bet:
-                    if dice <= 3:
-                        update.message.reply_text(f'Проигрыш! (-{bet} монет)\nРезультат: {dice}')
-                        cursor.execute('UPDATE users SET exp = exp - %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
-                        conn.commit()
-                    elif dice > 3:
-                        update.message.reply_text(f'Выигрыш! (+{bet} монет)\nРезультат: {dice}')
-                        cursor.execute('UPDATE users SET exp = exp + %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
-                        conn.commit()
+            if update.message.dice.emoji == "🎲":
+                if bet == 0:
+                    pass
+                else:
+                    if balance >= bet:
+                        if dice <= 3:
+                            update.message.reply_text(f'Проигрыш! (-{bet} монет)\nРезультат: {dice}')
+                            cursor.execute('UPDATE users SET exp = exp - %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
+                            conn.commit()
+                        elif dice > 3:
+                            update.message.reply_text(f'Выигрыш! (+{bet} монет)\nРезультат: {dice}')
+                            cursor.execute('UPDATE users SET exp = exp + %s, total_bet = total_bet + %s WHERE id = %s', (bet, bet, ids,))
+                            conn.commit()
+                        else:
+                            update.message.reply_text('Произошла ошибка, попробуй позже!')
+                    elif balance < bet:
+                        update.message.reply_text('Недостаточно монет!')
                     else:
                         update.message.reply_text('Произошла ошибка, попробуй позже!')
-                elif balance < bet:
-                    update.message.reply_text('Недостаточно монет!')
-                else:
-                    update.message.reply_text('Произошла ошибка, попробуй позже!')
+            else:
+                update.message.reply_text('Эта игра пока что не поддерживается :(')
         else:
             update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
     else:
         pass
 
 
-def bets_soon(update, context):
-    update.message.reply_text('Эта игра пока что не поддерживается :(')
+# def bets_soon(update, context):
+#     update.message.reply_text('Эта игра пока что не поддерживается :(')
 
 
 def setBet(update, context):
@@ -990,8 +993,8 @@ def main():
     dp.add_handler(CommandHandler('freecoins', freecoins))
     dp.add_handler(CommandHandler('substats', substats, filters=Filters.user(username="@daaetoya")))
     dp.add_handler(CommandHandler('message', message))
-    dp.add_handler(MessageHandler((Filters.dice.darts & (~Filters.forwarded)), bets))
-    dp.add_handler(MessageHandler((Filters.dice & (~Filters.forwarded)), bets_soon))
+    dp.add_handler(MessageHandler((Filters.dice & (~Filters.forwarded)), bets))
+    # dp.add_handler(MessageHandler((Filters.dice & (~Filters.forwarded)), bets_soon))
     dp.add_handler(CommandHandler('bet', setBet, pass_args=True))
     dp.add_handler(CommandHandler('tip', tip, pass_args=True))
     dp.add_handler(CommandHandler('help', qHelp))
