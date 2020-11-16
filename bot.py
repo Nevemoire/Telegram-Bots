@@ -41,6 +41,7 @@ cursor = conn.cursor()
 
 all_user_data = set()
 
+privet = ['Салам алейкум', 'Hi', 'Merhaba', 'Hola', 'Прывитанне', 'Здравейте', 'Chao', 'Aloha', 'Гамарджоба', 'Shalom', 'Ave', 'Guten Tag', 'Привіт', 'Привет', 'Namaste', 'Bonjour', 'Konnichi wa']
 LIST_OF_ADMINS = [391206263]
 channel_username = '@theclownfiesta'
 ch1 = '@theclownfiesta'
@@ -154,10 +155,22 @@ def new_user(update, context):
     for member in update.message.new_chat_members:
         if member.id != context.bot.get_me().id:
             logger.info('hey user')
-            cursor.execute('SELECT id FROM hello ORDER BY random() LIMIT 1')
+            cursor.execute('SELECT id, link FROM hello ORDER BY random() LIMIT 1')
             hgif = cursor.fetchall()
-            hello = hgif[0]
-            context.bot.send_animation(chat_id=update.message.chat_id, animation=hello[0], caption=f'Здарова, {update.message.from_user.full_name}!')
+            newhello = hgif[0]
+            tLink = newhello[1]
+            context.bot.send_animation(chat_id=update.message.chat_id, animation=newhello[0], caption=f'{random.choice(privet)}, {update.message.from_user.full_name}!\n📸: <a href="twitch.tv/{tLink}">{tLink}</a>', parse_mode="HTML")
+            cursor.execute('SELECT id from users')
+            all_ids = cursor.fetchall()
+            if str(member.id) not in str(all_ids):
+                name = update.message.from_user.full_name
+                cur_time = int(time.time())
+                registered = time.strftime('%d.%m.%y')
+                cursor.execute('INSERT INTO users (id, name, lastmsg, registered) VALUES (%s, %s, %s, %s)', (member.id, name, cur_time, registered,))
+                conn.commit()
+                logger.info(f'New invited user {update.message.from_user.full_name}!')
+            else:
+                pass
         elif member.id == context.bot.get_me().id:
             logger.info('hey chat')
             userscount = context.bot.get_chat_members_count(update.message.chat.id)
@@ -480,6 +493,10 @@ def bets(update, context):
         pass
 
 
+def bets_soon(update, context):
+    update.message.reply_text('Эта игра пока что не поддерживается :(')
+
+
 def setBet(update, context):
     # update.message.reply_text('Ставки и всё что с ними связано теперь здесь: @NevermoreBets.\nСовершенно новый, уникальный, неповторимый экспириенс в телеграмме, залетайте!')
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
@@ -491,7 +508,7 @@ def setBet(update, context):
         if str(ids) in str(members):
             member = context.bot.get_chat_member(channel_username, ids)
             if member.status in memberslist:
-                maxBet = 10000
+                maxBet = 1000000
             else:
                 maxBet = 1000
             user_says = context.args
@@ -502,7 +519,7 @@ def setBet(update, context):
                     conn.commit()
                     update.message.reply_text('Готово! Чтобы сделать ставку, пришли в чат этот эмодзи: 🎲')
                 else:
-                    update.message.reply_text(f'Недопустимое значение!\nМин. ставка: 10 монет\nМакс. ставка: 1000 монет или 10.000 монет для подписчиков: {channel_username}\nЧтобы отключить ставки, напиши: /bet 0')
+                    update.message.reply_text(f'Недопустимое значение!\nМин. ставка: 10 монет\nМакс. ставка: 1000 монет или 1.000.000 монет для подписчиков: {channel_username}\nЧтобы отключить ставки, напиши: /bet 0')
             except:
                 update.message.reply_text('Пришли мне команду в формате:\n/bet <ЧИСЛО>,\n\nгде <ЧИСЛО> - сумма ставки.\nОтключить ставки: /bet 0')
         else:
@@ -621,7 +638,7 @@ def tip(update, context):
             if (str(ids) in str(members)) and (str(target) in str(members)):
                 member = context.bot.get_chat_member(channel_username, ids)
                 if member.status in memberslist:
-                    maxTip = 10000
+                    maxTip = 1000000
                 else:
                     maxTip = 1000
                 user_says = context.args
@@ -633,7 +650,7 @@ def tip(update, context):
                 cursor.execute('SELECT exp FROM users WHERE id = %s', (ids,))
                 balance = cursor.fetchone()
                 if (amount < 10) or (amount > maxTip):
-                    update.message.reply_text(f'Ошибка!\nМин. перевод: 10 монет, макс. перевод: 1000 монет или 10.000 монет для подписчиков: {channel_username} за раз.')
+                    update.message.reply_text(f'Ошибка!\nМин. перевод: 10 монет, макс. перевод: 1000 монет или 1.000.000 монет для подписчиков: {channel_username} за раз.')
                 elif str(ids) in str(target):
                     update.message.reply_text('Очень смешно. 🤨')
                 elif amount > int(balance[0]):
@@ -903,7 +920,7 @@ def qHelp(update, context):
 /tip <SUMM> - Перевести денежку (Пишется в ответ на сообщение получателя).
 /bet <SUMM> - Указать сумму ставки.
 
-Вместо <SUMM> указываем число от 10 до 1000 (10.000 для подписчиков @theclownfiesta).''')
+Вместо <SUMM> указываем число от 10 до 1000 (1.000.000 для подписчиков @theclownfiesta).''')
         logger.info('Help requested')
     else:
         pass
@@ -930,8 +947,8 @@ def substats(update, context):
 
 
 def donate(update, context):
-    update.message.reply_text('Реквизиты для доната:\nСбер: 5469 3800 8674 8745\nЯ.Соберу: yasobe.ru/na/Nevermore\n\nПрикрепите ваш UserID к донату чтобы получить 1000 монет за каждые 10 руб. доната :)')
-    update.message.reply_text(f'Ваш UserID: {update.message.from_user.id}')
+    update.message.reply_text('Реквизиты для доната:\nСбер: 5469 3800 8674 8745\n\nПрикрепи свой UserID к донату чтобы получить 10.000 монет за каждые 10 руб. доната :)\nВажно! Все платежи окончательны и возврату не подлежат.')
+    update.message.reply_text(f'Твой UserID: {update.message.from_user.id}')
 
 
 def error(update, context):
@@ -956,7 +973,7 @@ def main():
     # log all errors
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_user))
-    dp.add_handler(CommandHandler('raffle', raffle, filters=(Filters.user(username="@daaetoya") | Filters.user(username='@bhyout'))))
+    dp.add_handler(CommandHandler('raffle', raffle, filters=(Filters.user(username="@daaetoya"))))
     dp.add_handler(CommandHandler('winners', raffleWinners, filters=Filters.user(username="@daaetoya")))
     dp.add_handler(CommandHandler('krokodil', krokodil, pass_job_queue=True, pass_chat_data=True))
     dp.add_handler(CommandHandler('chipization', pidor))
@@ -973,7 +990,8 @@ def main():
     dp.add_handler(CommandHandler('freecoins', freecoins))
     dp.add_handler(CommandHandler('substats', substats, filters=Filters.user(username="@daaetoya")))
     dp.add_handler(CommandHandler('message', message))
-    dp.add_handler(MessageHandler((Filters.dice & (~Filters.forwarded)), bets))
+    dp.add_handler(MessageHandler((Filters.dice.darts & (~Filters.forwarded)), bets))
+    dp.add_handler(MessageHandler((Filters.dice & (~Filters.forwarded)), bets_soon))
     dp.add_handler(CommandHandler('bet', setBet, pass_args=True))
     dp.add_handler(CommandHandler('tip', tip, pass_args=True))
     dp.add_handler(CommandHandler('help', qHelp))
