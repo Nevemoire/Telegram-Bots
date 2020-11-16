@@ -563,6 +563,7 @@ def chlen(update, context):
     chlen_date = time.strftime('%d.%m.%y')
     cursor.execute('SELECT from USERS chlen_date WHERE id = %s', (update.message.from_user.id,))
     chlen_last = cursor.fetchone()
+    update.message.reply_text(f'{chlen_date} + {chlen_last}')
     if chlen_date not in chlen_last:
         if chance == 1:
             cursor.execute('UPDATE users SET chlen = chlen - %s, chlen_date = %s WHERE id = %s', (chlen, chlen_date, update.message.from_user.id,))
@@ -574,7 +575,7 @@ def chlen(update, context):
     else:    
         cursor.execute('SELECT chlen FROM users WHERE id = %s', (update.message.from_user.id,))
         clength = cursor.fetchone()
-        update.message.reply_text(f'Длина твоего члена: {int(clength)/100} см!')
+        update.message.reply_text(f'Длина твоего члена: {int(clength)/100} см!\nСледующую опперацию можно будет провести завтра или позже.')
 
 
 def pidor_toggle(update, context):
