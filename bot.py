@@ -575,7 +575,7 @@ def chlen(update, context):
     else:    
         cursor.execute('SELECT chlen FROM users WHERE id = %s', (update.message.from_user.id,))
         clength = cursor.fetchone()
-        update.message.reply_text(f'Длина твоего члена: {int(clength)/100} см!\nСледующую опперацию можно будет провести завтра или позже.')
+        update.message.reply_text(f'Длина твоего члена: {int(clength[0])/100} см!\nСледующую опперацию можно будет провести завтра или позже.')
 
 
 def pidor_toggle(update, context):
