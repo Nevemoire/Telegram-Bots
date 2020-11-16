@@ -469,7 +469,7 @@ def bets(update, context):
             balance = int(betinfo[0])
             bet = int(betinfo[1])
             dice = update.message.dice.value
-            if update.message.dice.emoji == "🎲":
+            if dice <= 6:
                 if bet == 0:
                     pass
                 else:
@@ -489,7 +489,7 @@ def bets(update, context):
                     else:
                         update.message.reply_text('Произошла ошибка, попробуй позже!')
             else:
-                update.message.reply_text('Эта игра пока что не поддерживается :(')
+                update.message.reply_text('Пока что мы не поддерживаем игры где результат может быть больше чем 6 :(')
         else:
             update.message.reply_text('Тебя нет в базе! Чтобы начать использовать возможности этого бота, напиши "Привет!" в ответ на это сообщение:)')
     else:
