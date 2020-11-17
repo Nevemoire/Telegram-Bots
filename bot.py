@@ -92,6 +92,24 @@ def message(update, context):
             cursor.execute("UPDATE chats SET unable = 1 WHERE id = %s", (chats[0],))
 
 
+def chlentop(update, context):
+    top = update.message.text
+    if len(top.split()) > 1:
+        try:
+            int(top.split()[1])
+        except:
+            top = 10
+    else:
+        top = 10
+    cursor.execute('SELECT name, chlen FROM users ORDER BY chlen DESC LIMIT = %s', (top,))
+    textC = cursor.fetchall()
+    text = ''
+    for xText in textC:
+        text += (f'{xText[0]}: {int(xText[1])/10} см\n')
+    update.message.reply_text(f'Топ {top} писек чата:\n\n{text}')
+
+
+
 @restricted
 def compensate(update, context):
     cursor.execute("UPDATE users SET exp = exp + 1004")
@@ -1018,6 +1036,7 @@ def main():
     dp.add_handler(CommandHandler('ban', ban))
     dp.add_handler(CommandHandler('gay', gay))
     dp.add_handler(CommandHandler('chlen', chlen))
+    dp.add_handler(CommandHandler('chlentop', chlentop))
     dp.add_handler(CommandHandler('unban', unban))
     dp.add_handler(CommandHandler('freecoins', freecoins))
     dp.add_handler(CommandHandler('substats', substats, filters=Filters.user(username="@daaetoya")))
