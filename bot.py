@@ -96,12 +96,17 @@ def chlentop(update, context):
     top = update.message.text
     if len(top.split()) > 1:
         try:
-            int(top.split()[1])
+            top = int(top.split(' ')[1])
+            if top <= 30:
+                pass
+            else:
+                update.message.reply_text('Максимум - /top 30')
+                top = 10
         except:
             top = 10
     else:
         top = 10
-    cursor.execute('SELECT name, chlen FROM users ORDER BY chlen DESC LIMIT = %s', (top,))
+    cursor.execute('SELECT name, chlen FROM users ORDER BY chlen DESC LIMIT %s', (top,))
     textC = cursor.fetchall()
     text = ''
     for xText in textC:
