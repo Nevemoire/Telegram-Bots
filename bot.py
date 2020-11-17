@@ -109,9 +109,9 @@ def chlentop(update, context):
     cursor.execute('SELECT name, chlen FROM users ORDER BY chlen DESC LIMIT %s', (top,))
     textC = cursor.fetchall()
     text = ''
-    for xText in textC:
-        text += (f'{xText[0]}: {int(xText[1])/10} см\n')
-    update.message.reply_text(f'Топ {top} писек чата:\n\n{text}')
+    for iteration, xText in enumerate(textC):
+        text += (f'{iteration}) {xText[0]} — {int(xText[1])/10} см\n')
+    update.message.reply_text(f'Топ {top} писек чата\n\n{text}')
 
 
 
