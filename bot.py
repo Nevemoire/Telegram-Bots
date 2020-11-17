@@ -110,7 +110,7 @@ def chlentop(update, context):
     textC = cursor.fetchall()
     text = ''
     for iteration, xText in enumerate(textC):
-        text += (f'{iteration}) {xText[0]} — {int(xText[1])/10} см\n')
+        text += (f'{iteration+1}) {xText[0]} — {int(xText[1])/10} см\n')
     update.message.reply_text(f'Топ {top} писек чата\n\n{text}')
 
 
