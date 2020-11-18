@@ -1085,7 +1085,7 @@ def main():
     dp.add_handler(InlineQueryHandler(checkquery))
     # dp.add_handler(CommandHandler("gop", gop, pass_args=True))
     dp.add_handler(MessageHandler(Filters.group, echo))
-    dp.add_handler(MessageHandler(Filters.voice, gay))
+    dp.add_handler(MessageHandler(Filters.group & Filters.voice, gay))
     dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@bhyout") | Filters.user(username="@sslte")), pussy))
     dp.add_handler(MessageHandler((Filters.photo | Filters.document) & (~Filters.group) & (Filters.user(username="@balak_in") | Filters.user(username="@aotkh")), memes))
     dp.add_handler(MessageHandler(Filters.video & (~Filters.group) & Filters.user(username="@daaetoya"), twitch))
