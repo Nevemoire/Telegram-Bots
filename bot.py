@@ -570,7 +570,7 @@ def pidor_toggle(update, context):
 
 def gay(update, context):
     gayness = random.randint(1,100)
-    text = (f'Ты гэй на {random.randint(1,100)}%! 🏳️‍🌈')
+    text = (f'Ты гэй на {gayness}%! 🏳️‍🌈')
     if gayness >= 90:
         text += (f'\n{random.choice(gayphrases)}')
     update.message.reply_text(text)
