@@ -92,7 +92,7 @@ def message(update, context):
             cursor.execute("UPDATE chats SET unable = 1 WHERE id = %s", (chats[0],))
 
 
-def chlentop(update, context):
+def top(update, context):
     top = update.message.text
     if len(top.split()) > 1:
         try:
@@ -100,13 +100,13 @@ def chlentop(update, context):
             if (top >= 5) and (top <= 30):
                 pass
             else:
-                update.message.reply_text('Минимум - /chlentop 5.\nМаксимум - /chlentop 30.')
+                update.message.reply_text('Минимум - /top 5.\nМаксимум - /top 30.')
                 top = 10
         except:
             top = 10
     else:
         top = 10
-        update.message.reply_text('Подсказка:\nЧтобы посмотреть top15 или другой, напиши: /chlentop 15 (или свою цифру от 5 до 30)')
+        update.message.reply_text('Подсказка:\nЧтобы посмотреть top15 или другой, напиши: /top 15 (или свою цифру от 5 до 30)')
     cursor.execute('SELECT name, chlen FROM users ORDER BY chlen DESC LIMIT %s', (top,))
     textC = cursor.fetchall()
     text = ''
@@ -114,6 +114,30 @@ def chlentop(update, context):
         clength = int(xText[1])/10
         text += (f'{iteration+1}) {xText[0]} — {formatNumber(clength)} см\n')
     update.message.reply_text(f'Топ {top} писек:\n\n{text}')
+
+
+def antitop(update, context):
+    antitop = update.message.text
+    if len(antitop.split()) > 1:
+        try:
+            antitop = int(antitop.split(' ')[1])
+            if (antitop >= 5) and (antitop <= 30):
+                pass
+            else:
+                update.message.reply_text('Минимум - /antitop 5.\nМаксимум - /antitop 30.')
+                antitop = 10
+        except:
+            antitop = 10
+    else:
+        antitop = 10
+        update.message.reply_text('Подсказка:\nЧтобы посмотреть antitop15 или другой, напиши: /antitop 15 (или свою цифру от 5 до 30)')
+    cursor.execute('SELECT name, chlen FROM users ORDER BY chlen ASC LIMIT %s', (antitop,))
+    textC = cursor.fetchall()
+    text = ''
+    for iteration, xText in enumerate(textC):
+        clength = int(xText[1])/10
+        text += (f'{iteration+1}) {xText[0]} — {formatNumber(clength)} см\n')
+    update.message.reply_text(f'Антитоп {antitop} писек:\n\n{text}')
 
 
 
@@ -1050,7 +1074,8 @@ def main():
     dp.add_handler(CommandHandler('ban', ban))
     dp.add_handler(CommandHandler('gay', gay))
     dp.add_handler(CommandHandler('chlen', chlen))
-    dp.add_handler(CommandHandler('chlentop', chlentop))
+    dp.add_handler(CommandHandler('top', top))
+    dp.add_handler(CommandHandler('antitop', antitop))
     dp.add_handler(CommandHandler('unban', unban))
     dp.add_handler(CommandHandler('freecoins', freecoins))
     dp.add_handler(CommandHandler('substats', substats, filters=Filters.user(username="@daaetoya")))
