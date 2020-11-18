@@ -97,21 +97,23 @@ def chlentop(update, context):
     if len(top.split()) > 1:
         try:
             top = int(top.split(' ')[1])
-            if top <= 30:
+            if (top >= 5) and (top <= 30):
                 pass
             else:
-                update.message.reply_text('Максимум - /top 30')
+                update.message.reply_text('Минимум - /chlentop 5.\nМаксимум - /chlentop 30.')
                 top = 10
         except:
             top = 10
     else:
         top = 10
+        update.message.reply_text('Подсказка:\nЧтобы посмотреть top15 или другой, напиши: /chlentop 15 (или свою цифру от 5 до 30)')
     cursor.execute('SELECT name, chlen FROM users ORDER BY chlen DESC LIMIT %s', (top,))
     textC = cursor.fetchall()
     text = ''
     for iteration, xText in enumerate(textC):
-        text += (f'{iteration+1}) {xText[0]} — {int(xText[1])/10} см\n')
-    update.message.reply_text(f'Топ {top} писек чата\n\n{text}')
+        clength = int(xText[1])/10
+        text += (f'{iteration+1}) {xText[0]} — {formatNumber(clength)} см\n')
+    update.message.reply_text(f'Топ {top} писек:\n\n{text}')
 
 
 
@@ -589,18 +591,21 @@ def chlen(update, context):
     chlen_last = cursor.fetchone()
     # update.message.reply_text(f'{chlen_date} + {chlen_last}')
     if chlen_date not in chlen_last:
+        cursor.execute('SELECT chlen FROM users WHERE id = %s', (update.message.from_user.id,))
+        clength = cursor.fetchone()
+        a = int(clength[0])/10
         if chance == 1:
             cursor.execute('UPDATE users SET chlen = chlen - %s, chlen_date = %s WHERE id = %s', (chlen, chlen_date, update.message.from_user.id,))
-            update.message.reply_text(f'Твой член укоротился на {chlen} мм!')
+            update.message.reply_text(f'Твой член укоротился на {chlen} мм!\nТеперь его длина: {formatNumber(a)} см!')
         else:
             cursor.execute('UPDATE users SET chlen = chlen + %s, chlen_date = %s WHERE id = %s', (chlen, chlen_date, update.message.from_user.id,))
-            update.message.reply_text(f'Твой член вырос на {chlen} мм!')
+            update.message.reply_text(f'Твой член вырос на {chlen} мм!\nТеперь его длина: {formatNumber(a)} см!')
         conn.commit()
     else:    
         cursor.execute('SELECT chlen FROM users WHERE id = %s', (update.message.from_user.id,))
         clength = cursor.fetchone()
         a = int(clength[0])/10
-        update.message.reply_text(f'Длина твоего члена: {formatNumber(a)} см!\nСледующую опперацию можно будет провести завтра или позже.')
+        update.message.reply_text(f'Длина твоего члена: {formatNumber(a)} см!\nСледующую опперацию можно будет провести не раньше чем завтра.')
 
 
 def pidor_toggle(update, context):
