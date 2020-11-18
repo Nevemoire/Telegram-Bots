@@ -591,16 +591,20 @@ def chlen(update, context):
     chlen_last = cursor.fetchone()
     # update.message.reply_text(f'{chlen_date} + {chlen_last}')
     if chlen_date not in chlen_last:
-        cursor.execute('SELECT chlen FROM users WHERE id = %s', (update.message.from_user.id,))
-        clength = cursor.fetchone()
-        a = int(clength[0])/10
         if chance == 1:
             cursor.execute('UPDATE users SET chlen = chlen - %s, chlen_date = %s WHERE id = %s', (chlen, chlen_date, update.message.from_user.id,))
+            conn.commit()
+            cursor.execute('SELECT chlen FROM users WHERE id = %s', (update.message.from_user.id,))
+            clength = cursor.fetchone()
+            a = int(clength[0])/10
             update.message.reply_text(f'Твой член укоротился на {chlen} мм!\nТеперь его длина: {formatNumber(a)} см!')
         else:
             cursor.execute('UPDATE users SET chlen = chlen + %s, chlen_date = %s WHERE id = %s', (chlen, chlen_date, update.message.from_user.id,))
+            conn.commit()
+            cursor.execute('SELECT chlen FROM users WHERE id = %s', (update.message.from_user.id,))
+            clength = cursor.fetchone()
+            a = int(clength[0])/10
             update.message.reply_text(f'Твой член вырос на {chlen} мм!\nТеперь его длина: {formatNumber(a)} см!')
-        conn.commit()
     else:    
         cursor.execute('SELECT chlen FROM users WHERE id = %s', (update.message.from_user.id,))
         clength = cursor.fetchone()
