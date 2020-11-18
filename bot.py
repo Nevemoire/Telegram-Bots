@@ -43,6 +43,7 @@ all_user_data = set()
 formatNumber = lambda n: n if n%1 else int(n)
 
 privet = ['Салам алейкум', 'Hi', 'Merhaba', 'Hola', 'Прывитанне', 'Здравейте', 'Chao', 'Aloha', 'Гамарджоба', 'Shalom', 'Ave', 'Guten Tag', 'Привіт', 'Привет', 'Namaste', 'Bonjour', 'Konnichi wa']
+gayphrases = ['Голосовал за Байдена?)', 'Смотришь Давидыча?)', 'Нравится смузи?)', 'Играешь в LoL?)', 'Любишь светлое пиво?)', 'Поддерживаешь ЛГБТ?)', 'Не админишь канал, случайно?)', 'Слушаешь Оксимирона?)']
 LIST_OF_ADMINS = [391206263]
 channel_username = '@theclownfiesta'
 ch1 = '@theclownfiesta'
@@ -90,62 +91,6 @@ def message(update, context):
             context.bot.send_message(chat_id=chats[0], text=s.split(' ', 1)[1], reply_markup=reply_markup)
         except:
             cursor.execute("UPDATE chats SET unable = 1 WHERE id = %s", (chats[0],))
-
-
-def top(update, context):
-    top = update.message.text
-    if len(top.split()) > 1:
-        try:
-            top = int(top.split(' ')[1])
-            if (top >= 5) and (top <= 30):
-                pass
-            else:
-                update.message.reply_text('Минимум - /top 5.\nМаксимум - /top 30.')
-                top = 10
-        except:
-            top = 10
-    else:
-        top = 10
-        update.message.reply_text('Подсказка:\nЧтобы посмотреть top15 или другой, напиши: /top 15 (или свою цифру от 5 до 30)')
-    cursor.execute('SELECT name, chlen FROM users WHERE chlen <> 0 ORDER BY chlen DESC LIMIT %s', (top,))
-    textC = cursor.fetchall()
-    text = ''
-    for iteration, xText in enumerate(textC):
-        clength = int(xText[1])/10
-        text += (f'{iteration+1}) {xText[0]} — {formatNumber(clength)} см\n')
-    update.message.reply_text(f'Топ {top} писек:\n\n{text}')
-
-
-def antitop(update, context):
-    antitop = update.message.text
-    if len(antitop.split()) > 1:
-        try:
-            antitop = int(antitop.split(' ')[1])
-            if (antitop >= 5) and (antitop <= 30):
-                pass
-            else:
-                update.message.reply_text('Минимум - /antitop 5.\nМаксимум - /antitop 30.')
-                antitop = 10
-        except:
-            antitop = 10
-    else:
-        antitop = 10
-        update.message.reply_text('Подсказка:\nЧтобы посмотреть antitop15 или другой, напиши: /antitop 15 (или свою цифру от 5 до 30)')
-    cursor.execute('SELECT name, chlen FROM users WHERE chlen <> 0 ORDER BY chlen ASC LIMIT %s', (antitop,))
-    textC = cursor.fetchall()
-    text = ''
-    for iteration, xText in enumerate(textC):
-        clength = int(xText[1])/10
-        text += (f'{iteration+1}) {xText[0]} — {formatNumber(clength)} см\n')
-    update.message.reply_text(f'Антитоп {antitop} писек:\n\n{text}')
-
-
-
-@restricted
-def compensate(update, context):
-    cursor.execute("UPDATE users SET exp = exp + 1004")
-    conn.commit()
-    update.message.reply_text('Готово!')
 
 
 @restricted
@@ -603,8 +548,32 @@ def pidor(update, context):
         pass
 
 
+def pidor_toggle(update, context):
+    try:
+        if update.effective_user.id in get_admin_ids(context.bot, update.message.chat_id):
+            cursor.execute('SELECT pidor_state FROM chats WHERE id = %s', (update.message.chat_id,))
+            pState = cursor.fetchone()
+            if '1' in str(pState[0]):
+                cursor.execute('UPDATE chats SET pidor_state = 0 WHERE id = %s', (update.message.chat_id,))
+                update.message.reply_text('Всем участникам чата роздано по шапочке из фольги!')
+            elif '0' in str(pState[0]):
+                cursor.execute('UPDATE chats SET pidor_state = 1 WHERE id = %s', (update.message.chat_id,))
+                update.message.reply_text('У вас больше не осталось шапочек из фольги, вы можете быть подвержены чипизации!')
+            else:
+                update.message.reply_text('Произошла ошибка!')
+            conn.commit()
+        else:
+            update.message.reply_text('Кажется, ты не являешься админом этого чата.')
+    except:
+        update.message.reply_text('Произошла ошибка!')
+
+
 def gay(update, context):
-    update.message.reply_text(f'Ты гэй на {random.randint(1,100)}%! 🏳️‍🌈')
+    gayness = random.randint(1,100)
+    text = (f'Ты гэй на {random.randint(1,100)}%! 🏳️‍🌈')
+    if gayness >= 90:
+        text += (f'\n{random.choice(gayphrases)}')
+    update.message.reply_text(text)
 
 
 def chlen(update, context):
@@ -636,24 +605,52 @@ def chlen(update, context):
         update.message.reply_text(f'Длина твоего члена: {formatNumber(a)} см!\nСледующую опперацию можно будет провести не раньше чем завтра.')
 
 
-def pidor_toggle(update, context):
-    try:
-        if update.effective_user.id in get_admin_ids(context.bot, update.message.chat_id):
-            cursor.execute('SELECT pidor_state FROM chats WHERE id = %s', (update.message.chat_id,))
-            pState = cursor.fetchone()
-            if '1' in str(pState[0]):
-                cursor.execute('UPDATE chats SET pidor_state = 0 WHERE id = %s', (update.message.chat_id,))
-                update.message.reply_text('Всем участникам чата роздано по шапочке из фольги!')
-            elif '0' in str(pState[0]):
-                cursor.execute('UPDATE chats SET pidor_state = 1 WHERE id = %s', (update.message.chat_id,))
-                update.message.reply_text('У вас больше не осталось шапочек из фольги, вы можете быть подвержены чипизации!')
+def top(update, context):
+    top = update.message.text
+    if len(top.split()) > 1:
+        try:
+            top = int(top.split(' ')[1])
+            if (top >= 5) and (top <= 30):
+                pass
             else:
-                update.message.reply_text('Произошла ошибка!')
-            conn.commit()
-        else:
-            update.message.reply_text('Кажется, ты не являешься админом этого чата.')
-    except:
-        update.message.reply_text('Произошла ошибка!')
+                update.message.reply_text('Минимум - /top 5.\nМаксимум - /top 30.')
+                top = 10
+        except:
+            top = 10
+    else:
+        top = 10
+        update.message.reply_text('Подсказка:\nЧтобы посмотреть top15 или другой, напиши: /top 15 (или свою цифру от 5 до 30)')
+    cursor.execute('SELECT name, chlen FROM users WHERE chlen <> 0 ORDER BY chlen DESC LIMIT %s', (top,))
+    textC = cursor.fetchall()
+    text = ''
+    for iteration, xText in enumerate(textC):
+        clength = int(xText[1])/10
+        text += (f'{iteration+1}) {xText[0]} — {formatNumber(clength)} см\n')
+    update.message.reply_text(f'Топ {top} писек:\n\n{text}')
+
+
+def antitop(update, context):
+    antitop = update.message.text
+    if len(antitop.split()) > 1:
+        try:
+            antitop = int(antitop.split(' ')[1])
+            if (antitop >= 5) and (antitop <= 30):
+                pass
+            else:
+                update.message.reply_text('Минимум - /antitop 5.\nМаксимум - /antitop 30.')
+                antitop = 10
+        except:
+            antitop = 10
+    else:
+        antitop = 10
+        update.message.reply_text('Подсказка:\nЧтобы посмотреть antitop15 или другой, напиши: /antitop 15 (или свою цифру от 5 до 30)')
+    cursor.execute('SELECT name, chlen FROM users WHERE chlen <> 0 ORDER BY chlen ASC LIMIT %s', (antitop,))
+    textC = cursor.fetchall()
+    text = ''
+    for iteration, xText in enumerate(textC):
+        clength = int(xText[1])/10
+        text += (f'{iteration+1}) {xText[0]} — {formatNumber(clength)} см\n')
+    update.message.reply_text(f'Антитоп {antitop} писек:\n\n{text}')
 
 
 def krokodil(update, context):
