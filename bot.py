@@ -107,7 +107,7 @@ def top(update, context):
     else:
         top = 10
         update.message.reply_text('Подсказка:\nЧтобы посмотреть top15 или другой, напиши: /top 15 (или свою цифру от 5 до 30)')
-    cursor.execute('SELECT name, chlen FROM users ORDER BY chlen DESC LIMIT %s', (top,))
+    cursor.execute('SELECT name, chlen FROM users WHERE chlen <> 0 ORDER BY chlen DESC LIMIT %s', (top,))
     textC = cursor.fetchall()
     text = ''
     for iteration, xText in enumerate(textC):
@@ -131,7 +131,7 @@ def antitop(update, context):
     else:
         antitop = 10
         update.message.reply_text('Подсказка:\nЧтобы посмотреть antitop15 или другой, напиши: /antitop 15 (или свою цифру от 5 до 30)')
-    cursor.execute('SELECT name, chlen FROM users ORDER BY chlen ASC LIMIT %s', (antitop,))
+    cursor.execute('SELECT name, chlen FROM users WHERE chlen <> 0 ORDER BY chlen ASC LIMIT %s', (antitop,))
     textC = cursor.fetchall()
     text = ''
     for iteration, xText in enumerate(textC):
