@@ -653,6 +653,11 @@ def antitop(update, context):
     update.message.reply_text(f'Антитоп {antitop} писек:\n\n{text}')
 
 
+def check(update, context):
+    s = update.message.text
+    update.message.reply_text(f'Твоя предрасположенность к <b>{s.split(' ', 1)[1]}</b>: {random.randint(1,100)}%!', parse_mode='HTML')
+
+
 def krokodil(update, context):
     cursor.execute('SELECT banned FROM users WHERE id = %s', (update.message.from_user.id,))
     banned = cursor.fetchone()
@@ -1070,6 +1075,7 @@ def main():
     dp.add_handler(CommandHandler('stats', stats))
     dp.add_handler(CommandHandler('ban', ban))
     dp.add_handler(CommandHandler('gay', gay))
+    dp.add_handler(CommandHandler('check', check))
     dp.add_handler(CommandHandler('chlen', chlen))
     dp.add_handler(CommandHandler('top', top))
     dp.add_handler(CommandHandler('antitop', antitop))
