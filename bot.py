@@ -655,7 +655,7 @@ def antitop(update, context):
 
 def check(update, context):
     s = update.message.text
-    update.message.reply_text(f'Твоя предрасположенность к <b>{s.split(' ', 1)[1]}</b>: {random.randint(1,100)}%!', parse_mode='HTML')
+    update.message.reply_text(f"Твоя предрасположенность к <b>{s.split(' ', 1)[1]}</b>: {random.randint(1,100)}%!", parse_mode='HTML')
 
 
 def krokodil(update, context):
