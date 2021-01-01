@@ -643,7 +643,7 @@ def antitop(update, context):
             antitop = 30
     else:
         antitop = 30
-        update.message.reply_text('Подсказка:\nЧтобы посмотреть antitop15 или другой, напиши: /antitop 15 (или свою цифру от 5 до 70)')
+        # update.message.reply_text('Подсказка:\nЧтобы посмотреть antitop15 или другой, напиши: /antitop 15 (или свою цифру от 5 до 70)')
     cursor.execute('SELECT name, chlen FROM users WHERE chlen <> 0 ORDER BY chlen ASC LIMIT %s', (antitop,))
     textC = cursor.fetchall()
     text = ''
