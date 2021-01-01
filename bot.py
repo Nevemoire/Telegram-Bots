@@ -577,7 +577,7 @@ def gay(update, context):
 
 
 def chlen(update, context):
-    chance = random.randint(1,3)
+    chance = random.randint(1,5)
     chlen = random.randint(1,10)
     chlen_date = time.strftime('%d.%m.%y')
     cursor.execute('SELECT chlen_date FROM users WHERE id = %s', (update.message.from_user.id,))
@@ -602,7 +602,7 @@ def chlen(update, context):
         cursor.execute('SELECT chlen FROM users WHERE id = %s', (update.message.from_user.id,))
         clength = cursor.fetchone()
         a = int(clength[0])/10
-        update.message.reply_text(f'Длина твоего члена: {formatNumber(a)} см!\nСледующую опперацию можно будет провести не раньше чем завтра.')
+        update.message.reply_text(f'Длина твоего члена: {formatNumber(a)} см!\nСледующую операцию можно будет провести не раньше чем завтра.')
 
 
 def top(update, context):
@@ -610,16 +610,16 @@ def top(update, context):
     if len(top.split()) > 1:
         try:
             top = int(top.split(' ')[1])
-            if (top >= 5) and (top <= 30):
+            if (top >= 5) and (top <= 70):
                 pass
             else:
-                update.message.reply_text('Минимум - /top 5.\nМаксимум - /top 30.')
-                top = 10
+                update.message.reply_text('Минимум - /top 5.\nМаксимум - /top 70.')
+                top = 30
         except:
-            top = 10
+            top = 30
     else:
-        top = 10
-        update.message.reply_text('Подсказка:\nЧтобы посмотреть top15 или другой, напиши: /top 15 (или свою цифру от 5 до 30)')
+        top = 30
+        # update.message.reply_text('Подсказка:\nЧтобы посмотреть top15 или другой, напиши: /top 15 (или свою цифру от 5 до 70)')
     cursor.execute('SELECT name, chlen FROM users WHERE chlen <> 0 ORDER BY chlen DESC LIMIT %s', (top,))
     textC = cursor.fetchall()
     text = ''
@@ -634,16 +634,16 @@ def antitop(update, context):
     if len(antitop.split()) > 1:
         try:
             antitop = int(antitop.split(' ')[1])
-            if (antitop >= 5) and (antitop <= 30):
+            if (antitop >= 5) and (antitop <= 70):
                 pass
             else:
-                update.message.reply_text('Минимум - /antitop 5.\nМаксимум - /antitop 30.')
-                antitop = 10
+                update.message.reply_text('Минимум - /antitop 5.\nМаксимум - /antitop 70.')
+                antitop = 30
         except:
-            antitop = 10
+            antitop = 30
     else:
-        antitop = 10
-        update.message.reply_text('Подсказка:\nЧтобы посмотреть antitop15 или другой, напиши: /antitop 15 (или свою цифру от 5 до 30)')
+        antitop = 30
+        update.message.reply_text('Подсказка:\nЧтобы посмотреть antitop15 или другой, напиши: /antitop 15 (или свою цифру от 5 до 70)')
     cursor.execute('SELECT name, chlen FROM users WHERE chlen <> 0 ORDER BY chlen ASC LIMIT %s', (antitop,))
     textC = cursor.fetchall()
     text = ''
