@@ -404,7 +404,7 @@ def checkquery(update, context):
         text = query.query
         cursor.execute('SELECT exp FROM users WHERE id = %s', (query.from_user.id,))
         balance = cursor.fetchone()
-        cursor.execute('SELECT id FROM pussy WHERE type="gif" ORDER BY random() LIMIT 1')
+        cursor.execute('SELECT id FROM pussy WHERE type=gif ORDER BY random() LIMIT 1')
         pussy = cursor.fetchall()
         pussies = pussy[0]
         try:
