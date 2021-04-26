@@ -404,9 +404,18 @@ def checkquery(update, context):
         text = query.query
         cursor.execute('SELECT exp FROM users WHERE id = %s', (query.from_user.id,))
         balance = cursor.fetchone()
+        cursor.execute('SELECT id, type FROM pussy ORDER BY random() LIMIT 1')
+        pussy = cursor.fetchall()
+        pussies = pussy[0]
         try:
             if int(query.query) > int(balance[0]):
                 results = [
+                    InlineQueryResultGif(
+                        id=uuid4(),
+                        title="Отправить котика",
+                        description="Рандомная гифка из нашей бд.",
+                        thumb_url="https://cdn.pixabay.com/photo/2020/10/05/10/51/cat-5628953__340.jpg",
+                        gif_url=pussies[0]),
                     InlineQueryResultArticle(
                         id=uuid4(),
                         title="Недостаточно средств",
@@ -415,6 +424,12 @@ def checkquery(update, context):
                         input_message_content=InputTextMessageContent('Недостаточно средств :('))]
             elif int(query.query) < 100:
                 results = [
+                    InlineQueryResultGif(
+                        id=uuid4(),
+                        title="Отправить котика",
+                        description="Рандомная гифка из нашей бд.",
+                        thumb_url="https://cdn.pixabay.com/photo/2020/10/05/10/51/cat-5628953__340.jpg",
+                        gif_url=pussies[0]),
                     InlineQueryResultArticle(
                         id=uuid4(),
                         title="Мин. сумма чека: 100 монет",
@@ -423,6 +438,12 @@ def checkquery(update, context):
                         input_message_content=InputTextMessageContent('Упс, ошибка :('))]
             else:
                 results = [
+                    InlineQueryResultGif(
+                        id=uuid4(),
+                        title="Отправить котика",
+                        description="Рандомная гифка из нашей бд.",
+                        thumb_url="https://cdn.pixabay.com/photo/2020/10/05/10/51/cat-5628953__340.jpg",
+                        gif_url=pussies[0]),
                     InlineQueryResultArticle(
                         id=uuid4(),
                         title=f"Чек на сумму {query.query} монет.",
@@ -432,6 +453,12 @@ def checkquery(update, context):
                         input_message_content=InputTextMessageContent(f'От: {name}\nЧек на: {query.query} монет.'))]
         except:
             results = [
+                    InlineQueryResultGif(
+                        id=uuid4(),
+                        title="Отправить котика",
+                        description="Рандомная гифка из нашей бд.",
+                        thumb_url="https://cdn.pixabay.com/photo/2020/10/05/10/51/cat-5628953__340.jpg",
+                        gif_url=pussies[0]),
                     InlineQueryResultArticle(
                         id=uuid4(),
                         title=f"Укажите сумму чека",
